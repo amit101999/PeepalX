@@ -1,0 +1,60 @@
+/**
+ * Central site configuration.
+ *
+ * This is the single source of truth for the company name, contact details,
+ * social links and default SEO copy. Nothing else in the codebase should
+ * hard-code these values.
+ */
+
+/**
+ * TODO(brand): replace with the final registered company name.
+ * This one value drives the logo wordmark, page titles, structured data,
+ * the footer and the copyright line.
+ */
+const COMPANY_NAME = "Northbound";
+
+/**
+ * The canonical origin of the deployed site, without a trailing slash.
+ * Falls back to localhost so local development works with no env file.
+ */
+export const siteUrl = (
+  process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
+).replace(/\/$/, "");
+
+export const site = {
+  name: COMPANY_NAME,
+  /** Short descriptor used after the name in page titles. */
+  tagline: "Software, AI and automation engineering",
+  description:
+    "We design and build web and mobile applications, AI systems, automation and business platforms for companies that need software to work properly.",
+  url: siteUrl,
+  locale: "en",
+  email: "hello@example.com",
+  phone: "",
+  /** Free-text location. Leave empty to hide it in the footer. */
+  location: "",
+  founded: "2025",
+} as const;
+
+/**
+ * Social profiles.
+ *
+ * Only entries with a non-empty URL are rendered anywhere on the site, so an
+ * account that does not exist yet can simply be left as an empty string.
+ */
+export const socialLinks = {
+  linkedin: "",
+  github: "",
+  twitter: "",
+  instagram: "",
+  youtube: "",
+} as const;
+
+export type SocialPlatform = keyof typeof socialLinks;
+
+/** The social entries that are actually configured, in display order. */
+export const activeSocialLinks = (
+  Object.entries(socialLinks) as [SocialPlatform, string][]
+)
+  .filter(([, url]) => url.trim().length > 0)
+  .map(([platform, url]) => ({ platform, url }));

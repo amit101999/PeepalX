@@ -1,0 +1,167 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   Design tokens
+   ---------------------------------------------------------------------------
+   Everything visual in the site is derived from the values below. Changing a
+   token here updates the whole site consistently. Tailwind v4 exposes each
+   token as a utility automatically, e.g. `--color-accent` -> `bg-accent`,
+   `text-accent`, `border-accent`.
+--------------------------------------------------------------------------- */
+@theme {
+  /* Color — a warm neutral base with a single restrained copper accent. */
+  --color-canvas: #fbfaf9;
+  --color-surface: #ffffff;
+  --color-elevated: #f5f3f1;
+  --color-ink: #17161a;
+  --color-ink-soft: #3d3b42;
+  --color-muted: #6b6a70;
+  --color-faint: #93919a;
+  --color-line: #e6e2df;
+  --color-line-strong: #d6d1cc;
+  --color-accent: #b4552b;
+  --color-accent-hover: #9c4623;
+  --color-accent-soft: #f6ede8;
+
+  /* Typography — one family, used across the whole hierarchy. */
+  --font-sans:
+    var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Type scale */
+  --text-display: clamp(2.6rem, 1.2rem + 4.4vw, 4.6rem);
+  --text-display--line-height: 1.04;
+  --text-display--letter-spacing: -0.033em;
+  --text-h1: clamp(2.1rem, 1.2rem + 2.8vw, 3.25rem);
+  --text-h1--line-height: 1.1;
+  --text-h1--letter-spacing: -0.028em;
+  --text-h2: clamp(1.7rem, 1.15rem + 1.8vw, 2.5rem);
+  --text-h2--line-height: 1.15;
+  --text-h2--letter-spacing: -0.024em;
+  --text-h3: clamp(1.15rem, 1rem + 0.55vw, 1.375rem);
+  --text-h3--line-height: 1.3;
+  --text-h3--letter-spacing: -0.014em;
+  --text-lead: clamp(1.03rem, 0.97rem + 0.3vw, 1.19rem);
+  --text-lead--line-height: 1.6;
+  --text-label: 0.75rem;
+  --text-label--line-height: 1.2;
+  --text-label--letter-spacing: 0.1em;
+
+  /* Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 18px;
+
+  /* Shadows — deliberately restrained. */
+  --shadow-subtle: 0 1px 2px rgb(23 22 26 / 0.04);
+  --shadow-card: 0 1px 3px rgb(23 22 26 / 0.05), 0 8px 24px -12px rgb(23 22 26 / 0.1);
+  --shadow-lifted: 0 2px 6px rgb(23 22 26 / 0.06), 0 18px 40px -20px rgb(23 22 26 / 0.18);
+
+  /* Layout */
+  --container-content: 1200px;
+  --container-narrow: 760px;
+
+  /* Motion */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ---------------------------------------------------------------------------
+   Base layer
+--------------------------------------------------------------------------- */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    /* Keep anchored sections clear of the sticky header. */
+    scroll-padding-top: 6rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* A single, consistent focus ring for every interactive element. */
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-accent);
+    color: #fff;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Reduced motion
+   ---------------------------------------------------------------------------
+   Every animation in the site is either a CSS transition or a Framer Motion
+   animation gated on this preference. This block is the safety net: it removes
+   motion globally for users who ask for it, without hiding content.
+--------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /*
+   * Critical: scroll-reveal and hero-entrance elements start hidden and are
+   * animated to their final state. With transitions disabled above, they must
+   * be forced visible or the content would never appear.
+   */
+  [data-reveal],
+  [data-enter] {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Hero entrance
+   ---------------------------------------------------------------------------
+   A CSS-only staggered entrance. Elements marked `data-enter` fade up once on
+   load; `--enter-delay` sets the stagger. Neutralised by the reduced-motion
+   block above.
+--------------------------------------------------------------------------- */
+@keyframes enter-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+[data-enter] {
+  animation: enter-up 0.7s var(--ease-out-soft) both;
+  animation-delay: var(--enter-delay, 0ms);
+}
