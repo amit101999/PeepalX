@@ -47,12 +47,10 @@ export function Section({
   return (
     <section
       id={id}
-      // scroll-mt keeps anchored headings clear of the sticky header.
       className={cn(
         tones[tone],
         spacings[spacing],
         bordered && "border-t border-line",
-        id && "scroll-mt-24",
         className,
       )}
     >

@@ -424,9 +424,9 @@ All tokens are defined once, in the `@theme` block at the top of
 | `--color-canvas`   | `#fbfaf9` warm off-white | `bg-canvas`                |
 | `--color-elevated` | `#f5f3f1`                | `bg-elevated`              |
 | `--color-ink`      | `#17161a` near-black     | `text-ink`                 |
-| `--color-muted`    | `#6b6a70`                | `text-muted`               |
+| `--color-muted`    | `#5e5d64`                | `text-muted`               |
 | `--color-line`     | `#e6e2df`                | `border-line`              |
-| `--color-accent`   | `#b4552b` copper         | `bg-accent`, `text-accent` |
+| `--color-accent`   | `#a54d27` copper         | `bg-accent`, `text-accent` |
 
 Type scale (`text-display`, `text-h1`, `text-h2`, `text-h3`, `text-lead`,
 `text-label`) is fluid: each size uses `clamp()` so it scales with the viewport
@@ -456,7 +456,9 @@ font-related layout shift.
 - `prefers-reduced-motion` is respected globally, and scroll-reveal elements are
   explicitly forced to their visible state so reduced motion never hides
   content.
-- Body text meets WCAG AA contrast on the light background.
+- Every text colour token meets WCAG AA (4.5:1) on the light backgrounds, and
+  light text on the dark sections is kept at 55% opacity or higher for the same
+  reason. The values are checked in a comment in `globals.css`.
 
 Worth doing before launch: a pass with a screen reader and a Lighthouse
 accessibility audit on the deployed site.
@@ -508,11 +510,21 @@ npm run format  # Prettier, including Tailwind class sorting
 npm run check   # all three, in the order CI should run them
 ```
 
-Tests cover the contact form schema (valid and invalid submissions, trimming,
-optional fields, the honeypot) and the rate limiter (limits, windows, per-client
-isolation, proxy header parsing). These are the two places where a bug would be
-either a security problem or a lost lead. Presentational components are not
-snapshot-tested — that would add maintenance without catching much.
+Tests cover the places where a bug would be a security problem, a lost lead or a
+broken page:
+
+- **Contact API route** (`src/app/api/contact/route.test.ts`) — valid enquiries
+  are delivered, invalid input and filled honeypots are rejected, repeat
+  submissions are rate limited, and provider failures return a generic message
+  without leaking configuration.
+- **Contact form schema** — valid and invalid submissions, trimming, optional
+  fields and unanswered dropdowns, the honeypot.
+- **Rate limiter** — limits, windows, per-client isolation, proxy headers.
+- **Content files** (`src/data/content.test.ts`) — unique slugs, every image path
+  exists, footer links point at real services.
+
+Presentational components are not snapshot-tested — that would add maintenance
+without catching much.
 
 ---
 

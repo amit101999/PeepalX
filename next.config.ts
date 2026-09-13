@@ -7,6 +7,15 @@ import type { NextConfig } from "next";
  * because Next.js injects inline <style> tags for critical CSS; scripts do not
  * need it in production builds.
  */
+/**
+ * `upgrade-insecure-requests` rewrites every asset request to https. That is
+ * right for the live site, but on `next start` over plain http (local testing,
+ * an http staging box) it makes the browser request CSS and JS over https from
+ * a server that is not listening for it, and the page renders unstyled. So it
+ * is only sent when the configured site URL is itself https.
+ */
+const isHttpsSite = (process.env.NEXT_PUBLIC_SITE_URL ?? "").startsWith("https://");
+
 const contentSecurityPolicy = [
   "default-src 'self'",
   // Next.js injects a small inline bootstrap script; `unsafe-eval` is only
@@ -22,7 +31,7 @@ const contentSecurityPolicy = [
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "object-src 'none'",
-  "upgrade-insecure-requests",
+  ...(isHttpsSite ? ["upgrade-insecure-requests"] : []),
 ].join("; ");
 
 const securityHeaders = [

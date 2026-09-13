@@ -36,7 +36,7 @@ export function Footer() {
             ) : null}
 
             {site.location ? (
-              <p className="text-sm text-canvas/50">{site.location}</p>
+              <p className="text-sm text-canvas/55">{site.location}</p>
             ) : null}
 
             <SocialLinks className="-ml-2.5" />
@@ -45,7 +45,7 @@ export function Footer() {
           <nav aria-label="Footer" className="grid gap-10 sm:grid-cols-3">
             {footerNav.map((column) => (
               <div key={column.title}>
-                <h2 className="text-label font-medium text-canvas/45 uppercase">
+                <h2 className="text-label font-medium text-canvas/55 uppercase">
                   {column.title}
                 </h2>
                 <ul className="mt-4 flex flex-col gap-3">
@@ -66,7 +66,7 @@ export function Footer() {
         </div>
 
         <div className="flex flex-col gap-4 border-t border-canvas/10 py-7 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm text-canvas/45">
+          <p className="text-sm text-canvas/55">
             © {year} {site.name}. All rights reserved.
           </p>
 
@@ -75,7 +75,7 @@ export function Footer() {
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className="text-sm text-canvas/45 transition-colors hover:text-canvas/80"
+                  className="text-sm text-canvas/55 transition-colors hover:text-canvas/80"
                 >
                   {link.label}
                 </Link>

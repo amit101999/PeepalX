@@ -18,7 +18,7 @@ import { Logo } from "./Logo";
  *  - Fixed height (h-16), so the sticky header never shifts layout.
  *  - Gains a border and background blur only after the page is scrolled.
  *  - Highlights the current page, and on the home page the section in view.
- *  - The mobile menu closes on Escape, on navigation, and on outside click;
+ *  - The mobile menu closes on Escape, on any link tap, and on outside tap;
  *    focus moves into the panel when it opens and back to the toggle when it
  *    closes; page scroll is locked while it is open.
  */
@@ -41,7 +41,7 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Close the menu whenever the route changes.
+  // Close the menu whenever the route changes (e.g. browser back button).
   useEffect(() => {
     setMenuOpen(false);
   }, [pathname]);
@@ -70,6 +70,14 @@ export function Navbar() {
     };
   }, [menuOpen]);
 
+  /**
+   * Links close the menu themselves. Relying on the route-change effect alone
+   * is not enough: tapping "Process" while already on the home page changes
+   * only the hash, the pathname stays "/", and the menu would stay open with
+   * page scroll still locked.
+   */
+  const closeMenu = () => setMenuOpen(false);
+
   /** A nav link is active for its own route, or for its section on the home page. */
   const isActive = (href: string) => {
     if (href.startsWith("/#")) {
@@ -81,12 +89,24 @@ export function Navbar() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 transition-[background-color,border-color,backdrop-filter] duration-300",
-        scrolled
-          ? "border-b border-line bg-canvas/85 backdrop-blur-md"
-          : "border-b border-transparent",
+        "sticky top-0 z-50 border-b transition-colors duration-300",
+        scrolled || menuOpen ? "border-line" : "border-transparent",
       )}
     >
+      {/*
+        The translucent blurred background lives on its own layer rather than
+        on <header>. `backdrop-filter` makes an element the containing block
+        for its `position: fixed` descendants, which would trap the fixed
+        mobile menu inside the 64px header once the page is scrolled.
+      */}
+      <div
+        aria-hidden="true"
+        className={cn(
+          "absolute inset-0 -z-10 transition-colors duration-300",
+          scrolled || menuOpen ? "bg-canvas/85 backdrop-blur-md" : "bg-transparent",
+        )}
+      />
+
       <Container>
         <div className="flex h-16 items-center justify-between gap-6">
           <Logo />
@@ -143,7 +163,7 @@ export function Navbar() {
             type="button"
             tabIndex={-1}
             aria-hidden="true"
-            onClick={() => setMenuOpen(false)}
+            onClick={closeMenu}
             className="absolute inset-0 cursor-default bg-ink/20"
           />
 
@@ -159,6 +179,7 @@ export function Navbar() {
                     <li key={item.href}>
                       <Link
                         href={item.href}
+                        onClick={closeMenu}
                         aria-current={isActive(item.href) ? "page" : undefined}
                         className={cn(
                           "flex min-h-12 items-center border-b border-line/70 text-[0.975rem]",
@@ -171,7 +192,12 @@ export function Navbar() {
                   ))}
                 </ul>
 
-                <Button href="/contact" size="lg" className="mt-5 w-full">
+                <Button
+                  href="/contact"
+                  size="lg"
+                  onClick={closeMenu}
+                  className="mt-5 w-full"
+                >
                   Start a Project
                 </Button>
               </nav>

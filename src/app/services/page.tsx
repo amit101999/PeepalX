@@ -46,7 +46,7 @@ export default function ServicesPage() {
               <Reveal
                 key={service.slug}
                 delay={index === 0 ? 0 : 40}
-                className="scroll-mt-24 border-b border-line py-14 first:pt-0 last:border-b-0"
+                className="border-b border-line py-14 first:pt-0 last:border-b-0"
               >
                 <div
                   id={service.slug}

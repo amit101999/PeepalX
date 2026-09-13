@@ -46,6 +46,18 @@ const optionalText = (max: number) =>
     .optional()
     .transform((value) => (value && value.length > 0 ? value : undefined));
 
+/**
+ * An optional dropdown. An unanswered `<select>` can arrive as "" (for example
+ * from a direct API call, or a browser that submits the placeholder option), so
+ * "" is accepted and normalised to `undefined` rather than rejected as an
+ * invalid choice.
+ */
+const optionalChoice = <T extends readonly [string, ...string[]]>(options: T) =>
+  z
+    .union([z.enum(options), z.literal("")])
+    .optional()
+    .transform((value) => (value ? value : undefined));
+
 export const contactFormSchema = z.object({
   name: z
     .string()
@@ -77,9 +89,9 @@ export const contactFormSchema = z.object({
 
   service: z.enum(serviceOptions, "Please select a service."),
 
-  budget: z.enum(budgetOptions).optional(),
+  budget: optionalChoice(budgetOptions),
 
-  timeline: z.enum(timelineOptions).optional(),
+  timeline: optionalChoice(timelineOptions),
 
   message: z
     .string()

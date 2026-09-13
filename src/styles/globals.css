@@ -9,18 +9,22 @@
    `text-accent`, `border-accent`.
 --------------------------------------------------------------------------- */
 @theme {
-  /* Color — a warm neutral base with a single restrained copper accent. */
+  /* Color — a warm neutral base with a single restrained copper accent.
+     Every text colour below meets WCAG AA (4.5:1) for body-size text on
+     canvas, elevated and surface backgrounds; accent also passes on
+     accent-soft and with white text on top of it. Re-check contrast if you
+     change any of them. */
   --color-canvas: #fbfaf9;
   --color-surface: #ffffff;
   --color-elevated: #f5f3f1;
   --color-ink: #17161a;
   --color-ink-soft: #3d3b42;
-  --color-muted: #6b6a70;
-  --color-faint: #93919a;
+  --color-muted: #5e5d64;
+  --color-faint: #6f6d76;
   --color-line: #e6e2df;
   --color-line-strong: #d6d1cc;
-  --color-accent: #b4552b;
-  --color-accent-hover: #9c4623;
+  --color-accent: #a54d27;
+  --color-accent-hover: #8f4221;
   --color-accent-soft: #f6ede8;
 
   /* Typography — one family, used across the whole hierarchy. */
@@ -135,6 +139,17 @@
    * animated to their final state. With transitions disabled above, they must
    * be forced visible or the content would never appear.
    */
+  [data-reveal],
+  [data-enter] {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+}
+
+/* Printing captures the page as it currently stands, so any section the reader
+   has not scrolled past would print blank. Force everything visible. */
+@media print {
   [data-reveal],
   [data-enter] {
     opacity: 1 !important;

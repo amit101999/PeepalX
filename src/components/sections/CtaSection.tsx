@@ -48,7 +48,7 @@ export function CtaSection({
         </div>
 
         {site.email ? (
-          <p className="text-sm text-canvas/45">
+          <p className="text-sm text-canvas/55">
             Or email us directly at{" "}
             <a
               href={`mailto:${site.email}`}
