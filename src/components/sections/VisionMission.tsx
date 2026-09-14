@@ -1,4 +1,5 @@
 import { Section } from "@/components/ui/Section";
+import { company } from "@/data/company";
 
 /** Vision and mission, set as two columns on a quiet background. */
 export function VisionMission() {
@@ -8,17 +9,14 @@ export function VisionMission() {
         <div>
           <h2 className="text-label font-medium text-accent uppercase">Vision</h2>
           <p className="mt-5 text-h3 leading-snug font-medium text-balance text-ink">
-            To build a technology company known for the quality of what it ships —
-            software, intelligent systems and products that hold up under real use.
+            {company.vision}
           </p>
         </div>
 
         <div>
           <h2 className="text-label font-medium text-accent uppercase">Mission</h2>
           <p className="mt-5 text-h3 leading-snug font-medium text-balance text-ink">
-            To help businesses use software, AI and automation to solve problems they
-            actually have, improve how they operate, and open work that was not practical
-            before.
+            {company.mission}
           </p>
         </div>
       </div>

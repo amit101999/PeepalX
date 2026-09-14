@@ -18,11 +18,17 @@ export function useActiveSection(
 ): string | null {
   const [activeId, setActiveId] = useState<string | null>(null);
 
+  // Forget the last active section whenever tracking is switched off, so
+  // returning to the home page never highlights a section scrolled past on a
+  // previous visit. Done during render rather than in the effect below.
+  const [trackedEnabled, setTrackedEnabled] = useState(enabled);
+  if (trackedEnabled !== enabled) {
+    setTrackedEnabled(enabled);
+    if (!enabled) setActiveId(null);
+  }
+
   useEffect(() => {
-    if (!enabled) {
-      setActiveId(null);
-      return;
-    }
+    if (!enabled) return;
 
     const elements = sectionIds
       .map((id) => document.getElementById(id))
@@ -45,5 +51,7 @@ export function useActiveSection(
     return () => observer.disconnect();
   }, [sectionIds, enabled]);
 
-  return activeId;
+  // Derived rather than reset inside the effect: when disabled (e.g. off the
+  // home page) nothing is active, without an extra state update.
+  return enabled ? activeId : null;
 }

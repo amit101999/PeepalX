@@ -1,34 +1,53 @@
+import { parseServerEnv } from "@/config/env";
 import { consoleProvider } from "./console-provider";
-import { resendProvider } from "./resend-provider";
+import { createResendProvider } from "./resend-provider";
 import type { ContactProvider } from "./types";
 
 export type { ContactProvider, DeliveryResult, Inquiry } from "./types";
 
 /**
- * Every provider the site knows how to use, keyed by the value of the
- * CONTACT_PROVIDER environment variable.
+ * Resolves the contact provider from validated server configuration.
  *
  * To add SMTP, SendGrid, a CRM or a database: write a module exporting a
- * `ContactProvider` and add it to this record. Nothing else changes.
+ * `ContactProvider`, add its name to `CONTACT_PROVIDER` in `src/config/env.ts`
+ * and return it here. The API route never changes.
+ *
+ * A broken configuration does not fall back to console logging. On a live site
+ * that would report "message sent" while the enquiry went nowhere, so instead
+ * delivery fails, the visitor sees a generic error, and the exact problem is
+ * logged for whoever operates the site.
  */
-const providers: Record<string, ContactProvider> = {
-  console: consoleProvider,
-  resend: resendProvider,
-};
+export function getContactProvider(
+  source: Record<string, string | undefined> = process.env,
+): ContactProvider {
+  const config = parseServerEnv(source);
+  if (!config.ok) return unavailableProvider(config.issues);
 
-/**
- * Resolves the configured provider, falling back to the console provider when
- * the setting is missing or unrecognised so the form never hard-fails.
- */
-export function getContactProvider(): ContactProvider {
-  const configured = process.env.CONTACT_PROVIDER?.trim().toLowerCase();
-  if (!configured) return consoleProvider;
+  const { env } = config;
 
-  const provider = providers[configured];
-  if (provider) return provider;
+  if (env.CONTACT_PROVIDER === "resend") {
+    // Presence is already guaranteed by the schema; this narrows the types.
+    if (env.RESEND_API_KEY && env.CONTACT_FROM_EMAIL && env.CONTACT_TO_EMAIL) {
+      return createResendProvider({
+        apiKey: env.RESEND_API_KEY,
+        from: env.CONTACT_FROM_EMAIL,
+        to: env.CONTACT_TO_EMAIL,
+      });
+    }
+  }
 
-  console.warn(
-    `[contact] Unknown CONTACT_PROVIDER "${configured}". Falling back to console logging.`,
-  );
   return consoleProvider;
+}
+
+/** Stands in for a provider when configuration is invalid. Always fails. */
+function unavailableProvider(issues: string[]): ContactProvider {
+  return {
+    name: "unconfigured",
+    async deliver() {
+      return {
+        ok: false,
+        error: `Contact delivery is misconfigured: ${issues.join("; ")}`,
+      };
+    },
+  };
 }

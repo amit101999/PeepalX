@@ -1,15 +1,16 @@
 import { Reveal } from "@/components/ui/Reveal";
 import { Section } from "@/components/ui/Section";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { company } from "@/data/company";
 import { companyValues } from "@/data/values";
 import { site } from "@/config/site";
 
 /**
  * About and core values.
  *
- * Copy avoids the standard agency vocabulary — no "passionate about
- * innovation", no "cutting-edge". It says what the company is and what it
- * intends to become, and nothing that cannot be substantiated.
+ * The story copy lives in `src/data/company.ts`. It avoids the standard agency
+ * vocabulary — no "passionate about innovation", no "cutting-edge" — and says
+ * nothing that cannot be substantiated.
  */
 export function About() {
   return (
@@ -18,29 +19,9 @@ export function About() {
         <SectionHeading eyebrow="About" title={`Who ${site.name} is`} />
 
         <div className="flex flex-col gap-5 text-[1.0625rem] leading-relaxed text-ink-soft">
-          <p>
-            {site.name} is a technology company started by three people who spent their
-            careers building software and wanted to do it on their own terms: fewer
-            projects, taken seriously, with the people who scoped the work also delivering
-            it.
-          </p>
-          <p>
-            We work across web and mobile applications, AI systems, automation and
-            business platforms. In practice most of what we are asked for sits between
-            those categories — an application that needs to talk to three existing
-            systems, or a manual process that should have been software two years ago.
-          </p>
-          <p>
-            We are direct about scope. If a project is larger than its budget, or a
-            requirement will cost more than it returns, we say so before the work starts.
-            We would rather lose an engagement at the proposal stage than deliver
-            something that disappoints at the end of it.
-          </p>
-          <p>
-            Services are where we start, not where we intend to finish. The longer-term
-            direction is our own software: products and platforms built on what we learn
-            solving these problems for other companies.
-          </p>
+          {company.story.map((paragraph) => (
+            <p key={paragraph}>{paragraph}</p>
+          ))}
         </div>
       </div>
 

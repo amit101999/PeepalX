@@ -42,9 +42,13 @@ export function Navbar() {
   }, []);
 
   // Close the menu whenever the route changes (e.g. browser back button).
-  useEffect(() => {
+  // Adjusting state during render, rather than in an effect, avoids a second
+  // render pass with the stale menu still open.
+  const [menuPathname, setMenuPathname] = useState(pathname);
+  if (menuPathname !== pathname) {
+    setMenuPathname(pathname);
     setMenuOpen(false);
-  }, [pathname]);
+  }
 
   // While the menu is open: lock scroll, close on Escape, move focus in.
   useEffect(() => {

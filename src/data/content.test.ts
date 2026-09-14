@@ -1,6 +1,7 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { company } from "./company";
 import { getProjectBySlug, projects } from "./projects";
 import { getServiceBySlug, services } from "./services";
 import { team } from "./team";
@@ -21,6 +22,13 @@ const publicDir = join(process.cwd(), "public");
 function duplicatesIn(values: string[]): string[] {
   const seen = new Set<string>();
   return values.filter((value) => (seen.has(value) ? true : (seen.add(value), false)));
+}
+
+/** True for a real YYYY-MM-DD date — rejects impossible ones like 2026-02-31. */
+function isCalendarDate(value: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const parsed = new Date(`${value}T00:00:00Z`);
+  return !Number.isNaN(parsed.getTime()) && parsed.toISOString().startsWith(value);
 }
 
 describe("projects", () => {
@@ -59,6 +67,36 @@ describe("projects", () => {
       expect(project.caseStudy.features.length).toBeGreaterThan(0);
     }
   });
+
+  it("points every gallery image at a file in /public, with alt text", () => {
+    for (const project of projects) {
+      for (const image of project.gallery ?? []) {
+        expect(
+          existsSync(join(publicDir, image.src)),
+          `Missing gallery image for "${project.slug}": public${image.src}`,
+        ).toBe(true);
+        expect(image.alt.trim().length).toBeGreaterThan(10);
+      }
+    }
+  });
+
+  it("uses real dates for updatedAt and https for live links", () => {
+    for (const project of projects) {
+      if (project.updatedAt !== undefined) {
+        expect(
+          isCalendarDate(project.updatedAt),
+          `"${project.slug}" updatedAt must be YYYY-MM-DD`,
+        ).toBe(true);
+      }
+
+      if (project.liveUrl !== undefined) {
+        expect(
+          project.liveUrl.startsWith("https://"),
+          `"${project.slug}" liveUrl must use https`,
+        ).toBe(true);
+      }
+    }
+  });
 });
 
 describe("services", () => {
@@ -89,6 +127,40 @@ describe("team", () => {
         `Missing photo for "${member.slug}": public${member.image}`,
       ).toBe(true);
     }
+  });
+
+  it("uses https for every profile link that is filled in", () => {
+    for (const member of team) {
+      for (const [platform, url] of Object.entries(member.links)) {
+        if (!url) continue;
+        expect(
+          url.startsWith("https://"),
+          `${member.slug}: ${platform} link must use https`,
+        ).toBe(true);
+      }
+    }
+  });
+});
+
+describe("company", () => {
+  it("has a story, a mission and a vision", () => {
+    expect(company.story.length).toBeGreaterThan(0);
+    expect(company.mission.trim().length).toBeGreaterThan(20);
+    expect(company.vision.trim().length).toBeGreaterThan(20);
+  });
+
+  it("dates every milestone as YYYY or YYYY-MM", () => {
+    for (const milestone of company.milestones) {
+      expect(
+        /^\d{4}(-(0[1-9]|1[0-2]))?$/.test(milestone.date),
+        `Milestone "${milestone.title}" has an invalid date: ${milestone.date}`,
+      ).toBe(true);
+    }
+  });
+
+  it("uses a two-letter country code when an address is set", () => {
+    if (!company.address) return;
+    expect(company.address.country).toMatch(/^[A-Z]{2}$/);
   });
 });
 

@@ -60,7 +60,9 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang={site.locale} className={inter.variable}>
+    // `data-scroll-behavior` keeps route changes instant while in-page anchor
+    // links still scroll smoothly (Next.js 16 no longer does this by default).
+    <html lang={site.locale} className={inter.variable} data-scroll-behavior="smooth">
       <body className="flex min-h-dvh flex-col">
         {/* First tab stop on every page: jump straight past the navigation. */}
         <a

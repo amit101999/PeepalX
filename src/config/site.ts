@@ -7,11 +7,10 @@
  */
 
 /**
- * TODO(brand): replace with the final registered company name.
- * This one value drives the logo wordmark, page titles, structured data,
- * the footer and the copyright line.
+ * The company name. This one value drives the logo wordmark, page titles,
+ * structured data, the footer and the copyright line.
  */
-const COMPANY_NAME = "Northbound";
+const COMPANY_NAME = "peepalX";
 
 /**
  * The canonical origin of the deployed site, without a trailing slash.
