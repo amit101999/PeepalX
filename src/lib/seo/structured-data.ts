@@ -1,6 +1,6 @@
 import { activeSocialLinks, site, siteUrl } from "@/config/site";
 import { services } from "@/data/services";
-import type { FaqItem } from "@/types";
+import type { FaqItem, Project } from "@/types";
 
 /**
  * schema.org structured data builders.
@@ -70,6 +70,32 @@ export interface Crumb {
   name: string;
   /** Path beginning with "/". */
   path: string;
+}
+
+/**
+ * A project case study as a CreativeWork, credited to the organisation.
+ * Built only from fields the project page displays.
+ */
+export function caseStudySchema(project: Project): JsonLd {
+  const url = `${siteUrl}/work/${project.slug}`;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "CreativeWork",
+    "@id": `${url}#case-study`,
+    name: project.title,
+    headline: project.title,
+    description: project.description,
+    url,
+    // The share image is always raster and figure-free; the cover may be SVG.
+    image: `${siteUrl}${project.socialImage?.src ?? project.image}`,
+    genre: "Case study",
+    keywords: project.technologies.join(", "),
+    creator: { "@id": `${siteUrl}/#organization` },
+    publisher: { "@id": `${siteUrl}/#organization` },
+    inLanguage: "en",
+    ...(project.updatedAt ? { dateModified: project.updatedAt } : {}),
+  };
 }
 
 export function breadcrumbSchema(crumbs: Crumb[]): JsonLd {

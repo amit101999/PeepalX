@@ -36,12 +36,12 @@ endpoint.
 
 Four things ship as placeholders on purpose. Each one is a single, obvious edit.
 
-| What                          | Where                                              | Why it is a placeholder                                                                                                                                                                           |
-| ----------------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Company name**              | `src/config/site.ts` → `COMPANY_NAME`              | The final brand name was not set when the site was built. Currently `"Northbound"`. Changing this one value updates the logo, page titles, footer, structured data and copyright line everywhere. |
-| **Email address**             | `src/config/site.ts` → `site.email`                | Currently `hello@example.com`.                                                                                                                                                                    |
-| **Social links**              | `src/config/site.ts` → `socialLinks`               | All empty. Empty links are never rendered, so the footer simply shows no icons until you fill them in.                                                                                            |
-| **Projects and testimonials** | `src/data/projects.ts`, `src/data/testimonials.ts` | The site has no real client work yet. Both are clearly labelled in the UI as example content — see [Adding and editing content](#7-adding-and-editing-content).                                   |
+| What              | Where                                 | Why it is a placeholder                                                                                                                                                                           |
+| ----------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Company name**  | `src/config/site.ts` → `COMPANY_NAME` | The final brand name was not set when the site was built. Currently `"Northbound"`. Changing this one value updates the logo, page titles, footer, structured data and copyright line everywhere. |
+| **Email address** | `src/config/site.ts` → `site.email`   | Currently `hello@example.com`.                                                                                                                                                                    |
+| **Social links**  | `src/config/site.ts` → `socialLinks`  | All empty. Empty links are never rendered, so the footer simply shows no icons until you fill them in.                                                                                            |
+| **Testimonials**  | `src/data/testimonials.ts`            | No real client quotes yet, so entries are labelled in the UI as example content. Projects are real delivered work only — see [Adding and editing content](#7-adding-and-editing-content).         |
 
 Also worth doing before launch:
 
@@ -206,36 +206,52 @@ Everything in this section is a data file. No component changes are required.
 
 ### Add a project
 
-Edit `src/data/projects.ts` and add an entry to the `projects` array:
+Edit `src/data/projects.ts` and add an entry to the `projects` array. Only
+publish real, delivered work, and name a client only with their permission.
+The existing PMS portfolio accounting project is the full worked example.
 
 ```ts
 {
   slug: "acme-portal",              // becomes /work/acme-portal
-  title: "Acme Customer Portal",
+  title: "Acme Customer Portal",    // ≤ 60 characters (page title)
   category: "Web Application",
-  description: "One sentence for the card.",
+  description: "One sentence for the listing.", // ≤ 155 characters (meta description)
   technologies: ["Next.js", "Node.js", "PostgreSQL"],
-  image: "/projects/acme-portal.webp",
-  imageAlt: "Screenshot of the Acme customer portal dashboard",
+  image: "/projects/acme-portal/cover.png",
+  imageAlt: "Customer portal dashboard showing open orders and invoices",
+  imageWidth: 1600,                 // the file's real pixel size
+  imageHeight: 1000,
   year: "2026",
-  isPlaceholder: false,             // false = a real, delivered project
+  client: "Logistics company, India", // optional; anonymous is fine
+  role: "Design and full-stack development", // optional
+  updatedAt: "2026-09-15",          // optional; used by the sitemap
   caseStudy: { /* optional, see below */ },
 }
 ```
 
-Then put the image at `public/projects/acme-portal.webp`. Anything the browser
-can display works; WebP or AVIF around 1600px wide is a good default.
+Put the images in `public/projects/<slug>/`. For screenshots, PNG keeps text
+sharp; on Vercel they are served as AVIF/WebP automatically. If a screenshot
+arrives as a JPEG (for example, shared over WhatsApp), keep it as a JPEG —
+converting it to PNG makes the file bigger without making it sharper.
 
-Two behaviours to know about:
+Things to know:
 
-- **`isPlaceholder: true`** makes the card show an "Example" badge and displays a
-  notice above the grid explaining that the projects are illustrative, not client
-  work. Set it to `false` for real projects. Once every project is real, the
-  notice disappears by itself.
+- **Always give screenshots their real `width`/`height`.** They then render
+  uncropped and never wider than the file, and reserve their space so the page
+  does not jump. `npm test` fails if a declared size does not match the file.
 - **`caseStudy` is optional.** Include it and `/work/<slug>` renders the full
-  write-up (problem, context, solution, architecture, features, challenges,
-  results). Omit it and the page renders the summary only — useful for
-  publishing a project before the write-up is finished.
+  write-up; omit it and the page shows the summary only.
+- **`caseStudy.stages`** describes how the system works, in order, each with its
+  capabilities and screenshots (with captions). Mark planned work
+  `status: "next-phase"` and it is labelled "Next phase" on the page. If a
+  screenshot uses demo figures, say "Shown with sample data" in its caption.
+- **`stage.flow`** (optional) lists the steps work passes through inside a
+  stage, in order — e.g. `["Dyeing", "Blend advice", "Spinning", …]`. It renders
+  as a connected sequence under the stage heading. Use it only for a real
+  order of steps, with at least two unique names.
+- **`caseStudy.stack`** lists the products the system runs on and the job each
+  does. Projects without `stages`/`stack` can use the simpler `features` and
+  `architecture` lists instead.
 
 The project page, the sitemap entry and the home page listing are all generated
 from this array.

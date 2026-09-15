@@ -3,15 +3,19 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { CaseStudyJourney } from "@/components/projects/CaseStudyJourney";
+import { ProjectFacts } from "@/components/projects/ProjectFacts";
+import { ProjectStack } from "@/components/projects/ProjectStack";
+import { ScreenshotFigure } from "@/components/projects/ScreenshotFigure";
 import { CtaSection } from "@/components/sections/CtaSection";
-import { Badge, TechnologyBadge } from "@/components/ui/Badge";
 import { Container } from "@/components/ui/Container";
 import { JsonLd } from "@/components/ui/JsonLd";
 import { Section } from "@/components/ui/Section";
+import { SectionHeading } from "@/components/ui/SectionHeading";
 import { getProjectBySlug, projects } from "@/data/projects";
 import { createMetadata } from "@/lib/seo/metadata";
-import { breadcrumbSchema } from "@/lib/seo/structured-data";
-import type { Project } from "@/types";
+import { breadcrumbSchema, caseStudySchema } from "@/lib/seo/structured-data";
+import type { Project, ProjectCaseStudy } from "@/types";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -38,19 +42,36 @@ export async function generateMetadata({ params }: PageProps) {
     });
   }
 
+  // A share card cannot show a caption, so a project whose cover shows demo
+  // figures supplies a separate, figure-free `socialImage`.
+  const social = project.socialImage ?? {
+    src: project.image,
+    alt: project.imageAlt,
+    width: project.imageWidth,
+    height: project.imageHeight,
+  };
+
   return createMetadata({
     title: project.title,
     description: project.description,
     path: `/work/${project.slug}`,
+    image: {
+      url: social.src,
+      alt: social.alt,
+      width: social.width,
+      height: social.height,
+    },
   });
 }
 
 /**
  * Project detail / case study page.
  *
- * The `caseStudy` block on a project is optional: when it is missing the page
- * still renders the summary, image and technologies, so a project can be
- * published before its write-up is finished.
+ * Every part below the header is optional and renders only when the project
+ * has that content, so a project can be published before its write-up is
+ * finished. A case study with `stages` and `stack` shows how the system works
+ * stage by stage; one without them falls back to plain feature and
+ * architecture lists.
  */
 export default async function ProjectPage({ params }: PageProps) {
   const { slug } = await params;
@@ -60,6 +81,7 @@ export default async function ProjectPage({ params }: PageProps) {
 
   const index = projects.findIndex((entry) => entry.slug === project.slug);
   const nextProject = projects[(index + 1) % projects.length];
+  const hasNextProject = nextProject !== undefined && nextProject.slug !== project.slug;
 
   const breadcrumbs = [
     { name: "Home", path: "/" },
@@ -77,47 +99,8 @@ export default async function ProjectPage({ params }: PageProps) {
       />
 
       <Section spacing="tight">
-        {project.isPlaceholder ? (
-          <p className="mb-8 rounded-lg border border-line bg-elevated px-4 py-3 text-sm text-muted">
-            <span className="font-medium text-ink">Example project:</span> this is an
-            illustrative case study showing the kind of system we build and how we
-            document it. It does not describe a delivered client engagement.
-          </p>
-        ) : null}
-
-        <div className="relative aspect-16/9 overflow-hidden rounded-xl border border-line bg-elevated">
-          <Image
-            src={project.image}
-            alt={project.imageAlt}
-            fill
-            sizes="(min-width: 1200px) 1200px, 100vw"
-            priority
-            className="object-cover"
-          />
-        </div>
-
-        <dl className="mt-10 grid gap-x-10 gap-y-6 border-t border-line pt-8 sm:grid-cols-3">
-          <div>
-            <dt className="text-label font-medium text-faint uppercase">Category</dt>
-            <dd className="mt-2">
-              <Badge tone="accent">{project.category}</Badge>
-            </dd>
-          </div>
-
-          <div>
-            <dt className="text-label font-medium text-faint uppercase">Year</dt>
-            <dd className="mt-2 text-sm text-ink">{project.year}</dd>
-          </div>
-
-          <div>
-            <dt className="text-label font-medium text-faint uppercase">Technologies</dt>
-            <dd className="mt-2 flex flex-wrap gap-1.5">
-              {project.technologies.map((technology) => (
-                <TechnologyBadge key={technology}>{technology}</TechnologyBadge>
-              ))}
-            </dd>
-          </div>
-        </dl>
+        <ProjectCover project={project} />
+        <ProjectFacts project={project} className="mt-10" />
       </Section>
 
       {project.caseStudy ? <CaseStudy caseStudy={project.caseStudy} /> : null}
@@ -132,7 +115,7 @@ export default async function ProjectPage({ params }: PageProps) {
             All projects
           </Link>
 
-          {nextProject && nextProject.slug !== project.slug ? (
+          {hasNextProject ? (
             <Link
               href={`/work/${nextProject.slug}`}
               className="inline-flex items-center gap-2 text-sm text-muted transition-colors hover:text-ink"
@@ -150,30 +133,101 @@ export default async function ProjectPage({ params }: PageProps) {
         secondary={{ label: "See our services", href: "/services" }}
       />
 
-      <JsonLd data={breadcrumbSchema(breadcrumbs)} />
+      <JsonLd data={[breadcrumbSchema(breadcrumbs), caseStudySchema(project)]} />
     </>
   );
 }
 
-/** The written case study: narrative first, then the supporting lists. */
-function CaseStudy({ caseStudy }: { caseStudy: NonNullable<Project["caseStudy"]> }) {
-  return (
-    <Section bordered>
-      <Container width="narrow" className="px-0 sm:px-0">
-        <div className="flex flex-col gap-12">
-          <Prose title="The problem" body={caseStudy.problem} />
-          <Prose title="Context" body={caseStudy.context} />
-          <Prose title="What we built" body={caseStudy.solution} />
-        </div>
-      </Container>
+/**
+ * The cover. Screenshots with a known size render uncropped at up to their
+ * real width; anything else fills a fixed-ratio frame.
+ */
+function ProjectCover({ project }: { project: Project }) {
+  if (project.imageWidth && project.imageHeight) {
+    return (
+      <ScreenshotFigure
+        priority
+        sizes="(min-width: 1200px) 1136px, 100vw"
+        image={{
+          src: project.image,
+          alt: project.imageAlt,
+          width: project.imageWidth,
+          height: project.imageHeight,
+          caption: project.imageCaption,
+        }}
+      />
+    );
+  }
 
-      <div className="mt-16 grid gap-12 lg:grid-cols-2 lg:gap-16">
-        <DetailList title="Architecture" items={caseStudy.architecture} />
-        <DetailList title="Key features" items={caseStudy.features} />
-        <DetailList title="Challenges" items={caseStudy.challenges} />
-        <DetailList title="Results" items={caseStudy.results} accent />
-      </div>
-    </Section>
+  return (
+    <div className="relative aspect-16/9 overflow-hidden rounded-xl border border-line bg-elevated">
+      <Image
+        src={project.image}
+        alt={project.imageAlt}
+        fill
+        sizes="(min-width: 1200px) 1200px, 100vw"
+        priority
+        className="object-cover object-top"
+      />
+    </div>
+  );
+}
+
+/** The written case study: the story, how the system works, then outcomes. */
+function CaseStudy({ caseStudy }: { caseStudy: ProjectCaseStudy }) {
+  const stages = caseStudy.stages ?? [];
+  const stack = caseStudy.stack ?? [];
+
+  return (
+    <>
+      <Section bordered>
+        <Container width="narrow" className="px-0 sm:px-0">
+          <div className="flex flex-col gap-12">
+            <Prose title="Where the client started" body={caseStudy.context} />
+            <Prose title="The problem" body={caseStudy.problem} />
+            {caseStudy.goal ? <Prose title="The goal" body={caseStudy.goal} /> : null}
+            <Prose title="What we built" body={caseStudy.solution} />
+          </div>
+        </Container>
+      </Section>
+
+      {stages.length > 0 ? (
+        <Section bordered>
+          <SectionHeading
+            title="How the system works"
+            description="Each stage in the order the work happens, with what it does and screens from the system."
+          />
+          <div className="mt-14">
+            <CaseStudyJourney stages={stages} />
+          </div>
+        </Section>
+      ) : null}
+
+      {stack.length > 0 ? (
+        <Section tone="elevated" bordered>
+          <SectionHeading
+            title="What it runs on"
+            description="The products behind the system, and the job each one does."
+          />
+          <div className="mt-12">
+            <ProjectStack tools={stack} />
+          </div>
+        </Section>
+      ) : null}
+
+      <Section bordered>
+        <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
+          {stack.length === 0 && caseStudy.architecture?.length ? (
+            <DetailList title="Architecture" items={caseStudy.architecture} />
+          ) : null}
+          {stages.length === 0 && caseStudy.features?.length ? (
+            <DetailList title="Key features" items={caseStudy.features} />
+          ) : null}
+          <DetailList title="Challenges" items={caseStudy.challenges} />
+          <DetailList title="Results" items={caseStudy.results} accent />
+        </div>
+      </Section>
+    </>
   );
 }
 
@@ -197,7 +251,7 @@ function DetailList({
 }) {
   return (
     <div>
-      <h2 className="text-label font-medium text-faint uppercase">{title}</h2>
+      <h2 className="text-h3 font-semibold text-ink">{title}</h2>
 
       <ul className="mt-5 flex flex-col">
         {items.map((item) => (

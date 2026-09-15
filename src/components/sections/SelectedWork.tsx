@@ -1,38 +1,43 @@
 import { ArrowRight } from "lucide-react";
-import { ProjectCard } from "@/components/projects/ProjectCard";
+import { ProjectFeature } from "@/components/projects/ProjectFeature";
 import { Button } from "@/components/ui/Button";
-import { PlaceholderNotice } from "@/components/ui/PlaceholderNotice";
-import { Reveal } from "@/components/ui/Reveal";
 import { Section } from "@/components/ui/Section";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { hasPlaceholderProjects, projects } from "@/data/projects";
+import { projects } from "@/data/projects";
 
-/** Project showcase on the home page. Shows the first three projects. */
+/** How many projects the home page features before linking to /work. */
+const FEATURED_COUNT = 3;
+
+/** Delivered work on the home page, as alternating feature rows. */
 export function SelectedWork() {
-  const featured = projects.slice(0, 3);
+  const featured = projects.slice(0, FEATURED_COUNT);
+  if (featured.length === 0) return null;
+
+  // Only link onward when /work actually has more to show than this section.
+  const hasMore = projects.length > featured.length;
 
   return (
     <Section id="work" spacing="loose">
       <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
         <SectionHeading
           eyebrow="Selected work"
-          title="What we build"
-          description="Representative systems across AI, web, mobile and automation — each written up as a full case study covering the problem, the architecture and the trade-offs."
+          title="What we have built"
+          description="Systems we have delivered for clients, each written up in full: the problem, how the system works, and what changed."
         />
 
-        <Button href="/work" variant="secondary" className="shrink-0">
-          All projects
-          <ArrowRight aria-hidden="true" className="size-4" />
-        </Button>
+        {hasMore ? (
+          <Button href="/work" variant="secondary" className="shrink-0">
+            All projects
+            <ArrowRight aria-hidden="true" className="size-4" />
+          </Button>
+        ) : null}
       </div>
 
-      {hasPlaceholderProjects ? <PlaceholderNotice /> : null}
-
-      <ul className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="mt-14 flex flex-col gap-20">
         {featured.map((project, index) => (
-          <Reveal as="li" key={project.slug} delay={index * 70} className="h-full">
-            <ProjectCard project={project} priority={index === 0} />
-          </Reveal>
+          <li key={project.slug}>
+            <ProjectFeature project={project} reverse={index % 2 === 1} />
+          </li>
         ))}
       </ul>
     </Section>
