@@ -10,15 +10,15 @@ interface BadgeProps {
 const tones = {
   neutral: "bg-elevated text-muted",
   accent: "bg-accent-soft text-accent",
-  outline: "border border-line text-muted",
+  outline: "border border-line-strong text-muted",
 } as const;
 
-/** Small pill label. Used for categories, statuses and disclosures. */
+/** Small label. Used for categories, statuses and disclosures. */
 export function Badge({ children, tone = "neutral", className }: BadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
+        "inline-flex items-center rounded-sm px-2 py-1 text-xs font-medium",
         tones[tone],
         className,
       )}

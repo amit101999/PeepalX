@@ -1,45 +1,47 @@
-import { ArrowRight } from "lucide-react";
+import { ProjectCard } from "@/components/projects/ProjectCard";
 import { ProjectFeature } from "@/components/projects/ProjectFeature";
-import { Button } from "@/components/ui/Button";
 import { Section } from "@/components/ui/Section";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { TextLink } from "@/components/ui/TextLink";
 import { projects } from "@/data/projects";
 
 /** How many projects the home page features before linking to /work. */
 const FEATURED_COUNT = 3;
 
-/** Delivered work on the home page, as alternating feature rows. */
+/**
+ * Delivered work on the home page: the first project as a wide feature, the
+ * next ones as a pair underneath, so the section never becomes a long zigzag.
+ */
 export function SelectedWork() {
-  const featured = projects.slice(0, FEATURED_COUNT);
-  if (featured.length === 0) return null;
+  const [lead, ...rest] = projects.slice(0, FEATURED_COUNT);
+  if (!lead) return null;
 
   // Only link onward when /work actually has more to show than this section.
-  const hasMore = projects.length > featured.length;
+  const hasMore = projects.length > FEATURED_COUNT;
 
   return (
-    <Section id="work" spacing="loose">
-      <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+    <Section id="work" spacing="loose" tone="tint">
+      <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
         <SectionHeading
-          eyebrow="Selected work"
-          title="What we have built"
-          description="Systems we have delivered for clients, each written up in full: the problem, how the system works, and what changed."
+          title="Selected work"
+          description="Client systems, written up in full: the problem, the build and what changed."
         />
-
-        {hasMore ? (
-          <Button href="/work" variant="secondary" className="shrink-0">
-            All projects
-            <ArrowRight aria-hidden="true" className="size-4" />
-          </Button>
-        ) : null}
+        {hasMore ? <TextLink href="/work">All projects</TextLink> : null}
       </div>
 
-      <ul className="mt-14 flex flex-col gap-20">
-        {featured.map((project, index) => (
-          <li key={project.slug}>
-            <ProjectFeature project={project} reverse={index % 2 === 1} />
-          </li>
-        ))}
-      </ul>
+      <div data-reveal className="mt-14">
+        <ProjectFeature project={lead} />
+      </div>
+
+      {rest.length > 0 ? (
+        <ul className="mt-20 grid gap-14 md:grid-cols-2 md:gap-10">
+          {rest.map((project) => (
+            <li key={project.slug} data-reveal>
+              <ProjectCard project={project} />
+            </li>
+          ))}
+        </ul>
+      ) : null}
     </Section>
   );
 }

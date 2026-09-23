@@ -1,13 +1,8 @@
 import { PageHeader } from "@/components/layout/PageHeader";
 import { About } from "@/components/sections/About";
 import { CtaSection } from "@/components/sections/CtaSection";
-import { Process } from "@/components/sections/Process";
-import { Team } from "@/components/sections/Team";
 import { VisionMission } from "@/components/sections/VisionMission";
-import { WhyUs } from "@/components/sections/WhyUs";
-import { JsonLd } from "@/components/ui/JsonLd";
 import { createMetadata } from "@/lib/seo/metadata";
-import { breadcrumbSchema } from "@/lib/seo/structured-data";
 import { site } from "@/config/site";
 
 export const metadata = createMetadata({
@@ -22,30 +17,25 @@ const breadcrumbs = [
 ];
 
 /**
- * About page.
+ * About page: the story, how we work, and where the company is heading.
  *
- * Composed from the same section components the home page uses, so the copy
- * lives in exactly one place and cannot drift between the two pages.
+ * It deliberately does not repeat sections that live elsewhere (why us and
+ * team on the home page, process on /services); the header and footer link to
+ * those instead.
  */
 export default function AboutPage() {
   return (
     <>
       <PageHeader
-        eyebrow="About"
-        title="A small engineering team building software that has to work"
-        description="Three co-founders, a deliberately narrow stack, and a preference for saying what a project will really take."
+        title="A small team that builds what it scopes"
+        description="Three co-founders, a focused set of services, and a habit of saying what a project will really take."
         breadcrumbs={breadcrumbs}
       />
 
       <About />
       <VisionMission />
-      <Process />
-      <WhyUs />
-      <Team id="team-about" />
 
       <CtaSection secondary={{ label: "See our work", href: "/work" }} />
-
-      <JsonLd data={breadcrumbSchema(breadcrumbs)} />
     </>
   );
 }

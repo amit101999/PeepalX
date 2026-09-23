@@ -1,14 +1,14 @@
-import { Clock, Mail, MessageSquare } from "lucide-react";
+import { FileText, Mail, MessageSquare } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { ContactForm } from "@/components/forms/ContactForm";
-import { Accordion } from "@/components/ui/Accordion";
+import { Faq } from "@/components/sections/Faq";
 import { JsonLd } from "@/components/ui/JsonLd";
 import { Section } from "@/components/ui/Section";
 import { site } from "@/config/site";
 import { faqs } from "@/data/faq";
 import { createMetadata } from "@/lib/seo/metadata";
-import { breadcrumbSchema } from "@/lib/seo/structured-data";
+import { faqSchema } from "@/lib/seo/structured-data";
 
 export const metadata = createMetadata({
   title: "Contact",
@@ -22,77 +22,87 @@ const breadcrumbs = [
   { name: "Contact", path: "/contact" },
 ];
 
-/** The three questions people ask before sending an enquiry. */
-const contactFaqs = faqs.slice(-3);
+/*
+ * These steps describe only what is already true of the process (see "How do
+ * we start?" in src/data/faq.ts). Add a response-time promise here only once
+ * the team has agreed to keep it.
+ */
+const nextSteps: { icon: LucideIcon; title: string; description: string }[] = [
+  {
+    icon: Mail,
+    title: "A founder reads it",
+    description: "Every message is read by one of the three of us, not a sales team.",
+  },
+  {
+    icon: FileText,
+    title: "We reply with a first reading",
+    description:
+      "Our understanding of the problem, what we would need to know next, and a suggested first step.",
+  },
+  {
+    icon: MessageSquare,
+    title: "A call if it looks like a fit",
+    description:
+      "A conversation about the problem before anyone talks about scope or cost.",
+  },
+];
 
 export default function ContactPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Contact"
-        title="Have a project in mind?"
-        description="Tell us what you are building, what problem you are solving, or where you need help. We will get back to you with the next steps."
+        title="Start a project"
+        description="Describe the problem, rough detail is fine. We reply with our reading of it and a suggested first step."
         breadcrumbs={breadcrumbs}
       />
 
       <Section>
-        <div className="grid gap-12 lg:grid-cols-[1.15fr_0.85fr] lg:gap-20">
+        <div className="grid gap-12 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:gap-20">
           <div>
             <h2 className="sr-only">Project enquiry form</h2>
             <ContactForm />
           </div>
 
-          <aside className="flex flex-col gap-8">
-            <div className="rounded-xl border border-line bg-elevated p-6">
-              <h2 className="font-semibold text-ink">What happens next</h2>
+          {/* Set as plain text beside the form: boxes here would compete with
+              it for attention without adding any hierarchy. */}
+          <aside
+            aria-labelledby="what-happens-next"
+            className="flex flex-col gap-10 lg:pt-2"
+          >
+            <div>
+              <h2 id="what-happens-next" className="text-h3 font-semibold text-ink">
+                What happens next
+              </h2>
 
-              <ul className="mt-5 flex flex-col gap-5">
-                <NextStep
-                  icon={Mail}
-                  title="We read it properly"
-                  description="One of the three of us reads your message, not a form router."
-                />
-                <NextStep
-                  icon={Clock}
-                  title="You hear back within a business day"
-                  description="Usually sooner. If we need more detail to answer well, we will ask."
-                />
-                <NextStep
-                  icon={MessageSquare}
-                  title="A short call if it looks like a fit"
-                  description="Thirty minutes to understand the problem before anyone talks about scope or cost."
-                />
-              </ul>
+              <ol className="mt-6 flex flex-col gap-6">
+                {nextSteps.map((step) => (
+                  <NextStep key={step.title} {...step} />
+                ))}
+              </ol>
             </div>
 
             {site.email ? (
-              <div className="rounded-xl border border-line p-6">
-                <h2 className="font-semibold text-ink">Prefer email?</h2>
+              <div className="border-t border-line pt-6">
+                <h2 className="text-h3 font-semibold text-ink">Prefer email?</h2>
                 <p className="mt-2 text-sm leading-relaxed text-muted">
                   Write to us directly and we will pick it up the same way.
                 </p>
                 <a
                   href={`mailto:${site.email}`}
-                  className="mt-4 inline-block text-sm font-medium text-accent underline underline-offset-4"
+                  className="mt-3 inline-flex min-h-11 items-center text-sm font-medium text-accent underline underline-offset-4"
                 >
                   {site.email}
                 </a>
               </div>
             ) : null}
-
-            <div>
-              <h2 className="text-label font-medium text-faint uppercase">
-                Before you write
-              </h2>
-              <div className="mt-4">
-                <Accordion items={contactFaqs} />
-              </div>
-            </div>
           </aside>
         </div>
       </Section>
 
-      <JsonLd data={breadcrumbSchema(breadcrumbs)} />
+      <Faq />
+
+      {/* FAQ structured data, generated from the same content the page shows. */}
+      <JsonLd data={faqSchema(faqs)} />
     </>
   );
 }
@@ -108,11 +118,11 @@ function NextStep({
 }) {
   return (
     <li className="flex items-start gap-3.5">
-      <span className="mt-0.5 inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-line bg-surface text-accent">
+      <span className="mt-0.5 inline-flex size-9 shrink-0 items-center justify-center rounded-md bg-accent-soft text-accent">
         <Icon aria-hidden className="size-4" />
       </span>
       <div>
-        <h3 className="text-sm font-medium text-ink">{title}</h3>
+        <h3 className="font-sans text-sm font-semibold text-ink">{title}</h3>
         <p className="mt-1 text-sm leading-relaxed text-muted">{description}</p>
       </div>
     </li>

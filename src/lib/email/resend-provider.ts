@@ -9,6 +9,9 @@ const RESEND_ENDPOINT = "https://api.resend.com/emails";
  */
 const REQUEST_TIMEOUT_MS = 10_000;
 
+/** Longest slice of an upstream error body kept for the server log. */
+const MAX_ERROR_DETAIL_LENGTH = 300;
+
 export interface ResendConfig {
   /** Server-only secret, never exposed to the browser. */
   apiKey: string;
@@ -56,7 +59,9 @@ export function createResendProvider({
         });
 
         if (!response.ok) {
-          const detail = await response.text();
+          // Resend's error body names the problem (bad key, unverified domain).
+          // Capped so an unexpected HTML error page cannot flood the logs.
+          const detail = (await response.text()).slice(0, MAX_ERROR_DETAIL_LENGTH);
           return { ok: false, error: `Resend responded ${response.status}: ${detail}` };
         }
 

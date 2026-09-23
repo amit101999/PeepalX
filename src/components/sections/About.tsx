@@ -1,54 +1,52 @@
-import { Reveal } from "@/components/ui/Reveal";
 import { Section } from "@/components/ui/Section";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { company } from "@/data/company";
 import { companyValues } from "@/data/values";
-import { site } from "@/config/site";
 
 /**
- * About and core values.
+ * The About page body: the company story, then how we work.
  *
  * The story copy lives in `src/data/company.ts`. It avoids the standard agency
- * vocabulary — no "passionate about innovation", no "cutting-edge" — and says
+ * vocabulary (no "passionate about innovation", no "cutting-edge") and says
  * nothing that cannot be substantiated.
  */
 export function About() {
+  const [opening, ...rest] = company.story;
+
   return (
-    <Section id="about" bordered>
-      <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
-        <SectionHeading eyebrow="About" title={`Who ${site.name} is`} />
+    <>
+      <Section id="about">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1.3fr)] lg:gap-20">
+          <h2 className="text-h2 font-semibold text-ink">Our story</h2>
 
-        <div className="flex flex-col gap-5 text-[1.0625rem] leading-relaxed text-ink-soft">
-          {company.story.map((paragraph) => (
-            <p key={paragraph}>{paragraph}</p>
-          ))}
+          <div className="flex max-w-2xl flex-col gap-5 leading-relaxed text-ink-soft">
+            {opening ? (
+              <p className="font-display text-h3 font-medium text-ink">{opening}</p>
+            ) : null}
+            {rest.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+          </div>
         </div>
-      </div>
+      </Section>
 
-      <div className="mt-20 lg:mt-28">
-        <h3 className="text-label font-medium text-faint uppercase">Core values</h3>
+      <Section id="values" bordered>
+        <SectionHeading
+          title="How we work"
+          description="Six commitments, each one something you can hold us to."
+        />
 
-        <ul className="mt-8 grid gap-x-10 gap-y-px sm:grid-cols-2 lg:grid-cols-3">
-          {companyValues.map((value, index) => {
-            const Icon = value.icon;
-
-            return (
-              <Reveal
-                as="li"
-                key={value.title}
-                delay={(index % 3) * 60}
-                className="border-t border-line py-6"
-              >
-                <Icon aria-hidden="true" className="size-5 text-accent" />
-                <h4 className="mt-4 font-medium text-ink">{value.title}</h4>
-                <p className="mt-2 text-sm leading-relaxed text-muted">
-                  {value.description}
-                </p>
-              </Reveal>
-            );
-          })}
+        {/* Two columns, not three: these are sentences to read, not cards to
+            scan, and a hairline each keeps six accent rules off the page. */}
+        <ul className="mt-12 grid gap-x-16 gap-y-10 sm:grid-cols-2">
+          {companyValues.map((value) => (
+            <li key={value.title} data-reveal className="border-t border-line pt-5">
+              <h3 className="text-h3 font-semibold text-ink">{value.title}</h3>
+              <p className="mt-2.5 leading-relaxed text-muted">{value.description}</p>
+            </li>
+          ))}
         </ul>
-      </div>
-    </Section>
+      </Section>
+    </>
   );
 }

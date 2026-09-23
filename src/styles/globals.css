@@ -3,63 +3,109 @@
 /* ---------------------------------------------------------------------------
    Design tokens
    ---------------------------------------------------------------------------
-   Everything visual in the site is derived from the values below. Changing a
-   token here updates the whole site consistently. Tailwind v4 exposes each
-   token as a utility automatically, e.g. `--color-accent` -> `bg-accent`,
-   `text-accent`, `border-accent`.
+   Warm paper neutrals, one deep green for everything interactive, and an amber
+   used only as a rare signal (text selection, a highlighted word), never as a
+   second button colour. The logo keeps its own blue as a brand asset, so the
+   mark is the one place blue appears.
+
+   Everything visual in the site is derived from the values below. Tailwind v4
+   exposes each token as a utility automatically, e.g. `--color-accent` ->
+   `bg-accent`, `text-accent`, `border-accent`.
+
+   Contrast is enforced by `src/styles/tokens.test.ts`, which reads this file:
+   change a colour and the test tells you if a text pairing drops below WCAG AA.
 --------------------------------------------------------------------------- */
 @theme {
-  /* Color — a warm neutral base with a single restrained copper accent.
-     Every text colour below meets WCAG AA (4.5:1) for body-size text on
-     canvas, elevated and surface backgrounds; accent also passes on
-     accent-soft and with white text on top of it. Re-check contrast if you
-     change any of them. */
-  --color-canvas: #fbfaf9;
-  --color-surface: #ffffff;
-  --color-elevated: #f5f3f1;
-  --color-ink: #17161a;
-  --color-ink-soft: #3d3b42;
-  --color-muted: #5e5d64;
-  --color-faint: #6f6d76;
-  --color-line: #e6e2df;
-  --color-line-strong: #d6d1cc;
-  --color-accent: #a54d27;
-  --color-accent-hover: #8f4221;
-  --color-accent-soft: #f6ede8;
+  /* Neutrals */
+  --color-canvas: #f7f8f4; /* page background */
+  --color-surface: #ffffff; /* panels, inputs */
+  --color-elevated: #ecefe7; /* quiet blocks */
+  --color-ink: #13251e; /* headings, body */
+  --color-ink-soft: #33443c; /* long-form body */
+  --color-muted: #55655c; /* secondary text */
+  --color-faint: #5f6e66; /* captions; not for use on accent-soft */
+  --color-line: #dde3da; /* decorative hairlines only */
+  --color-line-strong: #c6cfc3; /* stronger decorative rules */
+  --color-control: #6c7c73; /* form control borders (3:1 non-text contrast) */
 
-  /* Typography — one family, used across the whole hierarchy. */
+  /* Green tonal scale. The brand green is 600; the scale was generated from
+     it (hue 154°, saturation eased off in the pale shades) with the existing
+     accent, accent-hover and accent-soft kept as the 600, 700 and 100 stops.
+     400 and 500 are too light for text (white on 500 is ~3:1): graphics only. */
+  --color-green-50: #e9f4ed;
+  --color-green-100: #ddede2;
+  --color-green-200: #c4e8d8;
+  --color-green-300: #95dabc;
+  --color-green-400: #51cc97;
+  --color-green-500: #24a86e;
+  --color-green-600: #146b45;
+  --color-green-700: #0f5236;
+  --color-green-800: #0d452c;
+  --color-green-900: #0a3623;
+  --color-green-950: #062216;
+
+  /* Tinted section bands (green-50) and the dark closing block (green-900).
+     Written as hex rather than var() so tokens.test.ts can check contrast;
+     the test also asserts they stay equal to their scale stops. */
+  --color-tint: #e9f4ed;
+  --color-forest: #0a3623;
+
+  /* Function: actions, links, focus */
+  --color-accent: #146b45;
+  --color-accent-hover: #0f5236;
+  --color-accent-soft: #ddede2;
+
+  /* Signal: rare emphasis only. Amber sits beside the green without competing
+     with it the way the old rose did. */
+  --color-signal: #9a5b00;
+
+  /* Form errors. Always paired with an icon or text, never colour alone. */
+  --color-danger: #a12a2a;
+
+  /* Text and lines on the single dark block at the end of each page (closing
+     CTA + footer), which sits on --color-forest. */
+  --color-on-dark: #f1f4ee;
+  --color-on-dark-muted: #a6b5ab;
+  --color-on-dark-accent: #7fd3a6;
+  --color-on-dark-line: #2a4438; /* decorative only */
+
+  /* Typography. Schibsted Grotesk for display, Figtree for text; both are
+     self-hosted by next/font (see layout.tsx). */
+  --font-display:
+    var(--font-schibsted), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-sans:
-    var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    var(--font-figtree), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 
-  /* Type scale */
-  --text-display: clamp(2.6rem, 1.2rem + 4.4vw, 4.6rem);
-  --text-display--line-height: 1.04;
-  --text-display--letter-spacing: -0.033em;
-  --text-h1: clamp(2.1rem, 1.2rem + 2.8vw, 3.25rem);
-  --text-h1--line-height: 1.1;
-  --text-h1--letter-spacing: -0.028em;
-  --text-h2: clamp(1.7rem, 1.15rem + 1.8vw, 2.5rem);
-  --text-h2--line-height: 1.15;
+  /* Type scale. The hero headline runs the full width of the page, so display
+     can be much larger than the section headings below it. */
+  --text-display: clamp(2.625rem, 1.1rem + 4.2vw, 3.75rem);
+  --text-display--line-height: 1;
+  --text-display--letter-spacing: -0.04em;
+  --text-h1: clamp(2.125rem, 1.3rem + 2.8vw, 3.25rem);
+  --text-h1--line-height: 1.05;
+  --text-h1--letter-spacing: -0.032em;
+  --text-h2: clamp(1.625rem, 1.2rem + 1.6vw, 2.375rem);
+  --text-h2--line-height: 1.12;
   --text-h2--letter-spacing: -0.024em;
-  --text-h3: clamp(1.15rem, 1rem + 0.55vw, 1.375rem);
+  --text-h3: clamp(1.1875rem, 1.05rem + 0.45vw, 1.4375rem);
   --text-h3--line-height: 1.3;
-  --text-h3--letter-spacing: -0.014em;
-  --text-lead: clamp(1.03rem, 0.97rem + 0.3vw, 1.19rem);
-  --text-lead--line-height: 1.6;
-  --text-label: 0.75rem;
-  --text-label--line-height: 1.2;
-  --text-label--letter-spacing: 0.1em;
+  --text-h3--letter-spacing: -0.012em;
+  --text-lead: clamp(1.1875rem, 1.05rem + 0.5vw, 1.3125rem);
+  --text-lead--line-height: 1.5;
+  /* Small sentence-case label. Deliberately not uppercase and not tracked. */
+  --text-label: 0.8125rem;
+  --text-label--line-height: 1.3;
 
-  /* Radius */
-  --radius-sm: 4px;
+  /* Radius. One documented system: badges 6px, controls 8px, media and
+     notices 12px, panels 16px. */
+  --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 12px;
-  --radius-xl: 18px;
+  --radius-xl: 16px;
 
-  /* Shadows — deliberately restrained. */
-  --shadow-subtle: 0 1px 2px rgb(23 22 26 / 0.04);
-  --shadow-card: 0 1px 3px rgb(23 22 26 / 0.05), 0 8px 24px -12px rgb(23 22 26 / 0.1);
-  --shadow-lifted: 0 2px 6px rgb(23 22 26 / 0.06), 0 18px 40px -20px rgb(23 22 26 / 0.18);
+  /* One shadow, tinted to the ink hue. The mobile menu is the only thing that
+     floats above the page; everything else separates with space and hairlines. */
+  --shadow-lifted: 0 2px 6px rgb(19 37 30 / 0.08), 0 24px 48px -24px rgb(19 37 30 / 0.26);
 
   /* Layout */
   --container-content: 1200px;
@@ -67,6 +113,53 @@
 
   /* Motion */
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  /* A damped spring (about 8% overshoot, bounce ~0.2), sampled over 0.9s into
+     a linear() curve, so springy motion needs no JavaScript. */
+  --ease-spring: linear(
+    0,
+    0.036,
+    0.127,
+    0.251,
+    0.388,
+    0.527,
+    0.656,
+    0.771,
+    0.866,
+    0.943,
+    1,
+    1.041,
+    1.066,
+    1.08,
+    1.084,
+    1.081,
+    1.073,
+    1.063,
+    1.051,
+    1.04,
+    1.029,
+    1.019,
+    1.011,
+    1.005,
+    1,
+    0.997,
+    0.995,
+    0.993,
+    0.993,
+    0.993,
+    0.994,
+    0.995,
+    0.996,
+    0.997,
+    0.998,
+    0.998,
+    1
+  );
+}
+
+/* Sets the focus ring colour for anything inside the dark closing block, where
+   the deep green would be too close to the background to see. */
+@utility on-dark {
+  --focus-ring: var(--color-on-dark-accent);
 }
 
 /* ---------------------------------------------------------------------------
@@ -84,26 +177,28 @@
     background-color: var(--color-canvas);
     color: var(--color-ink);
     font-family: var(--font-sans);
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    font-size: 1.0625rem;
+    line-height: 1.65;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
 
-  /* A single, consistent focus ring for every interactive element. */
-  :focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 3px;
-    border-radius: 2px;
-  }
-
-  ::selection {
-    background-color: var(--color-accent);
-    color: #fff;
+  a,
+  button,
+  input,
+  select,
+  textarea,
+  summary {
+    touch-action: manipulation;
   }
 
   h1,
   h2,
-  h3,
+  h3 {
+    font-family: var(--font-display);
+    text-wrap: balance;
+  }
+
   h4 {
     text-wrap: balance;
   }
@@ -111,14 +206,272 @@
   p {
     text-wrap: pretty;
   }
+
+  /* A single, consistent focus ring for every interactive element. */
+  :focus-visible {
+    outline: 2px solid var(--focus-ring, var(--color-accent));
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-signal);
+    color: var(--color-canvas);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Motion
+   ---------------------------------------------------------------------------
+   No animation library. Every effect below is CSS, has one job, animates
+   transform, opacity or clip-path only, and is removed by the reduced-motion
+   block at the end of this file. The only script involved is the hero's typed
+   line (its timing) and the tiles' pointer position; neither animates in JS.
+--------------------------------------------------------------------------- */
+
+/* Hero entrance: elements marked `data-enter` fade up once on load, staggered
+   by `--enter-delay`. */
+@keyframes enter-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+[data-enter] {
+  animation: enter-up 0.7s var(--ease-out-soft) both;
+  animation-delay: var(--enter-delay, 0ms);
+}
+
+/* Hero logo: the five pieces of the mark spring into place from their own
+   directions (offsets in --from-*), 90ms apart. Movement uses the spring
+   curve; the fade is a plain ease-out so opacity never overshoots. */
+@keyframes piece-in {
+  from {
+    transform: translate(var(--from-x), var(--from-y)) rotate(var(--from-r));
+  }
+  to {
+    transform: translate(0, 0) rotate(0deg);
+  }
+}
+
+@keyframes piece-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+[data-piece] {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation:
+    piece-in 0.9s var(--ease-spring) both,
+    piece-fade 0.4s var(--ease-out-soft) both;
+  animation-delay: calc(200ms + var(--i, 0) * 90ms);
+}
+
+/* Hero headline, word by word (the animate-text "per-word crossfade" spec:
+   700ms, 70ms apart, an 8px rise). Each word carries its index in --i. */
+@keyframes word-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+[data-word] {
+  display: inline-block;
+  animation: word-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+
+/* The lead project's cover opens out from a slight inset as it scrolls into
+   view, drawing the eye to the one image the section is about. Clip-path, so
+   it never fights the image's own hover scale. */
+@keyframes settle {
+  from {
+    clip-path: inset(7% 7% 7% 7% round 16px);
+  }
+  to {
+    clip-path: inset(0 round 16px);
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    [data-settle] {
+      animation: settle linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 35%;
+    }
+  }
+}
+
+/* The forest CTA's green mesh drifts very slowly. It is the page's only
+   ambient motion, and it stops entirely under reduced motion. */
+@keyframes mesh-drift {
+  to {
+    transform: translate3d(4%, -3%, 0) scale(1.05);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-mesh] {
+    animation: mesh-drift 24s ease-in-out infinite alternate;
+  }
+}
+
+/* The typed line's caret. It only exists while the line is typing or paused,
+   so the blink is never left running on a finished page. */
+@keyframes caret-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+[data-caret="blink"] {
+  animation: caret-blink 1s steps(1, end) infinite;
+}
+
+/* Mobile menu panel. */
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@utility animate-menu-in {
+  animation: menu-in 180ms var(--ease-out-soft) both;
+}
+
+/* Scroll-driven effects. Browsers without scroll timelines simply show the
+   final state, so nothing depends on support and no JavaScript is involved. */
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes grow-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes grow-y {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* Groups of content ease in as they enter the viewport. */
+    [data-reveal] {
+      animation: reveal-up var(--ease-out-soft) both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 10rem;
+    }
+
+    /* The process timeline's vein grows as the section scrolls through. */
+    [data-grow] {
+      transform-origin: top;
+      animation: grow-y linear both;
+      animation-timeline: view();
+      animation-range: entry 30% cover 60%;
+    }
+
+    /* Matches the timeline turning horizontal at Tailwind's `xl` breakpoint. */
+    @media (min-width: 80rem) {
+      [data-grow] {
+        transform-origin: left;
+        animation-name: grow-x;
+      }
+    }
+  }
+}
+
+/* Accordion: the answer grows and shrinks instead of snapping, so it is clear
+   which question the panel belongs to. `interpolate-size` is what makes a
+   transition to `auto` height possible; browsers without it open instantly. */
+@supports (interpolate-size: allow-keywords) {
+  @media (prefers-reduced-motion: no-preference) {
+    [data-accordion] {
+      interpolate-size: allow-keywords;
+    }
+
+    [data-accordion]::details-content {
+      block-size: 0;
+      overflow-y: clip;
+      opacity: 0;
+      transition:
+        block-size 280ms var(--ease-out-soft),
+        opacity 200ms var(--ease-out-soft),
+        content-visibility 280ms allow-discrete;
+    }
+
+    [data-accordion][open]::details-content {
+      block-size: auto;
+      opacity: 1;
+    }
+  }
+}
+
+/* Route changes crossfade rather than snapping, which keeps the eye in place
+   while the page content is replaced. React's <ViewTransition name="page"> in
+   layout.tsx names the main element's group; everything else (header, footer)
+   is identical across routes and crossfades invisibly in the root group.
+   Exits run faster than entrances. */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-group(page),
+  ::view-transition-group(root) {
+    animation-duration: 180ms;
+    animation-timing-function: var(--ease-out-soft);
+  }
+
+  ::view-transition-old(page),
+  ::view-transition-old(root) {
+    animation-duration: 120ms;
+  }
+}
+
+/* Never let a transition snapshot swallow clicks. */
+::view-transition {
+  pointer-events: none;
 }
 
 /* ---------------------------------------------------------------------------
    Reduced motion
    ---------------------------------------------------------------------------
-   Every animation in the site is either a CSS transition or a Framer Motion
-   animation gated on this preference. This block is the safety net: it removes
-   motion globally for users who ask for it, without hiding content.
+   The safety net: remove motion globally for users who ask for it, and force
+   every animated element to its final state so no content is ever missing.
 --------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
   html {
@@ -134,15 +487,31 @@
     scroll-behavior: auto !important;
   }
 
-  /*
-   * Critical: scroll-reveal and hero-entrance elements start hidden and are
-   * animated to their final state. With transitions disabled above, they must
-   * be forced visible or the content would never appear.
-   */
   [data-reveal],
-  [data-enter] {
+  [data-enter],
+  [data-grow],
+  [data-word],
+  [data-caret],
+  [data-settle],
+  [data-mesh],
+  [data-piece] {
     opacity: 1 !important;
     transform: none !important;
+    animation: none !important;
+  }
+
+  /* Route changes happen instantly rather than crossfading. The named groups
+     are listed too: `*` here is newer than the View Transitions API itself, so
+     on an older Chromium the wildcard rule alone would be dropped. */
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(root),
+  ::view-transition-old(root),
+  ::view-transition-new(root),
+  ::view-transition-group(page),
+  ::view-transition-old(page),
+  ::view-transition-new(page) {
     animation: none !important;
   }
 }
@@ -151,32 +520,15 @@
    has not scrolled past would print blank. Force everything visible. */
 @media print {
   [data-reveal],
-  [data-enter] {
+  [data-enter],
+  [data-grow],
+  [data-word],
+  [data-caret],
+  [data-settle],
+  [data-mesh],
+  [data-piece] {
     opacity: 1 !important;
     transform: none !important;
     animation: none !important;
   }
-}
-
-/* ---------------------------------------------------------------------------
-   Hero entrance
-   ---------------------------------------------------------------------------
-   A CSS-only staggered entrance. Elements marked `data-enter` fade up once on
-   load; `--enter-delay` sets the stagger. Neutralised by the reduced-motion
-   block above.
---------------------------------------------------------------------------- */
-@keyframes enter-up {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-[data-enter] {
-  animation: enter-up 0.7s var(--ease-out-soft) both;
-  animation-delay: var(--enter-delay, 0ms);
 }

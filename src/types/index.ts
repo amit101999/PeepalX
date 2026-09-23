@@ -19,7 +19,9 @@ export interface ImageAsset {
 export interface Service {
   slug: string;
   title: string;
-  /** One-sentence summary used on cards. */
+  /** Reserved for compact labels. Unused today; capped at 14 characters by a test. */
+  shortTitle: string;
+  /** One-sentence summary used on the home page and in structured data. */
   summary: string;
   /** Longer description used on the services page. */
   description: string;
@@ -125,8 +127,6 @@ export interface Project {
   liveUrl?: string;
   /** Additional screenshots not tied to a case study stage. */
   gallery?: ImageAsset[];
-  /** A quote from the client about this specific project. */
-  testimonial?: Omit<Testimonial, "isPlaceholder">;
   /**
    * Date the project page last changed meaningfully, as YYYY-MM-DD. Used as
    * the sitemap `lastModified` and the case study's `dateModified`.
@@ -160,12 +160,20 @@ export interface TeamMember {
 }
 
 export interface Testimonial {
+  /** Slug of the project the review is about. */
+  project: string;
   quote: string;
-  name: string;
-  role: string;
+  /** Reviewer's name. Only with their permission; omit for an anonymous review. */
+  name?: string;
+  /** Reviewer's role. Omit for an anonymous review. */
+  role?: string;
+  /** Company name, or the anonymous description used for the project. */
   company: string;
-  /** Placeholder testimonials are rendered with an explicit disclosure. */
-  isPlaceholder: boolean;
+  /**
+   * True only once the client has approved the wording and attribution.
+   * Unapproved entries are drafts and are never rendered.
+   */
+  approved: boolean;
 }
 
 export interface FaqItem {
@@ -186,12 +194,6 @@ export interface ProcessStep {
 
 export interface CompanyValue {
   title: string;
-  description: string;
-  icon: LucideIcon;
-}
-
-export interface Domain {
-  name: string;
   description: string;
 }
 

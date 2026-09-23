@@ -1,81 +1,81 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="840" viewBox="0 0 1600 840" role="img" aria-labelledby="title">
   <title id="title">A documentation web page passing through extract, clean and chunk steps into a JSON dataset of chunks</title>
-  <rect width="1600" height="840" fill="#f5f3f1"/>
+  <rect width="1600" height="840" fill="#ecefe7"/>
 
   <!-- Source: an HTML documentation page -->
   <g>
-    <rect x="120" y="140" width="440" height="560" rx="14" fill="#ffffff" stroke="#d6d1cc" stroke-width="2"/>
-    <path d="M134 140h412a14 14 0 0 1 14 14v34H120v-34a14 14 0 0 1 14-14z" fill="#fbfaf9"/>
-    <line x1="120" y1="188" x2="560" y2="188" stroke="#e6e2df" stroke-width="2"/>
-    <circle cx="150" cy="164" r="6" fill="#d6d1cc"/>
-    <circle cx="172" cy="164" r="6" fill="#d6d1cc"/>
-    <circle cx="194" cy="164" r="6" fill="#d6d1cc"/>
+    <rect x="120" y="140" width="440" height="560" rx="14" fill="#ffffff" stroke="#c6cfc3" stroke-width="2"/>
+    <path d="M134 140h412a14 14 0 0 1 14 14v34H120v-34a14 14 0 0 1 14-14z" fill="#f7f8f4"/>
+    <line x1="120" y1="188" x2="560" y2="188" stroke="#dde3da" stroke-width="2"/>
+    <circle cx="150" cy="164" r="6" fill="#c6cfc3"/>
+    <circle cx="172" cy="164" r="6" fill="#c6cfc3"/>
+    <circle cx="194" cy="164" r="6" fill="#c6cfc3"/>
 
-    <rect x="160" y="226" width="260" height="22" rx="4" fill="#17161a"/>
-    <rect x="160" y="274" width="360" height="10" rx="5" fill="#d6d1cc"/>
-    <rect x="160" y="298" width="336" height="10" rx="5" fill="#d6d1cc"/>
-    <rect x="160" y="322" width="290" height="10" rx="5" fill="#d6d1cc"/>
+    <rect x="160" y="226" width="260" height="22" rx="4" fill="#13251e"/>
+    <rect x="160" y="274" width="360" height="10" rx="5" fill="#c6cfc3"/>
+    <rect x="160" y="298" width="336" height="10" rx="5" fill="#c6cfc3"/>
+    <rect x="160" y="322" width="290" height="10" rx="5" fill="#c6cfc3"/>
 
-    <rect x="160" y="362" width="200" height="16" rx="4" fill="#3d3b42"/>
-    <circle cx="166" cy="405" r="5" fill="#5e5d64"/>
-    <rect x="184" y="400" width="250" height="10" rx="5" fill="#d6d1cc"/>
-    <circle cx="166" cy="433" r="5" fill="#5e5d64"/>
-    <rect x="184" y="428" width="214" height="10" rx="5" fill="#d6d1cc"/>
-    <circle cx="166" cy="461" r="5" fill="#5e5d64"/>
-    <rect x="184" y="456" width="270" height="10" rx="5" fill="#d6d1cc"/>
+    <rect x="160" y="362" width="200" height="16" rx="4" fill="#33443c"/>
+    <circle cx="166" cy="405" r="5" fill="#55655c"/>
+    <rect x="184" y="400" width="250" height="10" rx="5" fill="#c6cfc3"/>
+    <circle cx="166" cy="433" r="5" fill="#55655c"/>
+    <rect x="184" y="428" width="214" height="10" rx="5" fill="#c6cfc3"/>
+    <circle cx="166" cy="461" r="5" fill="#55655c"/>
+    <rect x="184" y="456" width="270" height="10" rx="5" fill="#c6cfc3"/>
 
-    <rect x="160" y="494" width="180" height="120" rx="6" fill="#f5f3f1" stroke="#d6d1cc" stroke-width="2"/>
-    <polyline points="176,596 222,546 252,574 282,536 324,596" fill="none" stroke="#5e5d64" stroke-width="3" stroke-linejoin="round"/>
-    <circle cx="300" cy="522" r="10" fill="#d6d1cc"/>
+    <rect x="160" y="494" width="180" height="120" rx="6" fill="#ecefe7" stroke="#c6cfc3" stroke-width="2"/>
+    <polyline points="176,596 222,546 252,574 282,536 324,596" fill="none" stroke="#55655c" stroke-width="3" stroke-linejoin="round"/>
+    <circle cx="300" cy="522" r="10" fill="#c6cfc3"/>
 
-    <rect x="362" y="500" width="158" height="10" rx="5" fill="#a54d27"/>
-    <rect x="362" y="530" width="150" height="10" rx="5" fill="#d6d1cc"/>
-    <rect x="362" y="554" width="130" height="10" rx="5" fill="#d6d1cc"/>
-    <rect x="362" y="578" width="144" height="10" rx="5" fill="#d6d1cc"/>
-    <rect x="160" y="646" width="310" height="10" rx="5" fill="#d6d1cc"/>
+    <rect x="362" y="500" width="158" height="10" rx="5" fill="#146b45"/>
+    <rect x="362" y="530" width="150" height="10" rx="5" fill="#c6cfc3"/>
+    <rect x="362" y="554" width="130" height="10" rx="5" fill="#c6cfc3"/>
+    <rect x="362" y="578" width="144" height="10" rx="5" fill="#c6cfc3"/>
+    <rect x="160" y="646" width="310" height="10" rx="5" fill="#c6cfc3"/>
   </g>
 
   <!-- The pipeline: one thread from page to dataset -->
   <g font-family="Figtree, 'Segoe UI', system-ui, sans-serif" font-size="24" text-anchor="middle">
-    <line x1="560" y1="420" x2="1052" y2="420" stroke="#5e5d64" stroke-width="3"/>
-    <path d="M1044 410l16 10-16 10z" fill="#5e5d64"/>
+    <line x1="560" y1="420" x2="1052" y2="420" stroke="#55655c" stroke-width="3"/>
+    <path d="M1044 410l16 10-16 10z" fill="#55655c"/>
 
-    <rect x="592" y="394" width="124" height="52" rx="26" fill="#ffffff" stroke="#d6d1cc" stroke-width="2"/>
-    <text x="654" y="428" fill="#3d3b42">Extract</text>
+    <rect x="592" y="394" width="124" height="52" rx="26" fill="#ffffff" stroke="#c6cfc3" stroke-width="2"/>
+    <text x="654" y="428" fill="#33443c">Extract</text>
 
-    <rect x="746" y="394" width="124" height="52" rx="26" fill="#ffffff" stroke="#d6d1cc" stroke-width="2"/>
-    <text x="808" y="428" fill="#3d3b42">Clean</text>
+    <rect x="746" y="394" width="124" height="52" rx="26" fill="#ffffff" stroke="#c6cfc3" stroke-width="2"/>
+    <text x="808" y="428" fill="#33443c">Clean</text>
 
-    <rect x="900" y="394" width="124" height="52" rx="26" fill="#f6ede8" stroke="#a54d27" stroke-width="2"/>
-    <text x="962" y="428" fill="#17161a" font-weight="600">Chunk</text>
+    <rect x="900" y="394" width="124" height="52" rx="26" fill="#ddede2" stroke="#146b45" stroke-width="2"/>
+    <text x="962" y="428" fill="#13251e" font-weight="600">Chunk</text>
   </g>
 
   <!-- Result: a JSON dataset of structured chunks -->
   <g>
-    <rect x="1068" y="140" width="412" height="560" rx="14" fill="#17161a"/>
-    <text x="1100" y="200" font-family="Consolas, 'Courier New', monospace" font-size="36" fill="#f6ede8">[</text>
-    <text x="1100" y="676" font-family="Consolas, 'Courier New', monospace" font-size="36" fill="#f6ede8">]</text>
+    <rect x="1068" y="140" width="412" height="560" rx="14" fill="#13251e"/>
+    <text x="1100" y="200" font-family="Consolas, 'Courier New', monospace" font-size="36" fill="#ddede2">[</text>
+    <text x="1100" y="676" font-family="Consolas, 'Courier New', monospace" font-size="36" fill="#ddede2">]</text>
 
-    <rect x="1120" y="218" width="320" height="128" rx="10" fill="#26242a" stroke="#a54d27" stroke-width="2"/>
-    <rect x="1144" y="242" width="150" height="14" rx="4" fill="#e3a585"/>
-    <rect x="1144" y="274" width="260" height="10" rx="5" fill="#5e5d64"/>
-    <rect x="1144" y="296" width="228" height="10" rx="5" fill="#5e5d64"/>
-    <rect x="1144" y="318" width="190" height="10" rx="5" fill="#5e5d64"/>
+    <rect x="1120" y="218" width="320" height="128" rx="10" fill="#26242a" stroke="#146b45" stroke-width="2"/>
+    <rect x="1144" y="242" width="150" height="14" rx="4" fill="#9ec7ae"/>
+    <rect x="1144" y="274" width="260" height="10" rx="5" fill="#55655c"/>
+    <rect x="1144" y="296" width="228" height="10" rx="5" fill="#55655c"/>
+    <rect x="1144" y="318" width="190" height="10" rx="5" fill="#55655c"/>
 
-    <rect x="1120" y="364" width="320" height="128" rx="10" fill="#26242a" stroke="#5e5d64" stroke-width="2"/>
-    <rect x="1144" y="388" width="120" height="14" rx="4" fill="#e3a585"/>
-    <rect x="1168" y="420" width="236" height="10" rx="5" fill="#5e5d64"/>
-    <rect x="1168" y="442" width="210" height="10" rx="5" fill="#5e5d64"/>
-    <rect x="1168" y="464" width="224" height="10" rx="5" fill="#5e5d64"/>
+    <rect x="1120" y="364" width="320" height="128" rx="10" fill="#26242a" stroke="#55655c" stroke-width="2"/>
+    <rect x="1144" y="388" width="120" height="14" rx="4" fill="#9ec7ae"/>
+    <rect x="1168" y="420" width="236" height="10" rx="5" fill="#55655c"/>
+    <rect x="1168" y="442" width="210" height="10" rx="5" fill="#55655c"/>
+    <rect x="1168" y="464" width="224" height="10" rx="5" fill="#55655c"/>
 
-    <rect x="1120" y="510" width="320" height="128" rx="10" fill="#26242a" stroke="#5e5d64" stroke-width="2"/>
-    <rect x="1144" y="534" width="170" height="14" rx="4" fill="#e3a585"/>
-    <rect x="1144" y="566" width="244" height="10" rx="5" fill="#5e5d64"/>
-    <rect x="1144" y="588" width="200" height="10" rx="5" fill="#5e5d64"/>
-    <rect x="1144" y="610" width="236" height="10" rx="5" fill="#5e5d64"/>
+    <rect x="1120" y="510" width="320" height="128" rx="10" fill="#26242a" stroke="#55655c" stroke-width="2"/>
+    <rect x="1144" y="534" width="170" height="14" rx="4" fill="#9ec7ae"/>
+    <rect x="1144" y="566" width="244" height="10" rx="5" fill="#55655c"/>
+    <rect x="1144" y="588" width="200" height="10" rx="5" fill="#55655c"/>
+    <rect x="1144" y="610" width="236" height="10" rx="5" fill="#55655c"/>
   </g>
 
-  <g font-family="Figtree, 'Segoe UI', system-ui, sans-serif" font-size="26" fill="#3d3b42" text-anchor="middle">
+  <g font-family="Figtree, 'Segoe UI', system-ui, sans-serif" font-size="26" fill="#33443c" text-anchor="middle">
     <text x="340" y="754">HTML documentation</text>
     <text x="1274" y="754">AI-ready JSON</text>
   </g>

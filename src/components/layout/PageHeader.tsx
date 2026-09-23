@@ -1,12 +1,21 @@
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
-import type { Crumb } from "@/lib/seo/structured-data";
+import { JsonLd } from "@/components/ui/JsonLd";
+import { breadcrumbSchema, type Crumb } from "@/lib/seo/structured-data";
 
 interface PageHeaderProps {
+  /**
+   * Optional label above the title. Only for information the breadcrumb does
+   * not already give, e.g. a project's category.
+   */
   eyebrow?: string;
   title: string;
   description?: string;
-  /** Visible breadcrumb trail. The current page is the last entry. */
+  /**
+   * Breadcrumb trail. The current page is the last entry. It is rendered both
+   * as the visible trail and as BreadcrumbList structured data, so the two can
+   * never disagree and no page has to emit the schema itself.
+   */
   breadcrumbs?: Crumb[];
 }
 
@@ -25,9 +34,10 @@ export function PageHeader({
   return (
     <section className="border-b border-line">
       <Container>
-        <div className="max-w-3xl py-16 sm:py-20">
+        <div className="max-w-3xl pt-12 pb-14 sm:pt-16 sm:pb-20">
           {breadcrumbs && breadcrumbs.length > 0 ? (
-            <nav aria-label="Breadcrumb" className="mb-6">
+            <nav aria-label="Breadcrumb" className="mb-8">
+              <JsonLd data={breadcrumbSchema(breadcrumbs)} />
               <ol className="flex flex-wrap items-center gap-2 text-sm text-muted">
                 {breadcrumbs.map((crumb, index) => {
                   const isLast = index === breadcrumbs.length - 1;
@@ -42,7 +52,7 @@ export function PageHeader({
                         <>
                           <Link
                             href={crumb.path}
-                            className="transition-colors hover:text-ink"
+                            className="underline decoration-transparent underline-offset-4 transition-colors hover:text-ink hover:decoration-line-strong"
                           >
                             {crumb.name}
                           </Link>
@@ -59,7 +69,7 @@ export function PageHeader({
           ) : null}
 
           {eyebrow ? (
-            <p data-enter className="text-label font-medium text-accent uppercase">
+            <p data-enter className="mb-4 text-label font-medium text-accent">
               {eyebrow}
             </p>
           ) : null}
@@ -67,7 +77,7 @@ export function PageHeader({
           <h1
             data-enter
             style={{ "--enter-delay": "70ms" } as React.CSSProperties}
-            className="mt-4 text-h1 font-semibold text-ink"
+            className="text-h1 font-semibold text-ink"
           >
             {title}
           </h1>
@@ -76,7 +86,7 @@ export function PageHeader({
             <p
               data-enter
               style={{ "--enter-delay": "140ms" } as React.CSSProperties}
-              className="mt-5 text-lead text-muted"
+              className="mt-5 max-w-2xl text-lead text-muted"
             >
               {description}
             </p>

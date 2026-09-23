@@ -26,7 +26,7 @@ export const technologyGroups: TechnologyGroup[] = [
     items: ["Webhooks", "REST APIs", "Workflow engines", "Scheduled jobs"],
   },
   {
-    name: "Business Platforms",
+    name: "Business platforms",
     items: ["Zoho CRM", "Zoho Creator", "Zoho Flow", "Zoho Books"],
   },
 ];

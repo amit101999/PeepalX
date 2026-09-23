@@ -7,11 +7,11 @@ interface SectionProps {
   /** Anchor target, e.g. "services" for /#services. */
   id?: string;
   /**
-   * Background treatment. Alternating `canvas` and `elevated` between adjacent
-   * sections is what keeps a long page from reading as one flat block.
+   * Background treatment. `ink` is reserved for the closing block that joins
+   * the footer: it is the page's one dark moment, so don't use it mid-page.
    */
-  tone?: "canvas" | "elevated" | "ink";
-  /** Vertical rhythm. `tight` is for short strips such as the trust bar. */
+  tone?: "canvas" | "elevated" | "tint" | "ink";
+  /** Vertical rhythm. `tight` is for short strips. */
   spacing?: "tight" | "default" | "loose";
   /** Draws a hairline rule at the top of the section. */
   bordered?: boolean;
@@ -22,13 +22,16 @@ interface SectionProps {
 const tones = {
   canvas: "bg-canvas text-ink",
   elevated: "bg-elevated text-ink",
-  ink: "bg-ink text-canvas",
+  /** A pale green band, for alternating with canvas on long pages. */
+  tint: "bg-tint text-ink",
+  /** The dark closing block. Named `ink` for its role; drawn in forest green. */
+  ink: "on-dark bg-forest text-on-dark",
 } as const;
 
 const spacings = {
-  tight: "py-10 sm:py-14",
-  default: "py-20 sm:py-28",
-  loose: "py-24 sm:py-36",
+  tight: "py-12 sm:py-16",
+  default: "py-20 sm:py-24",
+  loose: "py-24 sm:py-32",
 } as const;
 
 /**

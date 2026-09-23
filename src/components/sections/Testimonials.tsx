@@ -1,61 +1,54 @@
-import { Reveal } from "@/components/ui/Reveal";
+import Link from "next/link";
 import { Section } from "@/components/ui/Section";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { hasPlaceholderTestimonials, testimonials } from "@/data/testimonials";
+import { getProjectBySlug } from "@/data/projects";
+import { publishedTestimonials } from "@/data/testimonials";
 
 /**
- * Client testimonials.
+ * Client reviews, each linked to the project it is about.
  *
- * Two safeguards, both driven by the data file:
- *  - the whole section disappears if `testimonials` is empty,
- *  - a visible notice is shown while any entry is still placeholder content,
- *    so the site never appears to be quoting clients it does not have.
+ * Only reviews the client has approved are rendered, and the section renders
+ * nothing until at least one exists, so the site never appears to quote
+ * clients it does not have. Drafts live in `src/data/testimonials.ts`.
  */
 export function Testimonials() {
-  if (testimonials.length === 0) return null;
+  if (publishedTestimonials.length === 0) return null;
 
   return (
     <Section bordered>
-      <SectionHeading
-        eyebrow="Testimonials"
-        title="What clients say"
-        description={
-          hasPlaceholderTestimonials
-            ? "This section is ready for real client feedback. The cards below are formatting examples, not quotes from clients."
-            : undefined
-        }
-      />
+      <SectionHeading title="What clients say" />
 
-      {hasPlaceholderTestimonials ? (
-        <p className="mt-8 rounded-lg border border-line bg-elevated px-4 py-3 text-sm text-muted">
-          <span className="font-medium text-ink">Placeholder content:</span> no client
-          quotes have been published yet. Nothing below is attributed to a real person or
-          company.
-        </p>
-      ) : null}
+      <ul className="mt-12 grid gap-12 md:grid-cols-2">
+        {publishedTestimonials.map((testimonial) => {
+          const project = getProjectBySlug(testimonial.project);
 
-      <ul className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {testimonials.map((testimonial, index) => (
-          <Reveal
-            as="li"
-            key={`${testimonial.name}-${index}`}
-            delay={(index % 3) * 70}
-            className="h-full"
-          >
-            <figure className="flex h-full flex-col rounded-xl border border-line bg-surface p-6">
-              <blockquote className="leading-relaxed text-ink-soft">
-                {testimonial.quote}
-              </blockquote>
+          return (
+            <li key={testimonial.project} data-reveal>
+              <figure className="flex h-full flex-col border-l-2 border-accent pl-6">
+                <blockquote className="text-lead text-ink">
+                  &ldquo;{testimonial.quote}&rdquo;
+                </blockquote>
 
-              <figcaption className="mt-auto border-t border-line pt-5 text-sm">
-                <span className="block font-medium text-ink">{testimonial.name}</span>
-                <span className="text-muted">
-                  {testimonial.role}, {testimonial.company}
-                </span>
-              </figcaption>
-            </figure>
-          </Reveal>
-        ))}
+                <figcaption className="mt-5 text-sm">
+                  {testimonial.name && (
+                    <span className="block font-medium text-ink">{testimonial.name}</span>
+                  )}
+                  <span className="block text-muted">
+                    {[testimonial.role, testimonial.company].filter(Boolean).join(" · ")}
+                  </span>
+                  {project && (
+                    <Link
+                      href={`/work/${project.slug}`}
+                      className="mt-2 inline-block text-ink underline decoration-line-strong underline-offset-4 hover:decoration-ink"
+                    >
+                      {project.title}
+                    </Link>
+                  )}
+                </figcaption>
+              </figure>
+            </li>
+          );
+        })}
       </ul>
     </Section>
   );

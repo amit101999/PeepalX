@@ -1,24 +1,26 @@
 import { Section } from "@/components/ui/Section";
 import { company } from "@/data/company";
 
-/** Vision and mission, set as two columns on a quiet background. */
+/** Mission and vision, set as two large statements on a quiet background. */
 export function VisionMission() {
-  return (
-    <Section tone="elevated" bordered>
-      <div className="grid gap-12 sm:grid-cols-2 sm:gap-16">
-        <div>
-          <h2 className="text-label font-medium text-accent uppercase">Vision</h2>
-          <p className="mt-5 text-h3 leading-snug font-medium text-balance text-ink">
-            {company.vision}
-          </p>
-        </div>
+  const statements = [
+    { label: "Mission", text: company.mission },
+    { label: "Vision", text: company.vision },
+  ];
 
-        <div>
-          <h2 className="text-label font-medium text-accent uppercase">Mission</h2>
-          <p className="mt-5 text-h3 leading-snug font-medium text-balance text-ink">
-            {company.mission}
-          </p>
-        </div>
+  return (
+    <Section tone="elevated">
+      <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
+        {statements.map((statement) => (
+          <div key={statement.label}>
+            <h2 className="font-sans text-label font-medium text-accent">
+              {statement.label}
+            </h2>
+            <p className="mt-4 font-display text-h3 font-medium text-balance text-ink lg:text-h2">
+              {statement.text}
+            </p>
+          </div>
+        ))}
       </div>
     </Section>
   );

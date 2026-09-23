@@ -1,0 +1,130 @@
+"use client";
+
+import { Pause, Play, RotateCcw } from "lucide-react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { usePrefersReducedMotion } from "@/lib/hooks/use-prefers-reduced-motion";
+import { typewriterSteps } from "@/lib/utils/typewriter";
+
+/** Two passes through the list is enough to read all of it; then it stops. */
+const CYCLES = 2;
+
+/**
+ * "We build ⟨phrase⟩", typed out one service at a time.
+ *
+ * Accessibility, because auto-moving text has rules:
+ *  - It stops on its own after two passes, and never runs while the tab is
+ *    hidden or when the visitor prefers reduced motion.
+ *  - A pause button (WCAG 2.2.2) sits beside it; once finished it becomes a
+ *    replay button rather than disappearing, so focus is never dropped.
+ *  - The changing text is hidden from screen readers, which read one stable
+ *    sentence listing every phrase instead of hearing a word spelled out.
+ *
+ * The server renders the first phrase, complete, which is also the first frame
+ * of the animation, so there is no hydration flicker and the line reads fine
+ * with JavaScript off.
+ */
+export function TypedServices({ phrases }: { phrases: readonly string[] }) {
+  const prefersReducedMotion = usePrefersReducedMotion();
+  const steps = useMemo(() => typewriterSteps(phrases, CYCLES), [phrases]);
+
+  const [index, setIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+  // Read from the browser without an effect. The server snapshots (not hidden,
+  // not mounted) keep the first client render identical to the server's.
+  const hidden = useSyncExternalStore(
+    subscribeToVisibility,
+    isDocumentHidden,
+    () => false,
+  );
+  // Controls appear only once on the client: the reduced-motion preference is
+  // not known on the server, and rendering them there would mismatch.
+  const mounted = useSyncExternalStore(
+    noopSubscribe,
+    () => true,
+    () => false,
+  );
+
+  const finished = index >= steps.length - 1;
+  const running = mounted && !prefersReducedMotion && !paused && !hidden && !finished;
+
+  useEffect(() => {
+    if (!running) return;
+    const step = steps[index];
+    if (!step) return;
+    const timer = window.setTimeout(
+      () => setIndex((current) => current + 1),
+      step.waitMs,
+    );
+    return () => window.clearTimeout(timer);
+  }, [running, index, steps]);
+
+  const text = prefersReducedMotion ? phrases[0] : (steps[index]?.text ?? phrases[0]);
+  const showControls = mounted && !prefersReducedMotion;
+
+  const control = finished
+    ? { label: "Replay the list of services", Icon: RotateCcw }
+    : paused
+      ? { label: "Resume the list of services", Icon: Play }
+      : { label: "Pause the list of services", Icon: Pause };
+
+  const onControl = () => {
+    if (finished) {
+      setIndex(0);
+      setPaused(false);
+      return;
+    }
+    setPaused((current) => !current);
+  };
+
+  return (
+    <div className="mt-6 flex items-center gap-3">
+      <p className="font-display text-h3 font-medium text-ink">
+        <span className="sr-only">We build {listSentence(phrases)}.</span>
+        <span aria-hidden="true">
+          <span className="text-muted">We build </span>
+          <span className="text-accent">{text}</span>
+          {running || paused ? (
+            <span
+              data-caret={paused ? "still" : "blink"}
+              className="ml-0.5 inline-block h-[0.95em] w-[3px] translate-y-[0.12em] rounded-full bg-accent"
+            />
+          ) : null}
+        </span>
+      </p>
+
+      {/* The slot is always there, so the button appearing causes no shift. */}
+      <span className="inline-flex size-9 shrink-0">
+        {showControls ? (
+          <button
+            type="button"
+            onClick={onControl}
+            aria-label={control.label}
+            aria-pressed={finished ? undefined : paused}
+            className="inline-flex size-9 items-center justify-center rounded-md text-muted transition-colors hover:bg-tint hover:text-ink"
+          >
+            <control.Icon aria-hidden="true" className="size-4" />
+          </button>
+        ) : null}
+      </span>
+    </div>
+  );
+}
+
+function subscribeToVisibility(onChange: () => void) {
+  document.addEventListener("visibilitychange", onChange);
+  return () => document.removeEventListener("visibilitychange", onChange);
+}
+
+function isDocumentHidden() {
+  return document.hidden;
+}
+
+function noopSubscribe() {
+  return () => {};
+}
+
+/** "web apps, mobile apps and Zoho systems" */
+function listSentence(items: readonly string[]): string {
+  if (items.length <= 1) return items[0] ?? "";
+  return `${items.slice(0, -1).join(", ")} and ${items.at(-1)}`;
+}

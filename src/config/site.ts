@@ -10,11 +10,12 @@
  * The company name. This one value drives the logo wordmark, page titles,
  * structured data, the footer and the copyright line.
  */
-const COMPANY_NAME = "peepalX";
+const COMPANY_NAME = "PeepalX";
 
 /**
  * The canonical origin of the deployed site, without a trailing slash.
- * Falls back to localhost so local development works with no env file.
+ * Falls back to localhost so local development works with no env file;
+ * `next.config.ts` stops a Vercel production deploy that relies on it.
  */
 export const siteUrl = (
   process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
@@ -25,14 +26,32 @@ export const site = {
   /** Short descriptor used after the name in page titles. */
   tagline: "Software, AI and automation engineering",
   description:
-    "We design and build web and mobile applications, AI systems, automation and business platforms for companies that need software to work properly.",
+    "We design and build web and mobile apps, AI agents, automation and Zoho systems for businesses, and keep them running after launch.",
   url: siteUrl,
   locale: "en",
-  email: "hello@example.com",
+  /**
+   * TODO(content): the real contact address. While empty, every email link on
+   * the site (footer, contact page, closing block, structured data) is hidden
+   * and the legal pages point to the contact form instead.
+   */
+  email: "" as string,
+  /**
+   * TODO(content): the public Google Form for new project enquiries. Every
+   * "Start a project" button opens it in a new tab. While empty, those buttons
+   * fall back to the on-site contact page.
+   */
+  projectFormUrl: "" as string,
   phone: "",
   /** Free-text location. Leave empty to hide it in the footer. */
   location: "",
   founded: "2025",
+  /**
+   * TODO(content): set to true once the privacy, terms and cookie pages hold
+   * copy reviewed by a qualified adviser. Until then those pages show a
+   * placeholder notice, are marked noindex and are left out of sitemap.xml, so
+   * search engines never index unreviewed legal text.
+   */
+  legalCopyReviewed: false as boolean,
 } as const;
 
 /**

@@ -27,6 +27,17 @@ describe("parseServerEnv", () => {
     expect(result.ok && result.env.CONTACT_PROVIDER).toBe("console");
   });
 
+  it("refuses the console provider in production, whether defaulted or explicit", () => {
+    expect(issuesOf({ NODE_ENV: "production" }).join("\n")).toContain("CONTACT_PROVIDER");
+    expect(
+      issuesOf({ NODE_ENV: "production", CONTACT_PROVIDER: "console" }).join("\n"),
+    ).toContain("CONTACT_PROVIDER");
+  });
+
+  it("accepts Resend in production", () => {
+    expect(parseServerEnv({ ...resendConfig, NODE_ENV: "production" }).ok).toBe(true);
+  });
+
   it("accepts a complete Resend configuration, ignoring case and whitespace", () => {
     const result = parseServerEnv({ ...resendConfig, CONTACT_PROVIDER: " Resend " });
 
@@ -52,14 +63,14 @@ describe("parseServerEnv", () => {
   it('accepts a sender with a display name, as in "Name <address>"', () => {
     const result = parseServerEnv({
       ...resendConfig,
-      CONTACT_FROM_EMAIL: "peepalX <website@peepalx.example>",
+      CONTACT_FROM_EMAIL: "PeepalX <website@peepalx.example>",
     });
 
     expect(result.ok).toBe(true);
   });
 
   it("rejects a display-name sender whose address is invalid", () => {
-    const issues = issuesOf({ ...resendConfig, CONTACT_FROM_EMAIL: "peepalX <broken>" });
+    const issues = issuesOf({ ...resendConfig, CONTACT_FROM_EMAIL: "PeepalX <broken>" });
 
     expect(issues).toHaveLength(1);
     expect(issues[0]).toContain("CONTACT_FROM_EMAIL");

@@ -1,8 +1,9 @@
 "use client";
 
 import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
-import { useId, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { HoneypotField, SelectField, TextAreaField, TextField } from "./fields";
 import {
   budgetOptions,
   contactFormSchema,
@@ -11,7 +12,6 @@ import {
   toFieldErrors,
 } from "@/lib/validation/contact";
 import type { ContactApiResponse, ContactFormValues } from "@/lib/validation/contact";
-import { cn } from "@/lib/utils/cn";
 
 type FieldErrors = Partial<Record<keyof ContactFormValues, string>>;
 type Status = "idle" | "submitting" | "success" | "error";
@@ -31,9 +31,19 @@ type Status = "idle" | "submitting" | "success" | "error";
  */
 export function ContactForm() {
   const formRef = useRef<HTMLFormElement>(null);
+  const successRef = useRef<HTMLHeadingElement>(null);
   const [status, setStatus] = useState<Status>("idle");
   const [errors, setErrors] = useState<FieldErrors>({});
   const [formMessage, setFormMessage] = useState("");
+
+  /*
+   * On success the form is replaced by the confirmation, which would leave
+   * keyboard focus on nothing (the focused submit button has just unmounted).
+   * Moving focus to the confirmation heading also makes screen readers read it.
+   */
+  useEffect(() => {
+    if (status === "success") successRef.current?.focus();
+  }, [status]);
 
   /** Moves focus to the first invalid field so keyboard users are not stranded. */
   const focusFirstError = (fieldErrors: FieldErrors) => {
@@ -68,15 +78,17 @@ export function ContactForm() {
       const response = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(parsed.data),
+        // The schema discards the honeypot, so its raw value is sent alongside:
+        // the API answers a filled one like a success and logs that it did.
+        body: JSON.stringify({ ...parsed.data, website: values.website }),
       });
 
-      const result = (await response.json()) as ContactApiResponse;
+      const result = await readApiResponse(response);
 
       if (!response.ok || !result.ok) {
         setErrors(result.errors ?? {});
         setStatus("error");
-        setFormMessage(result.message || "Something went wrong. Please try again.");
+        setFormMessage(result.message || GENERIC_FAILURE);
         if (result.errors) focusFirstError(result.errors);
         return;
       }
@@ -85,7 +97,7 @@ export function ContactForm() {
       setFormMessage(result.message);
       formRef.current?.reset();
     } catch {
-      // Network-level failure: the request never reached the server.
+      // `fetch` itself failed: the request never reached the server.
       setStatus("error");
       setFormMessage(
         "We could not reach the server. Check your connection and try again.",
@@ -96,11 +108,19 @@ export function ContactForm() {
   if (status === "success") {
     return (
       <div
-        role="status"
+        // No live region: focus moves to the heading below, which announces the
+        // confirmation once. Both together stutter in several screen readers.
+        data-enter
         className="flex flex-col items-start gap-4 rounded-xl border border-line bg-surface p-8"
       >
         <CheckCircle2 aria-hidden="true" className="size-7 text-accent" />
-        <h3 className="text-h3 font-semibold text-ink">Thank you — message sent</h3>
+        <h3
+          ref={successRef}
+          tabIndex={-1}
+          className="text-h3 font-semibold text-ink outline-none"
+        >
+          Message sent
+        </h3>
         <p className="leading-relaxed text-muted">{formMessage}</p>
         <Button variant="secondary" onClick={() => setStatus("idle")}>
           Send another message
@@ -132,6 +152,7 @@ export function ContactForm() {
           label="Email"
           type="email"
           required
+          spellCheck={false}
           autoComplete="email"
           error={errors.email}
           disabled={isSubmitting}
@@ -187,7 +208,7 @@ export function ContactForm() {
         label="Project description"
         required
         rows={6}
-        placeholder="What are you building, or what problem needs solving? Rough detail is fine."
+        placeholder="What are you building, or what problem needs solving? Rough detail is fine…"
         error={errors.message}
         disabled={isSubmitting}
       />
@@ -197,7 +218,8 @@ export function ContactForm() {
       {status === "error" && formMessage ? (
         <p
           role="alert"
-          className="flex items-start gap-2.5 rounded-lg border border-accent/30 bg-accent-soft px-4 py-3 text-sm text-accent"
+          data-enter
+          className="flex items-start gap-2.5 rounded-lg border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger"
         >
           <AlertCircle aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
           {formMessage}
@@ -212,7 +234,7 @@ export function ContactForm() {
               Sending…
             </>
           ) : (
-            "Send Inquiry"
+            "Send message"
           )}
         </Button>
 
@@ -229,210 +251,27 @@ export function ContactForm() {
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/* Field primitives                                                            */
-/* -------------------------------------------------------------------------- */
-
-const fieldClasses =
-  "w-full rounded-md border bg-surface px-3.5 py-3 text-[0.95rem] text-ink " +
-  "transition-colors placeholder:text-faint focus:outline-none disabled:opacity-60";
-
-/** Border colour depends on whether the field currently has an error. */
-function borderFor(hasError: boolean) {
-  return hasError ? "border-accent" : "border-line-strong focus:border-ink";
-}
-
-interface BaseFieldProps {
-  name: keyof ContactFormValues;
-  label: string;
-  required?: boolean;
-  /** Adds a visible "(optional)" hint next to the label. */
-  optional?: boolean;
-  error?: string;
-  disabled?: boolean;
-}
+const GENERIC_FAILURE = "Something went wrong. Please try again.";
 
 /**
- * Label, control and error message wired together.
- *
- * `aria-describedby` points at the error text and `aria-invalid` marks the
- * control, so a screen reader announces the problem when focus lands on it.
+ * Reads the API's JSON reply. A response that is not our JSON (a platform error
+ * page for an oversized request or a timeout, for example) still reached a
+ * server, so it becomes a generic failure rather than a "could not reach the
+ * server" message.
  */
-function FieldShell({
-  label,
-  id,
-  errorId,
-  error,
-  required,
-  optional,
-  children,
-}: {
-  label: string;
-  id: string;
-  errorId: string;
-  error?: string;
-  required?: boolean;
-  optional?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex flex-col gap-2">
-      <label htmlFor={id} className="text-sm font-medium text-ink-soft">
-        {label}
-        {required ? (
-          <span aria-hidden="true" className="ml-1 text-accent">
-            *
-          </span>
-        ) : null}
-        {optional ? <span className="ml-1.5 text-faint">(optional)</span> : null}
-      </label>
+async function readApiResponse(response: Response): Promise<ContactApiResponse> {
+  try {
+    const body: unknown = await response.json();
+    if (typeof body === "object" && body !== null && "ok" in body && "message" in body) {
+      return body as ContactApiResponse;
+    }
+  } catch {
+    // Not JSON; fall through to the generic failure below.
+  }
 
-      {children}
-
-      {error ? (
-        <p id={errorId} className="text-sm text-accent">
-          {error}
-        </p>
-      ) : null}
-    </div>
-  );
-}
-
-function TextField({
-  name,
-  label,
-  required,
-  optional,
-  error,
-  disabled,
-  type = "text",
-  ...rest
-}: BaseFieldProps & React.InputHTMLAttributes<HTMLInputElement>) {
-  const id = useId();
-  const errorId = `${id}-error`;
-
-  return (
-    <FieldShell
-      label={label}
-      id={id}
-      errorId={errorId}
-      error={error}
-      required={required}
-      optional={optional}
-    >
-      <input
-        id={id}
-        name={name}
-        type={type}
-        required={required}
-        disabled={disabled}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={error ? errorId : undefined}
-        className={cn(fieldClasses, borderFor(Boolean(error)))}
-        {...rest}
-      />
-    </FieldShell>
-  );
-}
-
-function TextAreaField({
-  name,
-  label,
-  required,
-  optional,
-  error,
-  disabled,
-  ...rest
-}: BaseFieldProps & React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  const id = useId();
-  const errorId = `${id}-error`;
-
-  return (
-    <FieldShell
-      label={label}
-      id={id}
-      errorId={errorId}
-      error={error}
-      required={required}
-      optional={optional}
-    >
-      <textarea
-        id={id}
-        name={name}
-        required={required}
-        disabled={disabled}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={error ? errorId : undefined}
-        className={cn(fieldClasses, borderFor(Boolean(error)), "resize-y")}
-        {...rest}
-      />
-    </FieldShell>
-  );
-}
-
-function SelectField({
-  name,
-  label,
-  required,
-  optional,
-  error,
-  disabled,
-  options,
-}: BaseFieldProps & { options: readonly string[] }) {
-  const id = useId();
-  const errorId = `${id}-error`;
-
-  return (
-    <FieldShell
-      label={label}
-      id={id}
-      errorId={errorId}
-      error={error}
-      required={required}
-      optional={optional}
-    >
-      <select
-        id={id}
-        name={name}
-        required={required}
-        disabled={disabled}
-        defaultValue=""
-        aria-invalid={error ? true : undefined}
-        aria-describedby={error ? errorId : undefined}
-        className={cn(fieldClasses, borderFor(Boolean(error)), "min-h-12")}
-      >
-        <option value="" disabled>
-          Select an option
-        </option>
-        {options.map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
-      </select>
-    </FieldShell>
-  );
-}
-
-/**
- * Honeypot.
- *
- * Hidden from sight and from assistive technology, and excluded from tab
- * order, so no real user ever fills it in. Automated form fillers usually do,
- * and the schema rejects any submission where it is not empty.
- */
-function HoneypotField() {
-  return (
-    <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
-      <label htmlFor="website-field">Leave this field empty</label>
-      <input
-        id="website-field"
-        name="website"
-        type="text"
-        tabIndex={-1}
-        autoComplete="off"
-        defaultValue=""
-      />
-    </div>
-  );
+  return {
+    ok: false,
+    message:
+      response.status === 413 ? "Your message is too large to send." : GENERIC_FAILURE,
+  };
 }

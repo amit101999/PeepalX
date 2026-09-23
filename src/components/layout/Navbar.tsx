@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
-import { homeSectionIds, mainNav } from "@/data/navigation";
+import { homeSectionIds, mainNav, primaryCta } from "@/data/navigation";
 import { useActiveSection } from "@/lib/hooks/use-active-section";
 import { cn } from "@/lib/utils/cn";
 import { Logo } from "./Logo";
@@ -16,7 +16,9 @@ import { Logo } from "./Logo";
  *
  * Behaviour worth knowing about:
  *  - Fixed height (h-16), so the sticky header never shifts layout.
- *  - Gains a border and background blur only after the page is scrolled.
+ *  - Gains a border and background blur once the page is scrolled. That is
+ *    detected by an IntersectionObserver on a tiny sentinel at the top of the
+ *    document, not a scroll listener, so nothing runs on every scroll frame.
  *  - Highlights the current page, and on the home page the section in view.
  *  - The mobile menu closes on Escape, on any link tap, and on outside tap;
  *    focus moves into the panel when it opens and back to the toggle when it
@@ -27,18 +29,24 @@ export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
+  const sentinelRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
 
   const isHome = pathname === "/";
   const activeSection = useActiveSection(homeSectionIds, isHome);
 
-  // Header treatment follows scroll position.
+  // Header treatment follows whether the top of the page is still in view.
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry) setScrolled(!entry.isIntersecting);
+    });
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
   }, []);
 
   // Close the menu whenever the route changes (e.g. browser back button).
@@ -76,7 +84,7 @@ export function Navbar() {
 
   /**
    * Links close the menu themselves. Relying on the route-change effect alone
-   * is not enough: tapping "Process" while already on the home page changes
+   * is not enough: tapping a hash link for the page you are already on changes
    * only the hash, the pathname stays "/", and the menu would stay open with
    * page scroll still locked.
    */
@@ -90,125 +98,139 @@ export function Navbar() {
     return pathname === href || pathname.startsWith(`${href}/`);
   };
 
+  const raised = scrolled || menuOpen;
+
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-50 border-b transition-colors duration-300",
-        scrolled || menuOpen ? "border-line" : "border-transparent",
-      )}
-    >
-      {/*
-        The translucent blurred background lives on its own layer rather than
-        on <header>. `backdrop-filter` makes an element the containing block
-        for its `position: fixed` descendants, which would trap the fixed
-        mobile menu inside the 64px header once the page is scrolled.
-      */}
+    <>
+      {/* Sits at the very top of the document; when it leaves the viewport, the page is scrolled. */}
       <div
+        ref={sentinelRef}
         aria-hidden="true"
-        className={cn(
-          "absolute inset-0 -z-10 transition-colors duration-300",
-          scrolled || menuOpen ? "bg-canvas/85 backdrop-blur-md" : "bg-transparent",
-        )}
+        className="pointer-events-none absolute inset-x-0 top-0 h-2"
       />
 
-      <Container>
-        <div className="flex h-16 items-center justify-between gap-6">
-          <Logo />
+      <header
+        className={cn(
+          "sticky top-0 z-50 border-b transition-colors duration-300",
+          raised ? "border-line" : "border-transparent",
+        )}
+      >
+        {/*
+          The translucent blurred background lives on its own layer rather than
+          on <header>. `backdrop-filter` makes an element the containing block
+          for its `position: fixed` descendants, which would trap the fixed
+          mobile menu inside the 64px header once the page is scrolled.
+        */}
+        <div
+          aria-hidden="true"
+          className={cn(
+            "absolute inset-0 -z-10 transition-colors duration-300",
+            raised ? "bg-canvas/85 backdrop-blur-md" : "bg-transparent",
+          )}
+        />
 
-          <nav aria-label="Main" className="hidden md:block">
-            <ul className="flex items-center gap-1">
-              {mainNav.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    aria-current={isActive(item.href) ? "page" : undefined}
-                    className={cn(
-                      "rounded-md px-3 py-2 text-sm transition-colors",
-                      isActive(item.href)
-                        ? "font-medium text-ink"
-                        : "text-muted hover:text-ink",
-                    )}
+        <Container>
+          <div className="flex h-16 items-center justify-between gap-6">
+            <Logo />
+
+            <nav aria-label="Main" className="hidden md:block">
+              <ul className="flex items-center gap-1">
+                {mainNav.map((item) => (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      aria-current={isActive(item.href) ? "page" : undefined}
+                      className={cn(
+                        "relative rounded-md px-3 py-2 text-sm transition-colors",
+                        // The active link carries a short accent rule, so the
+                        // state is not shown by colour alone.
+                        "after:absolute after:inset-x-3 after:bottom-1 after:h-px after:origin-left after:bg-accent after:transition-transform after:duration-300",
+                        isActive(item.href)
+                          ? "font-medium text-ink after:scale-x-100"
+                          : "text-muted after:scale-x-0 hover:text-ink",
+                      )}
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+
+            <div className="hidden md:block">
+              <Button href={primaryCta.href} size="md">
+                {primaryCta.label}
+              </Button>
+            </div>
+
+            <button
+              ref={toggleRef}
+              type="button"
+              onClick={() => setMenuOpen((open) => !open)}
+              aria-expanded={menuOpen}
+              aria-controls="mobile-menu"
+              aria-label={menuOpen ? "Close menu" : "Open menu"}
+              className="-mr-2 inline-flex size-11 items-center justify-center rounded-md text-ink transition-colors hover:bg-elevated md:hidden"
+            >
+              {menuOpen ? (
+                <X aria-hidden="true" className="size-5" />
+              ) : (
+                <Menu aria-hidden="true" className="size-5" />
+              )}
+            </button>
+          </div>
+        </Container>
+
+        {menuOpen ? (
+          <div className="fixed inset-x-0 top-16 bottom-0 z-40 md:hidden">
+            {/* Tapping outside the panel closes the menu. */}
+            <button
+              type="button"
+              tabIndex={-1}
+              aria-hidden="true"
+              onClick={closeMenu}
+              className="absolute inset-0 cursor-default bg-ink/25"
+            />
+
+            <div
+              ref={panelRef}
+              id="mobile-menu"
+              className="relative animate-menu-in overscroll-contain border-b border-line bg-canvas shadow-lifted"
+            >
+              <Container>
+                <nav aria-label="Mobile" className="py-4">
+                  <ul className="flex flex-col">
+                    {mainNav.map((item) => (
+                      <li key={item.href}>
+                        <Link
+                          href={item.href}
+                          onClick={closeMenu}
+                          aria-current={isActive(item.href) ? "page" : undefined}
+                          className={cn(
+                            "flex min-h-12 items-center border-b border-line text-base transition-colors hover:text-ink",
+                            isActive(item.href) ? "font-medium text-ink" : "text-muted",
+                          )}
+                        >
+                          {item.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <Button
+                    href={primaryCta.href}
+                    size="lg"
+                    onClick={closeMenu}
+                    className="mt-5 w-full"
                   >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-
-          <div className="hidden md:block">
-            <Button href="/contact" size="md">
-              Start a Project
-            </Button>
+                    {primaryCta.label}
+                  </Button>
+                </nav>
+              </Container>
+            </div>
           </div>
-
-          <button
-            ref={toggleRef}
-            type="button"
-            onClick={() => setMenuOpen((open) => !open)}
-            aria-expanded={menuOpen}
-            aria-controls="mobile-menu"
-            aria-label={menuOpen ? "Close menu" : "Open menu"}
-            className="-mr-2 inline-flex size-11 items-center justify-center rounded-md text-ink transition-colors hover:bg-elevated md:hidden"
-          >
-            {menuOpen ? (
-              <X aria-hidden="true" className="size-5" />
-            ) : (
-              <Menu aria-hidden="true" className="size-5" />
-            )}
-          </button>
-        </div>
-      </Container>
-
-      {menuOpen ? (
-        <div className="fixed inset-x-0 top-16 bottom-0 z-40 md:hidden">
-          {/* Tapping outside the panel closes the menu. */}
-          <button
-            type="button"
-            tabIndex={-1}
-            aria-hidden="true"
-            onClick={closeMenu}
-            className="absolute inset-0 cursor-default bg-ink/20"
-          />
-
-          <div
-            ref={panelRef}
-            id="mobile-menu"
-            className="relative border-b border-line bg-canvas shadow-lifted"
-          >
-            <Container>
-              <nav aria-label="Mobile" className="py-4">
-                <ul className="flex flex-col">
-                  {mainNav.map((item) => (
-                    <li key={item.href}>
-                      <Link
-                        href={item.href}
-                        onClick={closeMenu}
-                        aria-current={isActive(item.href) ? "page" : undefined}
-                        className={cn(
-                          "flex min-h-12 items-center border-b border-line/70 text-[0.975rem]",
-                          isActive(item.href) ? "font-medium text-ink" : "text-muted",
-                        )}
-                      >
-                        {item.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-
-                <Button
-                  href="/contact"
-                  size="lg"
-                  onClick={closeMenu}
-                  className="mt-5 w-full"
-                >
-                  Start a Project
-                </Button>
-              </nav>
-            </Container>
-          </div>
-        </div>
-      ) : null}
-    </header>
+        ) : null}
+      </header>
+    </>
   );
 }

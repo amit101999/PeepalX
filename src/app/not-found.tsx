@@ -13,7 +13,7 @@ export default function NotFound() {
   return (
     <Container>
       <div className="flex min-h-[60vh] flex-col justify-center py-24">
-        <p className="font-mono text-sm text-accent">404</p>
+        <p className="text-label font-medium text-accent">Error 404</p>
 
         <h1 className="mt-4 text-h1 font-semibold text-ink">
           This page doesn&rsquo;t exist.
@@ -26,15 +26,15 @@ export default function NotFound() {
 
         <div className="mt-9 flex flex-col gap-3 sm:flex-row">
           <Button href="/" size="lg">
-            Return Home
+            Back to home
           </Button>
-          <Button href="/contact" size="lg" variant="secondary">
-            Contact us
+          <Button href="/services" size="lg" variant="secondary">
+            See our services
           </Button>
         </div>
 
         <nav aria-label="Site sections" className="mt-14 border-t border-line pt-8">
-          <h2 className="text-label font-medium text-faint uppercase">
+          <h2 className="font-sans text-sm font-semibold text-ink">
             Or try one of these
           </h2>
           <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
@@ -42,7 +42,7 @@ export default function NotFound() {
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className="text-sm text-muted transition-colors hover:text-ink"
+                  className="inline-flex min-h-6 items-center text-sm text-muted underline decoration-transparent underline-offset-4 transition-colors hover:text-ink hover:decoration-current"
                 >
                   {item.label}
                 </Link>

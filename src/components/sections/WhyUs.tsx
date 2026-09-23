@@ -1,71 +1,117 @@
-import { Reveal } from "@/components/ui/Reveal";
+import { BookOpen, FileText, Layers, MessagesSquare } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { Section } from "@/components/ui/Section";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { cn } from "@/lib/utils/cn";
+import { SpotlightTile } from "./SpotlightTile";
 
 /**
- * "Why work with us".
+ * "Why teams work with us".
  *
  * Every point here is a claim about how we work, not a metric. No satisfaction
  * percentages, delivery statistics or client counts appear anywhere on this
  * site, because there is no data behind them yet.
  */
-const reasons = [
+const reasons: { title: string; description: string; icon: LucideIcon }[] = [
   {
-    title: "You talk to the people building it",
+    title: "You talk to the founders",
     description:
-      "There is no account layer between you and the engineers. The person who answers your question is the person writing the code.",
+      "No account layer in between. The people who scope your project are the people you speak to throughout.",
+    icon: MessagesSquare,
   },
   {
-    title: "Software, AI and automation in one team",
+    title: "One team, not three vendors",
     description:
-      "Most projects need an application, some integrations and increasingly some intelligence. Splitting that across vendors is where the cost usually goes.",
+      "Most projects need an application, some integrations and some AI. Keeping them together avoids the gaps in between.",
+    icon: Layers,
   },
   {
-    title: "Architecture sized to the problem",
+    title: "Trade-offs in writing",
     description:
-      "We pick the simplest design that meets the requirement, and say so when a feature is not worth what it costs to build.",
-  },
-  {
-    title: "Clear scope and honest trade-offs",
-    description:
-      "You get the constraints and the risks in writing before work starts, including the parts we are uncertain about.",
+      "Constraints, risks and the parts we are unsure about, written down before work starts.",
+    icon: FileText,
   },
   {
     title: "Built to be handed over",
     description:
-      "Readable code, written-down decisions and real documentation, so you are never locked in to us by confusion.",
-  },
-  {
-    title: "Support after launch",
-    description:
-      "Launch is the start of the system's life. We stay available for the maintenance and changes that follow.",
+      "Readable code and documented decisions, so you are never locked in by confusion.",
+    icon: BookOpen,
   },
 ];
 
+/**
+ * Tile treatments, in order: four stops of the green scale, from the brand
+ * green through two pale tints to forest. Each pairs its text colours with its
+ * background (all contrast-tested in tokens.test.ts), and `glow` picks the
+ * spotlight that reads on it.
+ */
+const tileStyles = [
+  {
+    tile: "bg-accent",
+    title: "text-canvas",
+    body: "text-accent-soft",
+    icon: "text-accent-soft",
+    glow: "light",
+  },
+  {
+    tile: "bg-green-100",
+    title: "text-ink",
+    body: "text-muted",
+    icon: "text-accent",
+    glow: "dark",
+  },
+  {
+    tile: "bg-green-200",
+    title: "text-ink",
+    body: "text-ink-soft",
+    icon: "text-accent",
+    glow: "dark",
+  },
+  {
+    tile: "bg-forest",
+    title: "text-on-dark",
+    body: "text-on-dark-muted",
+    icon: "text-on-dark-accent",
+    glow: "light",
+  },
+] as const;
+
 export function WhyUs() {
   return (
-    <Section tone="elevated" bordered>
-      <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
-        <SectionHeading
-          eyebrow="Why us"
-          title="What you actually get working with a small engineering team"
-          description="Three engineers, direct communication and full ownership of what we deliver."
-        />
+    <Section spacing="loose" bordered>
+      <div className="grid gap-12 lg:grid-cols-[minmax(0,0.75fr)_minmax(0,1.25fr)] lg:gap-16">
+        <div className="lg:sticky lg:top-28 lg:self-start">
+          <SectionHeading
+            title="Why teams work with us"
+            description="A small team that scopes, builds and supports the work itself."
+          />
+        </div>
 
-        <ul className="grid gap-x-10 gap-y-px sm:grid-cols-2">
-          {reasons.map((reason, index) => (
-            <Reveal
-              as="li"
-              key={reason.title}
-              delay={(index % 2) * 70}
-              className="border-t border-line py-6"
-            >
-              <h3 className="font-medium text-ink">{reason.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted">
-                {reason.description}
-              </p>
-            </Reveal>
-          ))}
+        <ul className="grid gap-4 sm:grid-cols-2">
+          {reasons.map((reason, index) => {
+            const style = tileStyles[index % tileStyles.length]!;
+            const Icon = reason.icon;
+
+            return (
+              <SpotlightTile
+                key={reason.title}
+                glow={style.glow}
+                className={cn("rounded-xl p-7 sm:p-8", style.tile)}
+              >
+                <Icon
+                  aria-hidden="true"
+                  strokeWidth={1.75}
+                  className={cn("size-6", style.icon)}
+                />
+                <h3 className={cn("mt-8 text-h3 font-semibold", style.title)}>
+                  {reason.title}
+                </h3>
+                <p className={cn("mt-3 leading-relaxed", style.body)}>
+                  {reason.description}
+                </p>
+              </SpotlightTile>
+            );
+          })}
         </ul>
       </div>
     </Section>

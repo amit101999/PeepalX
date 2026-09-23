@@ -27,7 +27,7 @@ const optionalEmail = z.preprocess(blankToUndefined, z.email().optional());
 /** `Name <address>`, the display-name form Resend accepts for the sender. */
 const DISPLAY_NAME_SENDER = /^[^<>]*<([^<>]+)>$/;
 
-/** A bare address, or `peepalX <website@example.com>`. The address part must be valid. */
+/** A bare address, or `PeepalX <website@example.com>`. The address part must be valid. */
 const optionalSender = z.preprocess(
   blankToUndefined,
   z
@@ -60,8 +60,21 @@ const serverEnvSchema = z
     RESEND_API_KEY: optionalString,
     CONTACT_FROM_EMAIL: optionalSender,
     CONTACT_TO_EMAIL: optionalEmail,
+    NODE_ENV: optionalString,
   })
   .superRefine((env, context) => {
+    // The console provider reports "message sent" while only logging the
+    // enquiry, including the visitor's personal details. On a live site that
+    // loses the lead and puts PII in the logs, so production refuses it.
+    if (env.NODE_ENV === "production" && env.CONTACT_PROVIDER === "console") {
+      context.addIssue({
+        code: "custom",
+        path: ["CONTACT_PROVIDER"],
+        message: 'must be a real delivery provider (e.g. "resend") in production',
+      });
+      return;
+    }
+
     if (env.CONTACT_PROVIDER !== "resend") return;
 
     for (const key of RESEND_REQUIRED) {

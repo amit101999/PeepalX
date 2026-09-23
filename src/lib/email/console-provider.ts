@@ -5,7 +5,8 @@ import type { ContactProvider, DeliveryResult, Inquiry } from "./types";
  * The default provider: writes the enquiry to the server console.
  *
  * This exists so the contact form works end to end in development with no
- * accounts, API keys or env file. It is not suitable for production — set
+ * accounts, API keys or env file. It logs the visitor's personal details, so
+ * `src/config/env.ts` refuses it when `NODE_ENV=production`: set
  * `CONTACT_PROVIDER=resend`, or add your own provider, before launch.
  */
 export const consoleProvider: ContactProvider = {

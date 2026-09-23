@@ -12,7 +12,15 @@ import nextTypescript from "eslint-config-next/typescript";
 export default defineConfig([
   ...nextCoreWebVitals,
   ...nextTypescript,
-  globalIgnores([".next/**", "node_modules/**", "coverage/**", "next-env.d.ts"]),
+  // .agents and .claude hold vendored agent skills (third-party scripts), not app code.
+  globalIgnores([
+    ".next/**",
+    "node_modules/**",
+    "coverage/**",
+    "next-env.d.ts",
+    ".agents/**",
+    ".claude/**",
+  ]),
   {
     rules: {
       "no-console": ["warn", { allow: ["warn", "error"] }],

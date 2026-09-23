@@ -1,21 +1,15 @@
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { CaseStudyJourney } from "@/components/projects/CaseStudyJourney";
+import { CaseStudy, ProjectCover } from "@/components/projects/CaseStudy";
 import { ProjectFacts } from "@/components/projects/ProjectFacts";
-import { ProjectStack } from "@/components/projects/ProjectStack";
-import { ScreenshotFigure } from "@/components/projects/ScreenshotFigure";
 import { CtaSection } from "@/components/sections/CtaSection";
-import { Container } from "@/components/ui/Container";
 import { JsonLd } from "@/components/ui/JsonLd";
 import { Section } from "@/components/ui/Section";
-import { SectionHeading } from "@/components/ui/SectionHeading";
 import { getProjectBySlug, projects } from "@/data/projects";
 import { createMetadata } from "@/lib/seo/metadata";
-import { breadcrumbSchema, caseStudySchema } from "@/lib/seo/structured-data";
-import type { Project, ProjectCaseStudy } from "@/types";
+import { caseStudySchema } from "@/lib/seo/structured-data";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -133,144 +127,7 @@ export default async function ProjectPage({ params }: PageProps) {
         secondary={{ label: "See our services", href: "/services" }}
       />
 
-      <JsonLd data={[breadcrumbSchema(breadcrumbs), caseStudySchema(project)]} />
+      <JsonLd data={caseStudySchema(project)} />
     </>
-  );
-}
-
-/**
- * The cover. Screenshots with a known size render uncropped at up to their
- * real width; anything else fills a fixed-ratio frame.
- */
-function ProjectCover({ project }: { project: Project }) {
-  if (project.imageWidth && project.imageHeight) {
-    return (
-      <ScreenshotFigure
-        priority
-        sizes="(min-width: 1200px) 1136px, 100vw"
-        image={{
-          src: project.image,
-          alt: project.imageAlt,
-          width: project.imageWidth,
-          height: project.imageHeight,
-          caption: project.imageCaption,
-        }}
-      />
-    );
-  }
-
-  return (
-    <div className="relative aspect-16/9 overflow-hidden rounded-xl border border-line bg-elevated">
-      <Image
-        src={project.image}
-        alt={project.imageAlt}
-        fill
-        sizes="(min-width: 1200px) 1200px, 100vw"
-        priority
-        className="object-cover object-top"
-      />
-    </div>
-  );
-}
-
-/** The written case study: the story, how the system works, then outcomes. */
-function CaseStudy({ caseStudy }: { caseStudy: ProjectCaseStudy }) {
-  const stages = caseStudy.stages ?? [];
-  const stack = caseStudy.stack ?? [];
-
-  return (
-    <>
-      <Section bordered>
-        <Container width="narrow" className="px-0 sm:px-0">
-          <div className="flex flex-col gap-12">
-            <Prose title="Where the client started" body={caseStudy.context} />
-            <Prose title="The problem" body={caseStudy.problem} />
-            {caseStudy.goal ? <Prose title="The goal" body={caseStudy.goal} /> : null}
-            <Prose title="What we built" body={caseStudy.solution} />
-          </div>
-        </Container>
-      </Section>
-
-      {stages.length > 0 ? (
-        <Section bordered>
-          <SectionHeading
-            title="How the system works"
-            description="Each stage in the order the work happens, with what it does and screens from the system."
-          />
-          <div className="mt-14">
-            <CaseStudyJourney stages={stages} />
-          </div>
-        </Section>
-      ) : null}
-
-      {stack.length > 0 ? (
-        <Section tone="elevated" bordered>
-          <SectionHeading
-            title="What it runs on"
-            description="The products behind the system, and the job each one does."
-          />
-          <div className="mt-12">
-            <ProjectStack tools={stack} />
-          </div>
-        </Section>
-      ) : null}
-
-      <Section bordered>
-        <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
-          {stack.length === 0 && caseStudy.architecture?.length ? (
-            <DetailList title="Architecture" items={caseStudy.architecture} />
-          ) : null}
-          {stages.length === 0 && caseStudy.features?.length ? (
-            <DetailList title="Key features" items={caseStudy.features} />
-          ) : null}
-          <DetailList title="Challenges" items={caseStudy.challenges} />
-          <DetailList title="Results" items={caseStudy.results} accent />
-        </div>
-      </Section>
-    </>
-  );
-}
-
-function Prose({ title, body }: { title: string; body: string }) {
-  return (
-    <div>
-      <h2 className="text-h3 font-semibold text-ink">{title}</h2>
-      <p className="mt-3 text-[1.0625rem] leading-relaxed text-ink-soft">{body}</p>
-    </div>
-  );
-}
-
-function DetailList({
-  title,
-  items,
-  accent = false,
-}: {
-  title: string;
-  items: string[];
-  accent?: boolean;
-}) {
-  return (
-    <div>
-      <h2 className="text-h3 font-semibold text-ink">{title}</h2>
-
-      <ul className="mt-5 flex flex-col">
-        {items.map((item) => (
-          <li
-            key={item}
-            className="flex items-start gap-3 border-t border-line py-3.5 text-sm leading-relaxed text-ink-soft"
-          >
-            <span
-              aria-hidden="true"
-              className={
-                accent
-                  ? "mt-[0.45rem] size-1.5 shrink-0 rounded-full bg-accent"
-                  : "mt-[0.45rem] size-1.5 shrink-0 rounded-full bg-line-strong"
-              }
-            />
-            {item}
-          </li>
-        ))}
-      </ul>
-    </div>
   );
 }

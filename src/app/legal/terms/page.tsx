@@ -7,6 +7,8 @@ export const metadata = createMetadata({
   title: "Terms & Conditions",
   description: `The terms that apply to use of the ${site.name} website.`,
   path: "/legal/terms",
+  // Placeholder legal copy stays out of search results until it is reviewed.
+  noIndex: !site.legalCopyReviewed,
 });
 
 /** Terms and conditions — placeholder structure only. */
@@ -37,24 +39,23 @@ const sections = [
     heading: "Governing law",
     paragraphs: ["Placeholder: name the governing law and jurisdiction."],
   },
-  {
-    heading: "Contact",
-    paragraphs: [`Questions about these terms can be sent to ${site.email}.`],
-  },
 ];
 
 export default function TermsPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Legal"
         title="Terms & Conditions"
         breadcrumbs={[
           { name: "Home", path: "/" },
           { name: "Terms & Conditions", path: "/legal/terms" },
         ]}
       />
-      <LegalDocument lastUpdated="Not yet published" sections={sections} />
+      <LegalDocument
+        lastUpdated="Not yet published"
+        sections={sections}
+        contactSubject="these terms"
+      />
     </>
   );
 }

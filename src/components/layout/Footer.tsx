@@ -9,26 +9,29 @@ import { SocialLinks } from "./SocialLinks";
 /**
  * Site footer.
  *
- * Link columns come from `src/data/navigation.ts`; social icons render only
- * for accounts configured in `src/config/site.ts`.
+ * It shares the ink background with the closing CTA above it, so the end of
+ * every page reads as one dark block rather than two stacked bands.
+ *
+ * Link columns come from `src/data/navigation.ts`; the email and social icons
+ * render only when they are configured in `src/config/site.ts`.
  */
 export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-ink text-canvas">
+    <footer className="bg-forest text-on-dark on-dark">
       <Container>
-        <div className="grid gap-12 py-16 sm:py-20 lg:grid-cols-[1.4fr_2.6fr] lg:gap-16">
+        <div className="grid gap-12 border-t border-on-dark-line py-16 sm:py-20 lg:grid-cols-[1.4fr_2.6fr] lg:gap-16">
           <div className="flex flex-col gap-5">
-            <Logo onDark />
-            <p className="max-w-xs text-sm leading-relaxed text-canvas/60">
+            <Logo onDark className="self-start" />
+            <p className="max-w-xs text-sm leading-relaxed text-on-dark-muted">
               {site.description}
             </p>
 
             {site.email ? (
               <a
                 href={`mailto:${site.email}`}
-                className="inline-flex items-center gap-2 text-sm text-canvas/80 transition-colors hover:text-canvas"
+                className="inline-flex items-center gap-2 self-start text-sm text-on-dark transition-colors hover:text-on-dark-accent"
               >
                 <Mail aria-hidden="true" className="size-4" />
                 {site.email}
@@ -36,7 +39,7 @@ export function Footer() {
             ) : null}
 
             {site.location ? (
-              <p className="text-sm text-canvas/55">{site.location}</p>
+              <p className="text-sm text-on-dark-muted">{site.location}</p>
             ) : null}
 
             <SocialLinks className="-ml-2.5" />
@@ -45,7 +48,7 @@ export function Footer() {
           <nav aria-label="Footer" className="grid gap-10 sm:grid-cols-3">
             {footerNav.map((column) => (
               <div key={column.title}>
-                <h2 className="text-label font-medium text-canvas/55 uppercase">
+                <h2 className="font-sans text-label font-medium text-on-dark-muted">
                   {column.title}
                 </h2>
                 <ul className="mt-4 flex flex-col gap-3">
@@ -53,7 +56,7 @@ export function Footer() {
                     <li key={`${column.title}-${link.href}`}>
                       <Link
                         href={link.href}
-                        className="text-sm text-canvas/70 transition-colors hover:text-canvas"
+                        className="text-sm text-on-dark transition-colors hover:text-on-dark-accent"
                       >
                         {link.label}
                       </Link>
@@ -65,8 +68,8 @@ export function Footer() {
           </nav>
         </div>
 
-        <div className="flex flex-col gap-4 border-t border-canvas/10 py-7 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm text-canvas/55">
+        <div className="flex flex-col gap-4 border-t border-on-dark-line py-7 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-on-dark-muted">
             © {year} {site.name}. All rights reserved.
           </p>
 
@@ -75,7 +78,7 @@ export function Footer() {
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className="text-sm text-canvas/55 transition-colors hover:text-canvas/80"
+                  className="text-sm text-on-dark-muted transition-colors hover:text-on-dark"
                 >
                   {link.label}
                 </Link>

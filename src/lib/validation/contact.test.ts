@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { contactFormSchema, toFieldErrors } from "./contact";
+import { contactFormSchema, isHoneypotFilled, toFieldErrors } from "./contact";
 
 /** A submission with every required field valid. */
 function validPayload(overrides: Record<string, unknown> = {}) {
   return {
     name: "Jordan Blake",
     email: "jordan@example.com",
-    service: "Web Development",
+    service: "Web development",
     message: "We need an internal dashboard that pulls data from two systems.",
     ...overrides,
   };
@@ -57,12 +57,21 @@ describe("contactFormSchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("rejects a submission where the honeypot field was filled in", () => {
-    const result = contactFormSchema.safeParse(
-      validPayload({ website: "http://spam.example" }),
-    );
+  it("never reports the honeypot as a field error, whatever it holds", () => {
+    for (const website of ["http://spam.example", "  ", 1]) {
+      const result = contactFormSchema.safeParse(validPayload({ website }));
 
-    expect(result.success).toBe(false);
+      expect(result.success).toBe(true);
+      expect(result.success && result.data.website).toBeUndefined();
+    }
+  });
+
+  it("detects a filled honeypot, including whitespace and non-strings", () => {
+    expect(isHoneypotFilled(validPayload({ website: "http://spam.example" }))).toBe(true);
+    expect(isHoneypotFilled(validPayload({ website: "  " }))).toBe(true);
+    expect(isHoneypotFilled(validPayload({ website: 1 }))).toBe(true);
+    expect(isHoneypotFilled(validPayload({ website: "" }))).toBe(false);
+    expect(isHoneypotFilled(validPayload())).toBe(false);
   });
 
   it("accepts optional budget, timeline and phone when provided", () => {
@@ -102,7 +111,7 @@ describe("toFieldErrors", () => {
     const result = contactFormSchema.safeParse({
       name: "",
       email: "",
-      service: "Web Development",
+      service: "Web development",
       message: "",
     });
 

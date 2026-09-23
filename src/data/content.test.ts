@@ -1,13 +1,21 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import type { ImageAsset } from "@/types";
+import type { ImageAsset, Testimonial } from "@/types";
 import { company } from "./company";
 import { getProjectBySlug, projects } from "./projects";
 import { getServiceBySlug, services } from "./services";
 import { team } from "./team";
 import { faqs } from "./faq";
-import { footerNav, mainNav } from "./navigation";
+import {
+  hasConfirmedAttribution,
+  isPublishable,
+  testimonials,
+  UNCONFIRMED,
+} from "./testimonials";
+import { footerNav, mainNav, primaryCta } from "./navigation";
+import { stageId } from "@/lib/utils/stage-id";
+import { serviceOptions } from "@/lib/validation/contact";
 
 /**
  * Guard rails for the content files.
@@ -177,6 +185,8 @@ describe("projects", () => {
     for (const project of projects) {
       const stages = project.caseStudy?.stages ?? [];
       expect(duplicatesIn(stages.map((stage) => stage.title))).toEqual([]);
+      // The anchor, the rail and its active state all key off this id.
+      expect(duplicatesIn(stages.map((stage) => stageId(stage.title)))).toEqual([]);
 
       for (const stage of stages) {
         expect(
@@ -255,7 +265,7 @@ describe("services", () => {
   });
 
   it("finds a service by slug", () => {
-    expect(getServiceBySlug("ai-systems")?.title).toBe("AI & Intelligent Systems");
+    expect(getServiceBySlug("ai-systems")?.title).toBe("AI systems");
     expect(getServiceBySlug("nope")).toBeUndefined();
   });
 
@@ -264,6 +274,26 @@ describe("services", () => {
       expect(service.capabilities.length).toBeGreaterThanOrEqual(4);
       expect(service.technologies.length).toBeGreaterThan(0);
     }
+  });
+
+  it("keeps short titles short enough for compact labels", () => {
+    for (const service of services) {
+      expect(
+        service.shortTitle.length,
+        `"${service.slug}" shortTitle is too long`,
+      ).toBeLessThanOrEqual(14);
+    }
+  });
+});
+
+describe("contact form service options", () => {
+  it("offers every service by title, plus an undecided option", () => {
+    // The form schema ships to the browser, so it keeps its own list rather
+    // than importing the services data (descriptions, icons) into the bundle.
+    expect([...serviceOptions]).toEqual([
+      ...services.map((service) => service.title),
+      "Not sure yet",
+    ]);
   });
 });
 
@@ -329,12 +359,38 @@ describe("navigation", () => {
     }
   });
 
+  it("lists every service in the footer, with its title and anchor", () => {
+    // The footer is a client-bundle-safe copy of the services list (the Navbar
+    // imports this module), so this test is what keeps the two in step.
+    const serviceLinks = footerNav
+      .flatMap((column) => column.links)
+      .filter((link) => link.href.startsWith("/services#"));
+
+    expect(serviceLinks).toEqual(
+      services.map((service) => ({
+        label: service.title,
+        href: `/services#${service.slug}`,
+      })),
+    );
+  });
+
   it("uses absolute paths everywhere", () => {
     const allLinks = [...mainNav, ...footerNav.flatMap((column) => column.links)];
 
     for (const link of allLinks) {
       expect(link.href.startsWith("/")).toBe(true);
     }
+  });
+
+  it("sends the primary CTA to the contact page or a Google Form over https", () => {
+    const isContactPage = primaryCta.href === "/contact";
+    const isGoogleForm = /^https:\/\/(docs\.google\.com\/forms\/|forms\.gle\/)/.test(
+      primaryCta.href,
+    );
+
+    expect(isContactPage || isGoogleForm, `Unexpected CTA href: ${primaryCta.href}`).toBe(
+      true,
+    );
   });
 });
 
@@ -347,5 +403,64 @@ describe("faq", () => {
     for (const item of faqs) {
       expect(item.answer.trim().length).toBeGreaterThan(20);
     }
+  });
+});
+
+describe("testimonials", () => {
+  it("links every review to a real project", () => {
+    for (const testimonial of testimonials) {
+      expect(getProjectBySlug(testimonial.project), testimonial.project).toBeDefined();
+    }
+  });
+
+  it("has at most one review per project", () => {
+    expect(duplicatesIn(testimonials.map((testimonial) => testimonial.project))).toEqual(
+      [],
+    );
+  });
+
+  it("keeps quotes short enough to read", () => {
+    for (const testimonial of testimonials) {
+      expect(testimonial.quote.trim().length, testimonial.project).toBeGreaterThan(40);
+      expect(testimonial.quote.length, testimonial.project).toBeLessThanOrEqual(320);
+    }
+  });
+
+  it("only approves reviews with confirmed attribution", () => {
+    for (const testimonial of testimonials.filter((entry) => entry.approved)) {
+      expect(hasConfirmedAttribution(testimonial), testimonial.project).toBe(true);
+    }
+  });
+
+  const base: Testimonial = {
+    project: "x",
+    quote: "q",
+    company: "Spinning mill, India",
+    approved: true,
+  };
+
+  it("accepts anonymous or confirmed attribution", () => {
+    expect(hasConfirmedAttribution(base)).toBe(true);
+    expect(hasConfirmedAttribution({ ...base, role: "Director" })).toBe(true);
+    expect(
+      hasConfirmedAttribution({ ...base, name: "A. Person", role: "Director" }),
+    ).toBe(true);
+  });
+
+  it("rejects blank or draft attribution", () => {
+    expect(hasConfirmedAttribution({ ...base, name: "" })).toBe(false);
+    expect(hasConfirmedAttribution({ ...base, name: "   " })).toBe(false);
+    expect(hasConfirmedAttribution({ ...base, company: "  " })).toBe(false);
+    expect(hasConfirmedAttribution({ ...base, company: UNCONFIRMED })).toBe(false);
+    expect(hasConfirmedAttribution({ ...base, role: `${UNCONFIRMED} ` })).toBe(false);
+    expect(
+      hasConfirmedAttribution({ ...base, name: "A. Person", role: UNCONFIRMED }),
+    ).toBe(false);
+  });
+
+  it("publishes only approved reviews with confirmed attribution", () => {
+    expect(isPublishable(base)).toBe(true);
+    expect(isPublishable({ ...base, approved: false })).toBe(false);
+    expect(isPublishable({ ...base, name: UNCONFIRMED })).toBe(false);
   });
 });

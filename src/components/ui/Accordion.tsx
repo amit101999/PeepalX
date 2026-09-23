@@ -8,19 +8,24 @@ import type { FaqItem } from "@/types";
  * reader semantics and correct expanded state for free, with no JavaScript and
  * no ARIA to keep in sync. A custom div-based accordion would need all three
  * hand-written and is easy to get subtly wrong.
+ *
+ * `data-accordion` opts the panel into the open/close height transition in
+ * globals.css. Browsers without `interpolate-size` simply open instantly.
  */
 export function AccordionItem({ question, answer }: FaqItem) {
   return (
-    <details className="group border-b border-line">
+    <details data-accordion className="group border-b border-line">
       <summary
         className="flex cursor-pointer list-none items-start justify-between gap-6 py-5 font-medium text-ink transition-colors hover:text-accent [&::-webkit-details-marker]:hidden"
         // The marker is removed above; this keeps the row a comfortable target.
       >
         <span className="text-[1.0625rem] leading-snug">{question}</span>
-        <Plus
+        <span
           aria-hidden="true"
-          className="mt-0.5 size-5 shrink-0 text-faint transition-transform duration-300 group-open:rotate-45"
-        />
+          className="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-md border border-line-strong text-muted transition-[transform,background-color,color,border-color] duration-300 ease-[var(--ease-out-soft)] group-open:rotate-45 group-open:border-accent group-open:bg-accent group-open:text-canvas"
+        >
+          <Plus className="size-3.5" />
+        </span>
       </summary>
       <p className="max-w-2xl pb-6 leading-relaxed text-muted">{answer}</p>
     </details>

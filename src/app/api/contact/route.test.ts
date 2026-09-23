@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { resetRateLimits } from "@/lib/rate-limit";
-import { GET, POST } from "./route";
+import { GET, MAX_BODY_BYTES, POST } from "./route";
 
 /**
  * Tests for the contact endpoint as a whole: the real handler, the real schema,
@@ -22,7 +22,7 @@ function contactRequest(body: unknown, ip = `203.0.113.${++ipCounter}`) {
 const validBody = {
   name: "Jordan Blake",
   email: "jordan@example.com",
-  service: "Web Development",
+  service: "Web development",
   message: "We need an internal dashboard that pulls data from two systems.",
 };
 
@@ -65,12 +65,58 @@ describe("POST /api/contact", () => {
     expect(result.errors.email).toBeDefined();
   });
 
-  it("rejects a submission with the honeypot filled in, without delivering it", async () => {
+  it("answers a filled honeypot like a success, without delivering it", async () => {
     const response = await POST(
       contactRequest({ ...validBody, website: "http://spam.example" }),
     );
+    const result = await response.json();
 
-    expect(response.status).toBe(400);
+    // A distinct error would tell bots which field is the trap.
+    expect(response.status).toBe(200);
+    expect(result.ok).toBe(true);
+    expect(result.errors).toBeUndefined();
+    expect(console.warn).toHaveBeenCalledTimes(1);
+    expect(console.warn).toHaveBeenCalledWith("[contact] Honeypot submission dropped");
+  });
+
+  it("rejects a body that is not declared as JSON", async () => {
+    const request = new Request("http://localhost/api/contact", {
+      method: "POST",
+      headers: { "Content-Type": "text/plain", "x-forwarded-for": "203.0.113.250" },
+      body: JSON.stringify(validBody),
+    });
+
+    expect((await POST(request)).status).toBe(415);
+    expect(console.warn).not.toHaveBeenCalled();
+  });
+
+  it("treats a whitespace honeypot as filled, not as a field error", async () => {
+    const response = await POST(contactRequest({ ...validBody, website: "  " }));
+
+    expect(response.status).toBe(200);
+    expect((await response.json()).errors).toBeUndefined();
+  });
+
+  it("refuses a declared oversized body before reading it", async () => {
+    const request = new Request("http://localhost/api/contact", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Content-Length": String(MAX_BODY_BYTES + 1),
+        "x-forwarded-for": "203.0.113.251",
+      },
+      body: JSON.stringify(validBody),
+    });
+
+    expect((await POST(request)).status).toBe(413);
+  });
+
+  it("rejects an oversized body without delivering it", async () => {
+    const response = await POST(
+      contactRequest({ ...validBody, message: "x".repeat(MAX_BODY_BYTES) }),
+    );
+
+    expect(response.status).toBe(413);
     expect(console.warn).not.toHaveBeenCalled();
   });
 

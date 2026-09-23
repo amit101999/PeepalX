@@ -34,14 +34,15 @@ endpoint.
 
 ## 1. Before you launch
 
-Four things ship as placeholders on purpose. Each one is a single, obvious edit.
+Five things ship as placeholders on purpose. Each one is a single, obvious edit.
 
-| What              | Where                                 | Why it is a placeholder                                                                                                                                                                           |
-| ----------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Company name**  | `src/config/site.ts` → `COMPANY_NAME` | The final brand name was not set when the site was built. Currently `"Northbound"`. Changing this one value updates the logo, page titles, footer, structured data and copyright line everywhere. |
-| **Email address** | `src/config/site.ts` → `site.email`   | Currently `hello@example.com`.                                                                                                                                                                    |
-| **Social links**  | `src/config/site.ts` → `socialLinks`  | All empty. Empty links are never rendered, so the footer simply shows no icons until you fill them in.                                                                                            |
-| **Testimonials**  | `src/data/testimonials.ts`            | No real client quotes yet, so entries are labelled in the UI as example content. Projects are real delivered work only — see [Adding and editing content](#7-adding-and-editing-content).         |
+| What              | Where                                        | Why it is a placeholder                                                                                                                                                                                                                                        |
+| ----------------- | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Company name**  | `src/config/site.ts` → `COMPANY_NAME`        | Set to `"PeepalX"`. Changing this one value updates the wordmark, page titles, footer, structured data and copyright line everywhere.                                                                                                                          |
+| **Email address** | `src/config/site.ts` → `site.email`          | Empty. While empty, every email link (footer, contact page, closing block, structured data) is hidden and the legal pages point to the contact page instead.                                                                                                   |
+| **Project form**  | `src/config/site.ts` → `site.projectFormUrl` | Empty. Paste the Google Form link here and every "Start a project" button opens it in a new tab. While empty, those buttons go to the contact page.                                                                                                            |
+| **Social links**  | `src/config/site.ts` → `socialLinks`         | All empty. Empty links are never rendered, so the footer simply shows no icons until you fill them in.                                                                                                                                                         |
+| **Testimonials**  | `src/data/testimonials.ts`                   | One draft review per project, awaiting client approval. Only approved reviews are shown, so the section stays hidden until the first one is approved. Projects are real delivered work only — see [Adding and editing content](#7-adding-and-editing-content). |
 
 Also worth doing before launch:
 
@@ -51,6 +52,8 @@ Also worth doing before launch:
   enquiries are only written to the server log.
 - Replace the placeholder legal copy in `src/app/legal/*` with reviewed text.
 - Add real team photos to `public/team/` and real bios in `src/data/team.ts`.
+- The contact page makes no response-time promise. Add one to `nextSteps` in
+  `src/app/contact/page.tsx` only once the team has agreed to keep it.
 
 ---
 
@@ -58,7 +61,7 @@ Also worth doing before launch:
 
 | Layer      | Choice                      | Why                                                                                                |
 | ---------- | --------------------------- | -------------------------------------------------------------------------------------------------- |
-| Framework  | **Next.js 15** (App Router) | Static rendering by default, which gives good SEO and fast loads without a separate CMS or server. |
+| Framework  | **Next.js 16** (App Router) | Static rendering by default, which gives good SEO and fast loads without a separate CMS or server. |
 | Language   | **TypeScript** (strict)     | Content is typed, so a malformed project or team entry fails at build rather than in production.   |
 | Styling    | **Tailwind CSS v4**         | Design tokens are declared once in `src/styles/globals.css` and used as utilities everywhere.      |
 | Icons      | **lucide-react**            | One consistent icon set; only the icons actually imported are bundled.                             |
@@ -68,9 +71,12 @@ Also worth doing before launch:
 **Four dependencies in total.** There is deliberately no animation library, no
 component library, no form library and no `clsx`/`tailwind-merge`:
 
-- Scroll and entrance animations are CSS plus a ~40-line
-  `IntersectionObserver` component (`src/components/ui/Reveal.tsx`). An
-  animation library would have cost roughly 35 KB for the same result.
+- All motion is CSS: the hero's logo springs together (a damped-spring curve
+  baked into a `linear()` easing), its headline arrives word by word, and
+  sections reveal on scroll (`animation-timeline: view()`). Browsers without
+  scroll timelines simply show the content. The Motion library was tried for
+  the logo and removed: it added about 45 KB gzip to the home page for an effect
+  CSS draws from the first paint with no script and no flash.
 - The accordion is native `<details>`/`<summary>`, which is accessible without
   any JavaScript or ARIA.
 - The contact form uses the platform's `FormData` plus the zod schema.
@@ -97,10 +103,10 @@ src/
 
   components/
     layout/     Navbar, Footer, Logo, PageHeader, SocialLinks, LegalDocument
-    sections/   One file per page section (Hero, Services, Process, FAQ, …)
-    ui/         Reusable primitives (Button, Section, Badge, Accordion, cards)
+    sections/   One file per page section (Hero, Services, SelectedWork, WhyUs, Team, …)
+    ui/         Reusable primitives (Button, TextLink, Section, Badge, Accordion, cards)
     forms/      ContactForm
-    projects/   ProjectCard
+    projects/   ProjectFeature, ProjectCard and the case study parts
 
   data/         All editable content — see section 7
   lib/
@@ -109,9 +115,9 @@ src/
     email/      Contact provider abstraction (console, Resend)
     hooks/      useActiveSection
     utils/      cn class-name helper
-    rate-limit.ts, analytics.ts
+    rate-limit.ts
   config/site.ts  Company name, email, social links
-  styles/globals.css  Design tokens and base styles
+  styles/globals.css  Design tokens, base styles and motion (tokens.test.ts checks contrast)
   types/index.ts      Shared content types
 
 public/
@@ -151,7 +157,7 @@ npm run lint         # ESLint
 npm run test         # Vitest once
 npm run test:watch   # Vitest in watch mode
 npm run format       # Prettier write
-npm run check        # typecheck + lint + test
+npm run check        # format check + typecheck + lint + test
 ```
 
 ---
@@ -182,18 +188,19 @@ conflict.
 
 ## 6. Environment variables
 
-Copy `.env.example` to `.env.local`. Nothing here is required for the site to
-run; each variable turns something on.
+Copy `.env.example` to `.env.local`. Nothing here is required to run the site
+in development. Production builds (`next build` + `next start`, and every Vercel
+deploy including previews) refuse the `console` provider, so the contact form
+needs `CONTACT_PROVIDER=resend` there. A misconfiguration is logged when the
+server starts (`src/instrumentation.ts`). See [docs/deployment.md](docs/deployment.md).
 
-| Variable                         | Purpose                                                                                                              |
-| -------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SITE_URL`           | Public origin, no trailing slash. Used for canonical URLs, the sitemap and social cards. **Set this in production.** |
-| `CONTACT_PROVIDER`               | `console` (default, logs to the server) or `resend` (sends email).                                                   |
-| `RESEND_API_KEY`                 | Resend API key. Server-only — never exposed to the browser.                                                          |
-| `CONTACT_FROM_EMAIL`             | Verified sender address on your Resend domain.                                                                       |
-| `CONTACT_TO_EMAIL`               | Where enquiries are delivered.                                                                                       |
-| `NEXT_PUBLIC_ANALYTICS_PROVIDER` | Blank by default, which means no analytics scripts load at all.                                                      |
-| `NEXT_PUBLIC_ANALYTICS_ID`       | The measurement or project id for that provider.                                                                     |
+| Variable               | Purpose                                                                                                              |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SITE_URL` | Public origin, no trailing slash. Used for canonical URLs, the sitemap and social cards. **Set this in production.** |
+| `CONTACT_PROVIDER`     | `console` (development default, logs to the server; refused in production) or `resend`.                              |
+| `RESEND_API_KEY`       | Resend API key. Server-only — never exposed to the browser.                                                          |
+| `CONTACT_FROM_EMAIL`   | Verified sender address on your Resend domain.                                                                       |
+| `CONTACT_TO_EMAIL`     | Where enquiries are delivered.                                                                                       |
 
 Only variables prefixed `NEXT_PUBLIC_` reach the browser. Anything else stays on
 the server. `.env.local` is git-ignored — never commit real keys.
@@ -258,10 +265,12 @@ from this array.
 
 ### Add or edit a service
 
-Edit `src/data/services.ts`. Each service needs a `slug`, `title`, `summary`
-(card text), `description` (services page text), `capabilities`, `technologies`
-and an `icon` imported from `lucide-react`. Services appear on the home page,
-the services page and in the footer menu automatically.
+Edit `src/data/services.ts`. Each service needs a `slug`, `title`, `shortTitle`
+(reserved for compact labels, 14 characters at most), `summary` (home page
+text), `description` (services page text), `capabilities`, `technologies` and an
+`icon` imported from `lucide-react`. The home page index and the services page
+update automatically. `shortTitle` is not rendered anywhere today; the cap simply keeps it usable if a compact label is needed later. Footer links are listed in `src/data/navigation.ts`, and the content
+tests check that each one points at a real service.
 
 ### Add or edit a team member
 
@@ -271,21 +280,29 @@ rendered, so an incomplete profile shows fewer icons rather than dead links.
 
 ### Add a testimonial
 
-Edit `src/data/testimonials.ts`. Replace a placeholder entry with the real
-quote, name, role and company — with that person's permission — and set
-`isPlaceholder: false`. The "placeholder content" notice disappears once no
-entry is marked as placeholder. Emptying the array removes the whole section.
+Edit `src/data/testimonials.ts`. Each entry is tied to one project by its
+`project` slug. The existing entries are drafts written from each case study,
+for the client to edit and approve — they are never shown on the site.
+
+When a client approves a review, replace the quote with their final wording,
+set `name`, `role` and `company` to what they agreed to be shown (a
+person's name only with their permission), and set `approved: true`. For an
+anonymous review, delete `name` and `role` and keep the project's client
+description (e.g. "Spinning mill, India") as `company`. Approved
+reviews appear on the home page with a link to their project; the section stays
+hidden while none are approved. `npm test` fails if an approved review still has
+unconfirmed attribution or points at a project that does not exist.
 
 ### Other content files
 
 | File                       | Controls                                               |
 | -------------------------- | ------------------------------------------------------ |
 | `src/data/faq.ts`          | FAQ questions. Also generates the FAQ structured data. |
-| `src/data/domains.ts`      | The "Domains we can build for" list.                   |
-| `src/data/technologies.ts` | The technology section groupings.                      |
+| `src/data/technologies.ts` | The technology groupings on /services.                 |
 | `src/data/process.ts`      | The six process stages.                                |
-| `src/data/values.ts`       | Core values.                                           |
-| `src/data/navigation.ts`   | Header links, footer columns, legal links.             |
+| `src/data/values.ts`       | "How we work" commitments on /about.                   |
+| `src/data/company.ts`      | Hero headline, story, mission and vision.              |
+| `src/data/navigation.ts`   | Header links, the contact CTA, footer columns.         |
 
 ### Update social links
 
@@ -343,10 +360,11 @@ ContactForm (browser)
    └─ validates with the zod schema, for immediate feedback
    └─ POST /api/contact
         ├─ 1. rate limit by IP           src/lib/rate-limit.ts
-        ├─ 2. parse the JSON body
-        ├─ 3. re-validate with the SAME schema (incl. honeypot)
-        └─ 4. hand off to the configured provider   src/lib/email/
-                ├─ console  → writes to the server log (default)
+        ├─ 2. require JSON, at most 16 KB
+        ├─ 3. filled honeypot → normal success, not delivered
+        ├─ 4. re-validate with the SAME schema
+        └─ 5. hand off to the configured provider   src/lib/email/
+                ├─ console  → writes to the server log (development only)
                 └─ resend   → sends email via the Resend API
 ```
 
@@ -396,8 +414,9 @@ Link columns come from `footerNav` and `legalNav` in `src/data/navigation.ts`.
 Social icons come from `src/config/site.ts`.
 
 **PageHeader** — `src/components/layout/PageHeader.tsx`
-The title block at the top of every inner page. Pass `eyebrow`, `title`,
-`description` and `breadcrumbs`.
+The title block at the top of every inner page. Pass `title`, `description`
+and `breadcrumbs`; pass `eyebrow` only for information the breadcrumb does not
+already give (a project's category, for example).
 
 **Section** — `src/components/ui/Section.tsx`
 Wrapper for every page section: sets the background tone (`canvas`, `elevated`,
@@ -405,17 +424,38 @@ Wrapper for every page section: sets the background tone (`canvas`, `elevated`,
 sections so spacing stays consistent.
 
 **SectionHeading** — `src/components/ui/SectionHeading.tsx`
-Eyebrow + heading + supporting line, with an `onDark` variant.
+Heading and supporting line, stacked, with an optional sentence-case label and
+an `onDark` variant. Use the label sparingly: most sections need only the
+heading.
 
 **Button** — `src/components/ui/Button.tsx`
 Pass `href` to render a link styled as a button; omit it for a real `<button>`.
-Variants: `primary`, `secondary`, `ghost`. External URLs get `rel="noopener
-noreferrer"` automatically.
+Variants: `primary`, `secondary`, `ghost`, plus `inverse` and
+`inverseSecondary` for the dark closing block. External URLs open in a new tab
+with `rel="noopener noreferrer"` and a screen-reader "(opens in a new tab)" cue.
+The site's contact action always uses `primaryCta` from
+`src/data/navigation.ts`, so it has one label everywhere; its link is the Google
+Form in `site.projectFormUrl`, or `/contact` while that is empty.
 
-**Reveal** — `src/components/ui/Reveal.tsx`
-Wraps content to fade it in on scroll. `delay` staggers a row of cards. Content
-is visible by default and only hidden once it is confirmed to be below the fold,
-so nothing disappears if JavaScript fails.
+**TextLink** — `src/components/ui/TextLink.tsx`
+A quiet onward link with an arrow, such as "All services" beside a heading.
+
+**Hero** — `src/components/sections/Hero.tsx` and `src/components/sections/hero/`
+The headline (word by word), a typed line naming what we build, the
+description and actions, beside the brand mark assembling itself in five green
+shades. `HeroMark` is a Server Component driven by CSS; `TypedServices` is a
+small client component with a pause/replay button, a finite run, and a stable
+sentence for screen readers, its timing in `src/lib/utils/typewriter.ts`
+(unit-tested). Copy lives in `src/data/company.ts` (`heroHeadline`,
+`heroBuildPhrases`, `heroDescription`).
+
+**Scroll reveal** — add `data-reveal` to any element to ease it in as it enters
+the viewport. It is pure CSS, so there is nothing to import.
+
+**StageRail** — `src/components/projects/StageRail.tsx`
+The sticky stage list beside a case study. It is the only client component on a
+project page: the links are server-rendered and work without JavaScript, and the
+hook only adds the "you are here" highlight.
 
 **Accordion** — `src/components/ui/Accordion.tsx`
 Native `<details>`-based accordion. Takes `items: FaqItem[]`.
@@ -424,7 +464,7 @@ Native `<details>`-based accordion. Takes `items: FaqItem[]`.
 See section 9. To change the form fields, edit the schema in
 `src/lib/validation/contact.ts` first — the dropdown options are defined there.
 
-**ServiceCard / ProjectCard / TeamMemberCard**
+**ProjectFeature / ProjectCard / TeamMemberCard**
 `src/components/ui/` and `src/components/projects/`. Each takes one item from
 the matching data file.
 
@@ -432,28 +472,66 @@ the matching data file.
 
 ## 11. Design system
 
-All tokens are defined once, in the `@theme` block at the top of
+Warm paper neutrals, one deep green for everything interactive, and an amber
+used only as a rare highlight. The logo keeps its own blue as a brand asset, so
+the mark is the one place blue appears. All tokens are defined once, in the `@theme` block at the top of
 `src/styles/globals.css`, and are available as Tailwind utilities.
 
-| Token              | Value                    | Utility                    |
-| ------------------ | ------------------------ | -------------------------- |
-| `--color-canvas`   | `#fbfaf9` warm off-white | `bg-canvas`                |
-| `--color-elevated` | `#f5f3f1`                | `bg-elevated`              |
-| `--color-ink`      | `#17161a` near-black     | `text-ink`                 |
-| `--color-muted`    | `#5e5d64`                | `text-muted`               |
-| `--color-line`     | `#e6e2df`                | `border-line`              |
-| `--color-accent`   | `#a54d27` copper         | `bg-accent`, `text-accent` |
+| Token                    | Value     | Role                                                                      |
+| ------------------------ | --------- | ------------------------------------------------------------------------- |
+| `--color-canvas`         | `#f7f8f4` | Page background                                                           |
+| `--color-surface`        | `#ffffff` | Panels and inputs                                                         |
+| `--color-elevated`       | `#ecefe7` | Quiet section bands                                                       |
+| `--color-ink`            | `#13251e` | Headings and body text                                                    |
+| `--color-muted`          | `#55655c` | Secondary text                                                            |
+| `--color-line`           | `#dde3da` | Decorative hairlines only                                                 |
+| `--color-control`        | `#6c7c73` | Form control borders                                                      |
+| `--color-accent`         | `#146b45` | Deep green: every button, link and focus ring                             |
+| `--color-green-50`…`950` | scale     | Eleven shades of the brand green, 600 = accent; 400-500 are graphics only |
+| `--color-tint`           | `#e9f4ed` | Pale green section bands (green-50)                                       |
+| `--color-forest`         | `#0a3623` | The dark closing block and footer (green-900)                             |
+| `--color-signal`         | `#9a5b00` | Amber: rare emphasis only, never a button                                 |
+| `--color-danger`         | `#a12a2a` | Form errors, always with an icon or text                                  |
+| `--color-on-dark-*`      | various   | Text, links and focus ring inside the dark closing block                  |
+
+Rules the components follow:
+
+- **One theme.** The page is light; the closing CTA and the footer share the ink
+  background and read as the single dark block at the end of every page.
+- **One shape system.** Badges 6px, controls 8px, media and notices 12px, panels
+  16px.
+- **Sentence case** for headings, buttons and labels, and no uppercase label
+  above every section.
+- **One label per intent.** Contact is always "Start a project"
+  (`primaryCta`); portfolio is "See our work".
+- **Contrast is tested.** `src/styles/tokens.test.ts` reads the hex values from
+  `globals.css` and fails if a text pairing drops below WCAG AA (4.5:1) or a
+  control border or focus ring below 3:1.
 
 Type scale (`text-display`, `text-h1`, `text-h2`, `text-h3`, `text-lead`,
 `text-label`) is fluid: each size uses `clamp()` so it scales with the viewport
 rather than jumping at breakpoints.
 
-**To change the brand colour**, edit `--color-accent` and `--color-accent-hover`
-(and `--color-accent-soft`, its tint) in that one block. Everything follows.
+Typefaces: **Schibsted Grotesk** for headings (`font-display`, applied to
+`h1`–`h3` by default) and **Figtree** for text. Both are variable fonts loaded
+through `next/font`, which serves them from your own domain: no runtime request
+to Google, no CSP exception and no font-related layout shift.
 
-Typeface: Inter, loaded through `next/font`, which downloads it at build time
-and serves it from your own domain — no runtime request to Google, and no
-font-related layout shift.
+**Motion** is CSS, and every effect has one job:
+
+- the hero plays once: the headline word by word, the typed services line, and
+  the logo springing together piece by piece;
+- `data-reveal` groups ease in as they scroll into view, and the lead
+  project's cover opens out from a slight inset (`data-settle`);
+- `data-accordion` panels grow and shrink instead of snapping open;
+- route changes crossfade through React's `<ViewTransition>`;
+- service rows tint on hover or focus, and the WhyUs tiles carry a light that
+  follows the mouse (`SpotlightTile`, CSS variables, no re-renders);
+- the forest closing block has one slow ambient mesh drift.
+
+All of it is removed under `prefers-reduced-motion` and when printing, with
+every element forced to its final state; the typed line shows its first phrase
+and never starts.
 
 ---
 
@@ -469,12 +547,14 @@ font-related layout shift.
 - The accordion uses native `<details>`, which is keyboard accessible by
   default.
 - Every image has meaningful alt text; decorative SVGs are `aria-hidden`.
-- `prefers-reduced-motion` is respected globally, and scroll-reveal elements are
-  explicitly forced to their visible state so reduced motion never hides
-  content.
-- Every text colour token meets WCAG AA (4.5:1) on the light backgrounds, and
-  light text on the dark sections is kept at 55% opacity or higher for the same
-  reason. The values are checked in a comment in `globals.css`.
+- `prefers-reduced-motion` is respected globally, and every animated element
+  (entrance, scroll reveal, timeline) is forced to its final state
+  so reduced motion never hides content.
+- Every text and background pairing the components use meets WCAG AA (4.5:1),
+  and control borders and focus rings meet 3:1, on light and dark surfaces.
+  `src/styles/tokens.test.ts` enforces this.
+- State is never shown by colour alone: the active nav link has an underline,
+  and form errors have an icon and text.
 
 Worth doing before launch: a pass with a screen reader and a Lighthouse
 accessibility audit on the deployed site.
@@ -483,16 +563,17 @@ accessibility audit on the deployed site.
 
 ## 13. Performance
 
-- Pages are statically generated; the home page ships no page-level JavaScript
-  beyond the header and the reveal wrapper.
+- Pages are statically generated. On the home page the only script beyond the
+  header is the typed line and the tiles' pointer tracking (about 1.6 KB gzip),
+  and case study pages add only the stage rail. Every animation itself is CSS.
 - Four runtime dependencies, no animation or component library.
-- Fonts are self-hosted with `display: swap`.
+- Fonts are two self-hosted variable files with `display: swap`.
 - Images use `next/image` with explicit `sizes`, so the browser never downloads
   an oversized file. The first project image is marked `priority`; the rest are
   lazy.
 - No layout shift: the header has a fixed height and every image sits in a
   fixed-ratio container.
-- The hero background is two CSS gradients rather than an image.
+- The hero logo is inline SVG animated by CSS, rather than an image request or a script.
 
 ---
 
@@ -523,21 +604,24 @@ script is silently blocked.
 npm run test    # Vitest
 npm run lint    # ESLint (next/core-web-vitals + TypeScript rules)
 npm run format  # Prettier, including Tailwind class sorting
-npm run check   # all three, in the order CI should run them
+npm run check   # format check, typecheck, lint and tests, in CI order
 ```
 
 Tests cover the places where a bug would be a security problem, a lost lead or a
 broken page:
 
 - **Contact API route** (`src/app/api/contact/route.test.ts`) — valid enquiries
-  are delivered, invalid input and filled honeypots are rejected, repeat
+  are delivered, invalid input is rejected, filled honeypots get a normal
+  success without delivery, wrong content types and oversized bodies are refused, repeat
   submissions are rate limited, and provider failures return a generic message
   without leaking configuration.
 - **Contact form schema** — valid and invalid submissions, trimming, optional
-  fields and unanswered dropdowns, the honeypot.
+  fields and unanswered dropdowns, honeypot detection.
 - **Rate limiter** — limits, windows, per-client isolation, proxy headers.
 - **Content files** (`src/data/content.test.ts`) — unique slugs, every image path
-  exists, footer links point at real services.
+  exists, footer links point at real services, service short titles stay within their length cap.
+- **Design tokens** (`src/styles/tokens.test.ts`) — colour contrast of every
+  token pairing the components use.
 
 Presentational components are not snapshot-tested — that would add maintenance
 without catching much.
@@ -557,12 +641,13 @@ metadata and add the posts to `sitemap.ts`.
 functions that fetch from your CMS, keep the types in `src/types/index.ts`, and
 nothing in the components has to change.
 
-**Analytics** — set the two environment variables and render the provider
-script from a new `src/components/layout/Analytics.tsx`, using
-`getAnalyticsConfig()` in `src/lib/analytics.ts`. Remember the CSP.
+**Analytics** — nothing is wired up. Add a provider script in a new
+`src/components/layout/Analytics.tsx`, widen `script-src` and `connect-src` in
+the CSP, and update the cookie and privacy pages.
 
 **More pages** — copy an existing page. The pattern is always: `createMetadata`
-export, `PageHeader`, some `Section`s, a `CtaSection`, and a `JsonLd` breadcrumb.
+export, `PageHeader` with `breadcrumbs` (it emits the BreadcrumbList schema), some
+`Section`s and a `CtaSection`.
 
 Keep the guiding rule: **content in `src/data`, presentation in
 `src/components`, one design system in `globals.css`.**

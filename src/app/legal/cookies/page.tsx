@@ -7,13 +7,15 @@ export const metadata = createMetadata({
   title: "Cookie Policy",
   description: `How ${site.name} uses cookies and similar technologies on this website.`,
   path: "/legal/cookies",
+  // Placeholder legal copy stays out of search results until it is reviewed.
+  noIndex: !site.legalCopyReviewed,
 });
 
 /**
  * Cookie policy — placeholder structure, with one accurate statement.
  *
  * As shipped, this site sets no cookies and loads no third-party scripts. That
- * stops being true the moment analytics is enabled in `src/lib/analytics.ts`,
+ * stops being true the moment analytics or any third-party script is added,
  * which is why the note below says so explicitly.
  */
 const sections = [
@@ -36,24 +38,23 @@ const sections = [
       "Placeholder: describe how changes to this policy will be communicated.",
     ],
   },
-  {
-    heading: "Contact",
-    paragraphs: [`Questions about this policy can be sent to ${site.email}.`],
-  },
 ];
 
 export default function CookiePolicyPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Legal"
         title="Cookie Policy"
         breadcrumbs={[
           { name: "Home", path: "/" },
           { name: "Cookie Policy", path: "/legal/cookies" },
         ]}
       />
-      <LegalDocument lastUpdated="Not yet published" sections={sections} />
+      <LegalDocument
+        lastUpdated="Not yet published"
+        sections={sections}
+        contactSubject="this policy"
+      />
     </>
   );
 }

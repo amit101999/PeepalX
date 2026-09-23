@@ -7,17 +7,18 @@ import { Container } from "@/components/ui/Container";
 /**
  * Route-level error boundary.
  *
- * Shows a recovery path rather than a stack trace. The error object is logged
- * to the console for local debugging, and `error.digest` is the id to match
- * against server logs in production — no internal detail is rendered to the
- * visitor.
+ * Shows a recovery path rather than a stack trace. "Try again" calls `retry()`,
+ * which re-fetches the segment; `reset()` would only re-render the same
+ * failure. The error object is logged to the console for local debugging, and
+ * `error.digest` is the id to match against server logs in production — no
+ * internal detail is rendered to the visitor.
  */
 export default function ErrorBoundary({
   error,
-  reset,
+  retry,
 }: {
   error: Error & { digest?: string };
-  reset: () => void;
+  retry: () => void;
 }) {
   useEffect(() => {
     console.error(error);
@@ -26,7 +27,7 @@ export default function ErrorBoundary({
   return (
     <Container>
       <div className="flex min-h-[60vh] flex-col justify-center py-24">
-        <p className="font-mono text-sm text-accent">Error</p>
+        <p className="text-label font-medium text-accent">Error</p>
 
         <h1 className="mt-4 text-h1 font-semibold text-ink">Something went wrong.</h1>
 
@@ -36,11 +37,11 @@ export default function ErrorBoundary({
         </p>
 
         <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-          <Button size="lg" onClick={reset}>
+          <Button size="lg" onClick={() => retry()}>
             Try again
           </Button>
           <Button href="/" size="lg" variant="secondary">
-            Return home
+            Back to home
           </Button>
         </div>
 

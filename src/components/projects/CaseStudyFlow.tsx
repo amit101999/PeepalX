@@ -41,7 +41,7 @@ export function CaseStudyFlow({ steps, label, className }: CaseStudyFlowProps) {
             ) : null}
             <span
               className={cn(
-                "inline-flex min-h-8 items-center rounded-full border px-3.5 text-sm",
+                "inline-flex min-h-8 items-center rounded-md border px-3 text-sm",
                 isLast
                   ? "border-accent bg-accent-soft font-medium text-ink"
                   : "border-line-strong bg-surface text-ink-soft",

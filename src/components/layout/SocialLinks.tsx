@@ -40,7 +40,7 @@ export function SocialLinks({ className }: { className?: string }) {
               target="_blank"
               rel="noopener noreferrer"
               aria-label={`${labels[platform]} (opens in a new tab)`}
-              className="inline-flex size-10 items-center justify-center rounded-md text-canvas/60 transition-colors hover:bg-canvas/10 hover:text-canvas"
+              className="inline-flex size-10 items-center justify-center rounded-md text-on-dark-muted transition-colors hover:bg-on-dark/10 hover:text-on-dark"
             >
               <Icon aria-hidden="true" className="size-[18px]" />
             </a>

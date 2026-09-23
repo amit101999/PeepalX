@@ -14,7 +14,27 @@ import type { NextConfig } from "next";
  * a server that is not listening for it, and the page renders unstyled. So it
  * is only sent when the configured site URL is itself https.
  */
-const isHttpsSite = (process.env.NEXT_PUBLIC_SITE_URL ?? "").startsWith("https://");
+const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim() ?? "";
+const isHttpsSite = configuredSiteUrl.startsWith("https://");
+
+/**
+ * Without NEXT_PUBLIC_SITE_URL, `src/config/site.ts` falls back to localhost, and
+ * every canonical URL, sitemap entry, social card and JSON-LD id would point
+ * there. A Vercel production deploy refuses to build in that state; any other
+ * production build (local `next build`, another host) gets a loud warning.
+ */
+if (!isHttpsSite) {
+  const problem = configuredSiteUrl
+    ? `NEXT_PUBLIC_SITE_URL is "${configuredSiteUrl}", not an https URL.`
+    : "NEXT_PUBLIC_SITE_URL is not set, so canonical URLs will point at localhost.";
+
+  if (process.env.VERCEL_ENV === "production") {
+    throw new Error(`${problem} Set it to the live origin before deploying.`);
+  }
+  if (process.env.NODE_ENV === "production") {
+    console.warn(`[config] ${problem} Fine for local testing; set it before deploying.`);
+  }
+}
 
 const contentSecurityPolicy = [
   "default-src 'self'",
@@ -41,8 +61,11 @@ const securityHeaders = [
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
   {
+    // No `preload`: that asks browsers to hard-code https for the whole domain
+    // and every subdomain, which is slow to undo. Add it only once the domain
+    // owner has decided to submit to hstspreload.org (see docs/security.md).
     key: "Strict-Transport-Security",
-    value: "max-age=63072000; includeSubDomains; preload",
+    value: "max-age=63072000; includeSubDomains",
   },
 ];
 

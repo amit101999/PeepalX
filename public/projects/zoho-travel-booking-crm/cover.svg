@@ -1,18 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="840" viewBox="0 0 1600 840" role="img" aria-labelledby="title">
   <title id="title">A travel route with stops for inquiry, lead, deal, quotation, confirmation, payment and itinerary</title>
-  <rect width="1600" height="840" fill="#f5f3f1"/>
+  <rect width="1600" height="840" fill="#ecefe7"/>
 
   <!-- Faint map contours -->
-  <g fill="none" stroke="#e6e2df" stroke-width="2">
+  <g fill="none" stroke="#dde3da" stroke-width="2">
     <path d="M-40 250 C 300 170, 620 380, 980 240 S 1500 150, 1660 220"/>
     <path d="M-40 700 C 360 640, 700 780, 1060 680 S 1480 610, 1660 690"/>
   </g>
 
   <!-- The customer's route, first inquiry to final itinerary -->
   <path d="M160 560 C 360 560, 380 300, 580 300 S 820 560, 1020 560 S 1260 300, 1440 300"
-        fill="none" stroke="#5e5d64" stroke-width="5" stroke-linecap="round" stroke-dasharray="1 16"/>
+        fill="none" stroke="#55655c" stroke-width="5" stroke-linecap="round" stroke-dasharray="1 16"/>
 
-  <g fill="#ffffff" stroke="#3d3b42" stroke-width="3">
+  <g fill="#ffffff" stroke="#33443c" stroke-width="3">
     <circle cx="160" cy="560" r="14"/>
     <circle cx="370" cy="430" r="14"/>
     <circle cx="580" cy="300" r="14"/>
@@ -20,16 +20,16 @@
     <circle cx="1020" cy="560" r="14"/>
     <circle cx="1237.5" cy="430" r="14"/>
   </g>
-  <circle cx="1440" cy="300" r="22" fill="#a54d27"/>
+  <circle cx="1440" cy="300" r="22" fill="#146b45"/>
   <circle cx="1440" cy="300" r="8" fill="#ffffff"/>
 
-  <g font-family="Figtree, 'Segoe UI', system-ui, sans-serif" font-size="26" fill="#3d3b42">
+  <g font-family="Figtree, 'Segoe UI', system-ui, sans-serif" font-size="26" fill="#33443c">
     <text x="160" y="622" text-anchor="middle">Inquiry</text>
     <text x="338" y="439" text-anchor="end">Lead</text>
     <text x="580" y="258" text-anchor="middle">Deal</text>
     <text x="832" y="439" text-anchor="start">Quotation</text>
     <text x="1020" y="622" text-anchor="middle">Confirmation</text>
     <text x="1206" y="439" text-anchor="end">Payment</text>
-    <text x="1440" y="250" text-anchor="middle" fill="#17161a" font-weight="600">Itinerary</text>
+    <text x="1440" y="250" text-anchor="middle" fill="#13251e" font-weight="600">Itinerary</text>
   </g>
 </svg>

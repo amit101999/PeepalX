@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 import { getContactProvider } from "@/lib/email";
 import { checkRateLimit, getClientIdentifier } from "@/lib/rate-limit";
-import { contactFormSchema, toFieldErrors } from "@/lib/validation/contact";
+import {
+  CONTACT_SUCCESS_MESSAGE,
+  contactFormSchema,
+  isHoneypotFilled,
+  toFieldErrors,
+} from "@/lib/validation/contact";
 import type { ContactApiResponse } from "@/lib/validation/contact";
 
 /**
@@ -9,9 +14,10 @@ import type { ContactApiResponse } from "@/lib/validation/contact";
  *
  * Order of checks, each one cheap before the next:
  *   1. Rate limit by client IP.
- *   2. Parse the JSON body.
- *   3. Validate against the shared schema — including the honeypot field.
- *   4. Hand the validated enquiry to the configured provider.
+ *   2. Require a JSON body no larger than MAX_BODY_BYTES.
+ *   3. Silently accept (and drop) submissions with the honeypot filled in.
+ *   4. Validate against the shared schema.
+ *   5. Hand the validated enquiry to the configured provider.
  *
  * The response never leaks provider names, stack traces or configuration
  * detail. Failures are logged server-side and reported to the client as a
@@ -23,8 +29,56 @@ export const dynamic = "force-dynamic";
 
 const RATE_LIMIT = { limit: 5, windowMs: 10 * 60 * 1000 };
 
+/**
+ * The largest valid enquiry is about 4.5 KB of text (see the schema's max
+ * lengths), so 16 KB leaves room for multi-byte characters and JSON escaping
+ * while refusing anything that is clearly not a form submission.
+ */
+export const MAX_BODY_BYTES = 16 * 1024;
+
 function json(body: ContactApiResponse, status: number) {
   return NextResponse.json(body, { status });
+}
+
+/**
+ * Reads the body as text, giving up as soon as it passes `maxBytes`. Unlike
+ * `request.text()`, a streamed body with no Content-Length is never buffered
+ * past the limit. Returns null when the body is too large.
+ */
+async function readBodyWithLimit(
+  request: Request,
+  maxBytes: number,
+): Promise<string | null> {
+  const reader = request.body?.getReader();
+  if (!reader) return "";
+
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      size += value.byteLength;
+      if (size > maxBytes) {
+        await reader.cancel();
+        return null;
+      }
+      chunks.push(value);
+    }
+  } catch {
+    // The client aborted mid-upload. An empty body fails JSON parsing (400).
+    return "";
+  }
+
+  const bytes = new Uint8Array(size);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return new TextDecoder().decode(bytes);
 }
 
 export async function POST(request: Request): Promise<NextResponse> {
@@ -44,11 +98,38 @@ export async function POST(request: Request): Promise<NextResponse> {
     );
   }
 
+  const mediaType = request.headers
+    .get("content-type")
+    ?.split(";")[0]
+    ?.trim()
+    .toLowerCase();
+  if (mediaType !== "application/json") {
+    return json({ ok: false, message: "Invalid request body." }, 415);
+  }
+
+  // The declared length rejects an honest oversized request without reading it;
+  // the streamed read enforces the limit when the header is missing or wrong.
+  const declaredLength = Number(request.headers.get("content-length") ?? 0);
+  if (declaredLength > MAX_BODY_BYTES) {
+    return json({ ok: false, message: "Your message is too large to send." }, 413);
+  }
+
+  const body = await readBodyWithLimit(request, MAX_BODY_BYTES);
+  if (body === null) {
+    return json({ ok: false, message: "Your message is too large to send." }, 413);
+  }
+
   let payload: unknown;
   try {
-    payload = await request.json();
+    payload = JSON.parse(body);
   } catch {
     return json({ ok: false, message: "Invalid request body." }, 400);
+  }
+
+  if (isHoneypotFilled(payload)) {
+    // Counted, never logged with its contents.
+    console.warn("[contact] Honeypot submission dropped");
+    return json({ ok: true, message: CONTACT_SUCCESS_MESSAGE }, 200);
   }
 
   const parsed = contactFormSchema.safeParse(payload);
@@ -64,8 +145,6 @@ export async function POST(request: Request): Promise<NextResponse> {
     );
   }
 
-  // The honeypot has already been rejected by the schema. Anything that gets
-  // here is a well-formed enquiry from a real form.
   const provider = getContactProvider();
   const result = await provider.deliver({
     ...parsed.data,
@@ -86,14 +165,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     );
   }
 
-  return json(
-    {
-      ok: true,
-      message:
-        "We have your message and will get back to you, usually within one business day.",
-    },
-    200,
-  );
+  return json({ ok: true, message: CONTACT_SUCCESS_MESSAGE }, 200);
 }
 
 /** Anything other than POST is not supported here. */

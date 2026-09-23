@@ -7,6 +7,8 @@ export const metadata = createMetadata({
   title: "Privacy Policy",
   description: `How ${site.name} handles the personal information submitted through this website.`,
   path: "/legal/privacy",
+  // Placeholder legal copy stays out of search results until it is reviewed.
+  noIndex: !site.legalCopyReviewed,
 });
 
 /**
@@ -48,24 +50,23 @@ const sections = [
       "Placeholder: set out access, correction, deletion and objection rights under the legislation that applies to your business and your customers.",
     ],
   },
-  {
-    heading: "Contact",
-    paragraphs: [`Questions about this policy can be sent to ${site.email}.`],
-  },
 ];
 
 export default function PrivacyPolicyPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Legal"
         title="Privacy Policy"
         breadcrumbs={[
           { name: "Home", path: "/" },
           { name: "Privacy Policy", path: "/legal/privacy" },
         ]}
       />
-      <LegalDocument lastUpdated="Not yet published" sections={sections} />
+      <LegalDocument
+        lastUpdated="Not yet published"
+        sections={sections}
+        contactSubject="this policy"
+      />
     </>
   );
 }

@@ -3,12 +3,13 @@ import type { Service } from "@/types";
 
 /**
  * Services shown on the home page and the /services page.
- * Add a new service by appending an entry here — no component changes needed.
+ * Add a new service by appending an entry here; no component changes are needed.
  */
 export const services: Service[] = [
   {
     slug: "web-development",
-    title: "Web Development",
+    title: "Web development",
+    shortTitle: "Web apps",
     summary:
       "Web applications and company platforms built to stay fast and maintainable as they grow.",
     description:
@@ -26,11 +27,12 @@ export const services: Service[] = [
   },
   {
     slug: "mobile-development",
-    title: "Mobile Development",
+    title: "Mobile development",
+    shortTitle: "Mobile apps",
     summary:
       "Native Android and iOS applications, with the backend and integrations they depend on.",
     description:
-      "We build mobile applications on the platforms your users are actually on — native Kotlin for Android, Swift and SwiftUI for iOS — and the API layer behind them. That includes the parts teams usually underestimate: authentication, payments, notifications and store submission.",
+      "We build mobile applications on the platforms your users are on: native Kotlin for Android, Swift and SwiftUI for iOS, and the API layer behind them. That includes the parts teams usually underestimate: authentication, payments, notifications and store submission.",
     capabilities: [
       "Native Android applications (Kotlin)",
       "Native iOS applications (Swift, SwiftUI)",
@@ -44,11 +46,12 @@ export const services: Service[] = [
   },
   {
     slug: "ai-systems",
-    title: "AI & Intelligent Systems",
+    title: "AI systems",
+    shortTitle: "AI systems",
     summary:
       "AI agents, retrieval systems and assistants wired into the software a business already runs.",
     description:
-      "Most useful AI work is integration work. We build agents, retrieval pipelines and assistants that read your real documents and act on your real systems — with the retrieval quality, evaluation and guardrails that decide whether the result is trustworthy or a demo.",
+      "Most useful AI work is integration work. We build agents, retrieval pipelines and assistants that read your real documents and act on your real systems, with the retrieval quality, evaluation and guardrails that decide whether the result can be trusted.",
     capabilities: [
       "AI agents and multi-step workflows",
       "RAG and document retrieval systems",
@@ -62,7 +65,8 @@ export const services: Service[] = [
   },
   {
     slug: "automation-integrations",
-    title: "Automation & Integrations",
+    title: "Automation & integrations",
+    shortTitle: "Automation",
     summary:
       "Connecting the systems a business runs on so work stops moving between them by hand.",
     description:
@@ -80,7 +84,8 @@ export const services: Service[] = [
   },
   {
     slug: "data-scripting",
-    title: "Data & Scripting",
+    title: "Data & scripting",
+    shortTitle: "Data tooling",
     summary:
       "Python tooling that turns manual, repeated data work into something that runs on a schedule.",
     description:
@@ -98,7 +103,8 @@ export const services: Service[] = [
   },
   {
     slug: "zoho-solutions",
-    title: "Zoho Solutions",
+    title: "Zoho solutions",
+    shortTitle: "Zoho systems",
     summary:
       "Custom Zoho builds and integrations for teams running their business on the platform.",
     description:

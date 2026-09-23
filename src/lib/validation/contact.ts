@@ -13,12 +13,12 @@ import { z } from "zod";
 
 /** Service options offered in the contact form dropdown. */
 export const serviceOptions = [
-  "Web Development",
-  "Mobile Development",
-  "AI & Intelligent Systems",
-  "Automation & Integrations",
-  "Data & Scripting",
-  "Zoho Solutions",
+  "Web development",
+  "Mobile development",
+  "AI systems",
+  "Automation & integrations",
+  "Data & scripting",
+  "Zoho solutions",
   "Not sure yet",
 ] as const;
 
@@ -100,13 +100,36 @@ export const contactFormSchema = z.object({
     .max(4000, "Please keep your message under 4000 characters."),
 
   /**
-   * Honeypot field. It is hidden from users and from assistive technology, so
-   * a human never fills it in. Anything non-empty is treated as spam.
+   * Honeypot field. It is hidden from users and from assistive technology, so a
+   * human never fills it in. The schema accepts any value and discards it: a
+   * validation error here would tell bots which field is the trap. The decision
+   * is made by `isHoneypotFilled` in the API route, before validation.
    */
-  website: z.string().max(0, "This submission was rejected.").optional().default(""),
+  website: z
+    .unknown()
+    .optional()
+    .transform(() => undefined),
 });
 
+/**
+ * True when the hidden `website` field holds anything at all (including
+ * whitespace or a non-string). Such submissions are answered like a success and
+ * never delivered.
+ */
+export function isHoneypotFilled(payload: unknown): boolean {
+  if (typeof payload !== "object" || payload === null) return false;
+  const website = (payload as Record<string, unknown>).website;
+  return website !== undefined && website !== null && website !== "";
+}
+
 export type ContactFormValues = z.infer<typeof contactFormSchema>;
+
+/**
+ * Shown after a successful submission. The API answers a filled honeypot with
+ * exactly the same text, so the two cases cannot be told apart.
+ */
+export const CONTACT_SUCCESS_MESSAGE =
+  "We have your message and will get back to you, usually within one business day.";
 
 /** The shape the API route returns for both success and failure. */
 export interface ContactApiResponse {

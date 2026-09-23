@@ -15,17 +15,24 @@ const socialIcons: Record<string, { icon: LucideIcon; label: string }> = {
  * Social icons render only for links that have a URL, so an unfinished profile
  * simply shows fewer icons rather than dead links.
  */
-export function TeamMemberCard({ member }: { member: TeamMember }) {
+export function TeamMemberCard({
+  member,
+  showBio = true,
+}: {
+  member: TeamMember;
+  /** The home page teaser shows name and role only. */
+  showBio?: boolean;
+}) {
   const links = Object.entries(member.links).filter(
     ([platform, url]) => url && socialIcons[platform],
   );
 
   return (
     <article className="group flex h-full flex-col">
-      <div className="relative aspect-4/5 overflow-hidden rounded-xl border border-line bg-elevated">
+      <div className="relative aspect-4/5 overflow-hidden rounded-xl bg-elevated">
         <Image
           src={member.image}
-          alt={`Portrait of ${member.name}`}
+          alt={member.imageAlt ?? `Portrait of ${member.name}`}
           fill
           sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
           className="object-cover transition-transform duration-[600ms] ease-[var(--ease-out-soft)] group-hover:scale-[1.02] motion-reduce:transform-none"
@@ -34,7 +41,9 @@ export function TeamMemberCard({ member }: { member: TeamMember }) {
 
       <h3 className="mt-5 text-h3 font-semibold text-ink">{member.name}</h3>
       <p className="mt-1 text-sm font-medium text-accent">{member.role}</p>
-      <p className="mt-3 text-sm leading-relaxed text-muted">{member.bio}</p>
+      {showBio ? (
+        <p className="mt-3 text-sm leading-relaxed text-muted">{member.bio}</p>
+      ) : null}
 
       {links.length > 0 ? (
         <ul className="mt-auto flex items-center gap-1 pt-5">
@@ -50,7 +59,7 @@ export function TeamMemberCard({ member }: { member: TeamMember }) {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={`${member.name} on ${entry.label} (opens in a new tab)`}
-                  className="inline-flex size-10 items-center justify-center rounded-md text-faint transition-colors hover:bg-elevated hover:text-ink"
+                  className="inline-flex size-10 items-center justify-center rounded-md text-muted transition-colors hover:bg-elevated hover:text-ink"
                 >
                   <Icon aria-hidden="true" className="size-[18px]" />
                 </a>

@@ -4,3 +4,7 @@ package-lock.json
 
 # Installed agent skills (third-party markdown)
 .agents
+
+# Claude Code tooling and instructions (not site code)
+.claude
+CLAUDE.md
