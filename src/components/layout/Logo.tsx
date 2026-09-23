@@ -68,7 +68,7 @@ export function BrandMark({
 }
 
 /** Gradient definitions for the mark. `src/app/opengraph-image.tsx` keeps an inlined copy. */
-function BrandGradients({
+export function BrandGradients({
   bowlId,
   strokeId,
   base,

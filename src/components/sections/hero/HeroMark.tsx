@@ -1,5 +1,10 @@
 import type { CSSProperties } from "react";
-import { BRAND_MARK_PATHS, BRAND_MARK_VIEWBOX } from "@/components/layout/Logo";
+import {
+  BRAND_COLORS,
+  BRAND_MARK_PATHS,
+  BRAND_MARK_VIEWBOX,
+  BrandGradients,
+} from "@/components/layout/Logo";
 
 type PieceName = keyof typeof BRAND_MARK_PATHS;
 
@@ -23,9 +28,9 @@ const STROKE_GRADIENT = "hero-mark-stroke";
 const BOWL_GRADIENT = "hero-mark-bowl";
 
 const FILLS: Record<PieceName, string> = {
-  stem: "var(--color-green-800)",
-  leg: "var(--color-green-700)",
-  fold: "var(--color-green-900)",
+  stem: BRAND_COLORS.navy,
+  leg: BRAND_COLORS.navy,
+  fold: BRAND_COLORS.navy,
   stroke: `url(#${STROKE_GRADIENT})`,
   bowl: `url(#${BOWL_GRADIENT})`,
 };
@@ -33,10 +38,9 @@ const FILLS: Record<PieceName, string> = {
 /**
  * The hero's logo, assembling itself once on load.
  *
- * It is the PeepalX mark drawn in shades of the site's green scale rather
- * than the original blue: the small logo in the header and footer keeps the
- * brand colours; this larger one is a graphic that ties the mark to the
- * palette.
+ * It is the PeepalX mark in its brand colours (navy, blue and cyan), the
+ * same as the small logo in the header, and it reuses that logo's gradients
+ * so the two never drift apart.
  *
  * Each piece springs in from its own direction, 90ms apart. The spring is a
  * real damped-oscillator curve baked into a CSS `linear()` easing
@@ -51,34 +55,21 @@ export function HeroMark() {
       aria-hidden="true"
       className="relative mx-auto aspect-[520/580] w-full max-w-[260px] sm:max-w-[320px] lg:max-w-[420px]"
     >
-      {/* A soft pale-green field behind the mark, so it sits in the palette. */}
-      <div className="absolute inset-[-12%] rounded-full bg-[radial-gradient(closest-side,var(--color-green-100),transparent)]" />
+      {/* A soft pale-blue field behind the mark, tinted from the brand blue. */}
+      <div
+        className="absolute inset-[-12%] rounded-full"
+        style={{
+          background: `radial-gradient(closest-side, color-mix(in oklab, ${BRAND_COLORS.blue} 14%, transparent), transparent)`,
+        }}
+      />
 
       <svg viewBox={BRAND_MARK_VIEWBOX} className="relative size-full overflow-visible">
         <defs>
-          <linearGradient
-            id={STROKE_GRADIENT}
-            x1="15"
-            y1="165"
-            x2="480"
-            y2="500"
-            gradientUnits="userSpaceOnUse"
-          >
-            <stop offset="0" style={{ stopColor: "var(--color-green-800)" }} />
-            <stop offset="0.45" style={{ stopColor: "var(--color-green-500)" }} />
-            <stop offset="1" style={{ stopColor: "var(--color-green-300)" }} />
-          </linearGradient>
-          <linearGradient
-            id={BOWL_GRADIENT}
-            x1="15"
-            y1="0"
-            x2="500"
-            y2="0"
-            gradientUnits="userSpaceOnUse"
-          >
-            <stop offset="0" style={{ stopColor: "var(--color-green-600)" }} />
-            <stop offset="1" style={{ stopColor: "var(--color-green-400)" }} />
-          </linearGradient>
+          <BrandGradients
+            bowlId={BOWL_GRADIENT}
+            strokeId={STROKE_GRADIENT}
+            base={BRAND_COLORS.navy}
+          />
         </defs>
 
         {PIECES.map(({ name, from }, index) => (
