@@ -36,11 +36,13 @@ export const site = {
    */
   email: "" as string,
   /**
-   * TODO(content): the public Google Form for new project enquiries. Every
-   * "Start a project" button opens it in a new tab. While empty, those buttons
-   * fall back to the on-site contact page.
+   * The public Google Form for new project enquiries ("PeepalX - Start a
+   * project"; responses also land in a linked Google Sheet). Every "Start a
+   * project" button opens it in a new tab. Set to "" to fall back to the
+   * on-site contact page.
    */
-  projectFormUrl: "" as string,
+  projectFormUrl:
+    "https://docs.google.com/forms/d/e/1FAIpQLScnSBm-hpQOBKYu6Ad6O7MFGvgRQ5bgsL9QahRXjKEC6gFGIw/viewform" as string,
   phone: "",
   /** Free-text location. Leave empty to hide it in the footer. */
   location: "",
