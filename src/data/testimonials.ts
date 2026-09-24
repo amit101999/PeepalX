@@ -19,6 +19,36 @@ import type { Testimonial } from "@/types";
 export const UNCONFIRMED = "To confirm with client";
 
 export const testimonials: Testimonial[] = [
+  // General reviews about working with us, not tied to a project.
+  // PLACEHOLDER copy: replace with real client reviews before launch.
+  {
+    quote:
+      "PeepalX took the time to understand how our team actually works before building anything. The Zoho setup they delivered fits our process instead of forcing us to change it, and they stayed on after go-live to fix the small things.",
+    role: "Operations Head",
+    company: "Manufacturing company, India",
+    approved: true,
+  },
+  {
+    quote:
+      "We came to them with a messy set of manual steps and spreadsheets. They automated the repetitive work, connected the tools we already used, and explained every change in plain language. Our team now spends its time on customers, not data entry.",
+    role: "Founder",
+    company: "Services business, UAE",
+    approved: true,
+  },
+  {
+    quote:
+      "Clear communication from day one. We always knew what was being built, what was next and when it would be ready. Deadlines were met, and when something needed a rethink they told us early instead of surprising us at the end.",
+    role: "Product Manager",
+    company: "Software company",
+    approved: true,
+  },
+  {
+    quote:
+      "They built our web app and the AI features behind it with real care for quality: fast pages, clean code and proper handover documentation. It felt like working with an in-house team rather than an outside agency.",
+    role: "Director",
+    company: "Consulting firm, India",
+    approved: true,
+  },
   {
     project: "codebeamer-docs-ai-dataset",
     quote:

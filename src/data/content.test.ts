@@ -408,27 +408,26 @@ describe("faq", () => {
 
 describe("testimonials", () => {
   it("links every review to a real project", () => {
-    for (const testimonial of testimonials) {
-      expect(getProjectBySlug(testimonial.project), testimonial.project).toBeDefined();
+    for (const { project } of testimonials) {
+      if (project) expect(getProjectBySlug(project), project).toBeDefined();
     }
   });
 
   it("has at most one review per project", () => {
-    expect(duplicatesIn(testimonials.map((testimonial) => testimonial.project))).toEqual(
-      [],
-    );
+    const projects = testimonials.flatMap(({ project }) => (project ? [project] : []));
+    expect(duplicatesIn(projects)).toEqual([]);
   });
 
   it("keeps quotes short enough to read", () => {
     for (const testimonial of testimonials) {
-      expect(testimonial.quote.trim().length, testimonial.project).toBeGreaterThan(40);
-      expect(testimonial.quote.length, testimonial.project).toBeLessThanOrEqual(320);
+      expect(testimonial.quote.trim().length, testimonial.quote).toBeGreaterThan(40);
+      expect(testimonial.quote.length, testimonial.quote).toBeLessThanOrEqual(320);
     }
   });
 
   it("only approves reviews with confirmed attribution", () => {
     for (const testimonial of testimonials.filter((entry) => entry.approved)) {
-      expect(hasConfirmedAttribution(testimonial), testimonial.project).toBe(true);
+      expect(hasConfirmedAttribution(testimonial), testimonial.quote).toBe(true);
     }
   });
 
