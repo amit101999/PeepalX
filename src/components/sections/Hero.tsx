@@ -1,9 +1,13 @@
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
+import { Magnetic } from "@/components/ui/Magnetic";
 import { heroBuildPhrases, heroDescription, heroHeadline } from "@/data/company";
 import { primaryCta } from "@/data/navigation";
 import { HeroMark } from "./hero/HeroMark";
 import { TypedServices } from "./hero/TypedServices";
+
+/** How many of the headline's final words are set in the accent colour. */
+const HEADLINE_ACCENT_WORDS = 2;
 
 /**
  * Home page hero: the page's one orchestrated moment.
@@ -15,11 +19,14 @@ import { TypedServices } from "./hero/TypedServices";
  * The headline and description are server-rendered text, visible without
  * JavaScript; their entrance is CSS (`data-word`, `data-enter` in
  * globals.css). The logo is a Server Component animated
- * by CSS; only the typed line is a client component. All of it is calmed by
- * the reduced-motion rules.
+ * by CSS; the client pieces are the typed line and the magnetic pull on the
+ * primary action (`Magnetic`). All of it is calmed by the reduced-motion rules.
  */
 export function Hero() {
   const words = heroHeadline.split(" ");
+  // The headline's last words carry the accent: a two-tone headline puts the
+  // promise ("run on") in the brand colour without a second typeface.
+  const accentFrom = words.length - HEADLINE_ACCENT_WORDS;
 
   return (
     <section className="relative isolate overflow-hidden">
@@ -34,7 +41,11 @@ export function Hero() {
             <h1 className="text-display font-semibold text-ink">
               {words.map((word, index) => (
                 <span key={`${word}-${index}`}>
-                  <span data-word style={{ "--i": index } as React.CSSProperties}>
+                  <span
+                    data-word
+                    style={{ "--i": index } as React.CSSProperties}
+                    className={index >= accentFrom ? "text-accent" : undefined}
+                  >
                     {word}
                   </span>
                   {index < words.length - 1 ? " " : null}
@@ -59,9 +70,11 @@ export function Hero() {
               style={{ "--enter-delay": "580ms" } as React.CSSProperties}
               className="mt-10 flex flex-col gap-3 sm:flex-row"
             >
-              <Button href={primaryCta.href} size="lg" arrow>
-                {primaryCta.label}
-              </Button>
+              <Magnetic>
+                <Button href={primaryCta.href} size="lg" arrow>
+                  {primaryCta.label}
+                </Button>
+              </Magnetic>
               <Button href="/work" size="lg" variant="secondary">
                 See our work
               </Button>

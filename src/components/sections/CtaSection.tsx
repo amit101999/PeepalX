@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/Button";
 import { Section } from "@/components/ui/Section";
 import { site } from "@/config/site";
 import { primaryCta } from "@/data/navigation";
+import { SignalField } from "./home/SignalField";
 
 interface CtaSectionProps {
   title?: string;
@@ -10,6 +11,11 @@ interface CtaSectionProps {
   /** Label and destination for the primary action. Defaults to the site's contact CTA. */
   primary?: { label: string; href: string };
   secondary?: { label: string; href: string };
+  /**
+   * Adds the animated WebGL wave behind the content. Home page only: it is
+   * the one place the extra download (Three.js, loaded lazily) is worth it.
+   */
+  field?: boolean;
 }
 
 /**
@@ -25,6 +31,7 @@ export function CtaSection({
   description = "Describe the problem, rough detail is fine. We reply with our reading of it and a suggested first step.",
   primary = primaryCta,
   secondary,
+  field = false,
 }: CtaSectionProps) {
   return (
     <Section tone="ink" spacing="loose" slant="top" className="relative overflow-hidden">
@@ -33,6 +40,11 @@ export function CtaSection({
         data-mesh
         className="pointer-events-none absolute -inset-1/4 bg-[radial-gradient(40%_50%_at_22%_30%,var(--color-green-700),transparent_70%),radial-gradient(35%_45%_at_78%_72%,var(--color-green-800),transparent_70%)] opacity-80"
       />
+      {field ? (
+        // Masked so the wave rises from the bottom and stays clear of the
+        // heading, keeping the text on plain forest.
+        <SignalField className="pointer-events-none absolute inset-0 [mask-image:linear-gradient(to_top,#000_15%,transparent_60%)]" />
+      ) : null}
       <svg
         viewBox={BRAND_MARK_VIEWBOX}
         aria-hidden="true"

@@ -19,7 +19,11 @@ export function Services() {
     <Section id="services" spacing="loose" bordered>
       <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
         <SectionHeading
-          title="What we build"
+          title={
+            <>
+              What we <span className="text-accent">build</span>
+            </>
+          }
           description="Apps, AI and integrations from one team, so nothing gets lost between vendors."
         />
         <TextLink href="/services">All services</TextLink>
