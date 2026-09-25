@@ -337,6 +337,27 @@
   animation-delay: calc(450ms + var(--i, 0) * 90ms);
 }
 
+/* The words inside the hero mark arrive once the pieces have landed, with
+   the animate-text "soft blur" spec: 900ms, a 16px rise out of a 12px blur. */
+@keyframes logo-text-in {
+  from {
+    opacity: 0;
+    filter: blur(12px);
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+}
+
+[data-logo-text] {
+  /* `backwards`, not `both`: once in, no filter stays on the group while
+     the words scroll. The end state is the default anyway. */
+  animation: logo-text-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) 1.5s backwards;
+}
+
 /* The hero mark's construction lines draw themselves in before the pieces
    land. Each path has pathLength="1", so one dash covers any length. */
 @keyframes draw {
@@ -921,6 +942,7 @@
   [data-caret],
   [data-settle],
   [data-draw],
+  [data-logo-text],
   [data-piece],
   [data-trace],
   [data-assemble],
@@ -973,6 +995,7 @@
   [data-caret],
   [data-settle],
   [data-draw],
+  [data-logo-text],
   [data-piece],
   [data-trace],
   [data-assemble],
