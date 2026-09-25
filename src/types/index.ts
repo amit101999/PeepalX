@@ -160,8 +160,8 @@ export interface TeamMember {
 }
 
 export interface Testimonial {
-  /** Slug of the project the review is about. */
-  project: string;
+  /** Slug of the project the review is about. Omit for a general review. */
+  project?: string;
   quote: string;
   /** Reviewer's name. Only with their permission; omit for an anonymous review. */
   name?: string;

@@ -24,6 +24,8 @@ interface PageHeaderProps {
  *
  * Keeping it in one component is what makes /services, /work, /about and the
  * rest feel like the same site rather than five separately designed pages.
+ * The drafting grid behind it repeats the home hero's, so every page opens on
+ * the same sheet.
  */
 export function PageHeader({
   eyebrow,
@@ -32,7 +34,13 @@ export function PageHeader({
   breadcrumbs,
 }: PageHeaderProps) {
   return (
-    <section className="border-b border-line">
+    <section className="relative isolate overflow-hidden border-b border-line">
+      {/* The hero's drafting grid, carried onto every inner page, strongest at
+          the top right and fading out behind the title. */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 -z-10 blueprint [mask-image:radial-gradient(ellipse_55%_90%_at_88%_0%,#000_15%,transparent_75%)]"
+      />
       <Container>
         <div className="max-w-3xl pt-12 pb-14 sm:pt-16 sm:pb-20">
           {breadcrumbs && breadcrumbs.length > 0 ? (

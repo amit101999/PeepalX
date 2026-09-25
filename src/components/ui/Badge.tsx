@@ -10,7 +10,9 @@ interface BadgeProps {
 const tones = {
   neutral: "bg-elevated text-muted",
   accent: "bg-accent-soft text-accent",
-  outline: "border border-line-strong text-muted",
+  /* A chamfer clips borders, so the quiet badge is a pale tint rather than an
+     outline; it stays visible on canvas and elevated alike. */
+  outline: "bg-tint text-muted",
 } as const;
 
 /** Small label. Used for categories, statuses and disclosures. */
@@ -18,7 +20,7 @@ export function Badge({ children, tone = "neutral", className }: BadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-sm px-2 py-1 text-xs font-medium",
+        "inline-flex items-center px-2 py-1 text-xs font-medium chamfer cut-sm",
         tones[tone],
         className,
       )}
@@ -34,7 +36,7 @@ export function Badge({ children, tone = "neutral", className }: BadgeProps) {
  */
 export function TechnologyBadge({ children }: { children: ReactNode }) {
   return (
-    <span className="inline-flex items-center rounded-sm border border-line px-2 py-1 text-xs text-muted">
+    <span className="inline-flex items-center bg-elevated px-2 py-1 text-xs text-ink-soft chamfer cut-sm">
       {children}
     </span>
   );

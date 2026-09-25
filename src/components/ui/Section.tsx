@@ -15,6 +15,12 @@ interface SectionProps {
   spacing?: "tight" | "default" | "loose";
   /** Draws a hairline rule at the top of the section. */
   bordered?: boolean;
+  /**
+   * Tilts the band's edges at the logo's diagonal: `top` for a block that
+   * runs into the footer, `both` for a tinted band mid-page. Only for tinted
+   * or dark tones; a canvas band has nothing to show the edge against.
+   */
+  slant?: "top" | "both";
   containerWidth?: "default" | "narrow";
   className?: string;
 }
@@ -44,6 +50,7 @@ export function Section({
   tone = "canvas",
   spacing = "default",
   bordered = false,
+  slant,
   containerWidth = "default",
   className,
 }: SectionProps) {
@@ -54,6 +61,8 @@ export function Section({
         tones[tone],
         spacings[spacing],
         bordered && "border-t border-line",
+        slant === "top" && "slant-top",
+        slant === "both" && "slant-both",
         className,
       )}
     >

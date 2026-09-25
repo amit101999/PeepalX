@@ -20,7 +20,7 @@ export function SelectedWork() {
   const hasMore = projects.length > FEATURED_COUNT;
 
   return (
-    <Section id="work" spacing="loose" tone="tint">
+    <Section id="work" spacing="loose" tone="tint" slant="both">
       <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
         <SectionHeading
           title="Selected work"
@@ -30,7 +30,7 @@ export function SelectedWork() {
       </div>
 
       <div data-reveal className="mt-14">
-        <ProjectFeature project={lead} />
+        <ProjectFeature project={lead} settle />
       </div>
 
       {rest.length > 0 ? (

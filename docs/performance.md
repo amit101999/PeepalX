@@ -10,9 +10,10 @@
 - Two self-hosted variable fonts through `next/font`, with `display: swap`.
 - `next/image` with explicit `sizes` and AVIF/WebP output; only the first
   above-the-fold image uses `priority`.
-- CSS-only motion that respects `prefers-reduced-motion`, and
-  IntersectionObserver instead of scroll listeners. Springy motion uses a
-  `linear()` easing (`--ease-spring`) instead of an animation library.
+- CSS-only motion that respects `prefers-reduced-motion`; springy motion uses a
+  `linear()` easing (`--ease-spring`) instead of an animation library. Scroll
+  position (the navbar, the case-study stage rail) is read with
+  IntersectionObserver, never scroll listeners.
 - No third-party scripts.
 
 ## Not yet measured

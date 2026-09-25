@@ -2,6 +2,7 @@ import Image from "next/image";
 import { CaseStudyJourney } from "@/components/projects/CaseStudyJourney";
 import { ProjectStack } from "@/components/projects/ProjectStack";
 import { ScreenshotFigure } from "@/components/projects/ScreenshotFigure";
+import { Frame } from "@/components/ui/Frame";
 import { Section } from "@/components/ui/Section";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import type { Project, ProjectCaseStudy } from "@/types";
@@ -28,7 +29,7 @@ export function ProjectCover({ project }: { project: Project }) {
   }
 
   return (
-    <div className="relative aspect-16/9 overflow-hidden rounded-xl border border-line bg-elevated">
+    <Frame bezel innerClassName="aspect-16/9 bg-elevated">
       <Image
         src={project.image}
         alt={project.imageAlt}
@@ -37,7 +38,7 @@ export function ProjectCover({ project }: { project: Project }) {
         priority
         className="object-cover object-top"
       />
-    </div>
+    </Frame>
   );
 }
 

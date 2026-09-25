@@ -15,7 +15,9 @@ const CYCLES = 2;
  *  - It stops on its own after two passes, and never runs while the tab is
  *    hidden or when the visitor prefers reduced motion.
  *  - A pause button (WCAG 2.2.2) sits beside it; once finished it becomes a
- *    replay button rather than disappearing, so focus is never dropped.
+ *    replay button rather than disappearing, so focus is never dropped. Its
+ *    label names the action (pause, resume, replay); it is not an
+ *    aria-pressed toggle, because replay is a third state.
  *  - The changing text is hidden from screen readers, which read one stable
  *    sentence listing every phrase instead of hearing a word spelled out.
  *
@@ -60,6 +62,7 @@ export function TypedServices({ phrases }: { phrases: readonly string[] }) {
 
   const text = prefersReducedMotion ? phrases[0] : (steps[index]?.text ?? phrases[0]);
   const showControls = mounted && !prefersReducedMotion;
+  const longest = phrases.reduce((a, b) => (b.length > a.length ? b : a), "");
 
   const control = finished
     ? { label: "Replay the list of services", Icon: RotateCcw }
@@ -82,13 +85,20 @@ export function TypedServices({ phrases }: { phrases: readonly string[] }) {
         <span className="sr-only">We build {listSentence(phrases)}.</span>
         <span aria-hidden="true">
           <span className="text-muted">We build </span>
-          <span className="text-accent">{text}</span>
-          {running || paused ? (
-            <span
-              data-caret={paused ? "still" : "blink"}
-              className="ml-0.5 inline-block h-[0.95em] w-[3px] translate-y-[0.12em] rounded-full bg-accent"
-            />
-          ) : null}
+          {/* An invisible copy of the longest phrase holds the width, so the
+              pause button beside the line never moves while it types. */}
+          <span className="inline-grid">
+            <span className="invisible pr-1.5 [grid-area:1/1]">{longest}</span>
+            <span className="text-accent [grid-area:1/1]">
+              {text}
+              {running || paused ? (
+                <span
+                  data-caret={paused ? "still" : "blink"}
+                  className="ml-0.5 inline-block h-[0.95em] w-[3px] translate-y-[0.12em] rounded-full bg-accent"
+                />
+              ) : null}
+            </span>
+          </span>
         </span>
       </p>
 
@@ -99,7 +109,6 @@ export function TypedServices({ phrases }: { phrases: readonly string[] }) {
             type="button"
             onClick={onControl}
             aria-label={control.label}
-            aria-pressed={finished ? undefined : paused}
             className="inline-flex size-9 items-center justify-center rounded-md text-muted transition-colors hover:bg-tint hover:text-ink"
           >
             <control.Icon aria-hidden="true" className="size-4" />

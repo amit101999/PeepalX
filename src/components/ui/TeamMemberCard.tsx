@@ -29,7 +29,7 @@ export function TeamMemberCard({
 
   return (
     <article className="group flex h-full flex-col">
-      <div className="relative aspect-4/5 overflow-hidden rounded-xl bg-elevated">
+      <div className="relative aspect-4/5 overflow-hidden bg-elevated chamfer cut-lg">
         <Image
           src={member.image}
           alt={member.imageAlt ?? `Portrait of ${member.name}`}
@@ -59,7 +59,7 @@ export function TeamMemberCard({
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={`${member.name} on ${entry.label} (opens in a new tab)`}
-                  className="inline-flex size-10 items-center justify-center rounded-md text-muted transition-colors hover:bg-elevated hover:text-ink"
+                  className="inline-flex size-10 items-center justify-center rounded-full text-muted transition-colors hover:bg-elevated hover:text-ink"
                 >
                   <Icon aria-hidden="true" className="size-[18px]" />
                 </a>

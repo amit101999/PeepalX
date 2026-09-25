@@ -5,7 +5,8 @@ import { getProjectBySlug } from "@/data/projects";
 import { publishedTestimonials } from "@/data/testimonials";
 
 /**
- * Client reviews, each linked to the project it is about.
+ * Client reviews. A review about a specific project links to its case study;
+ * general reviews about working with us have no link.
  *
  * Only reviews the client has approved are rendered, and the section renders
  * nothing until at least one exists, so the site never appears to quote
@@ -15,15 +16,17 @@ export function Testimonials() {
   if (publishedTestimonials.length === 0) return null;
 
   return (
-    <Section bordered>
+    <Section>
       <SectionHeading title="What clients say" />
 
       <ul className="mt-12 grid gap-12 md:grid-cols-2">
         {publishedTestimonials.map((testimonial) => {
-          const project = getProjectBySlug(testimonial.project);
+          const project = testimonial.project
+            ? getProjectBySlug(testimonial.project)
+            : undefined;
 
           return (
-            <li key={testimonial.project} data-reveal>
+            <li key={testimonial.quote} data-reveal>
               <figure className="flex h-full flex-col border-l-2 border-accent pl-6">
                 <blockquote className="text-lead text-ink">
                   &ldquo;{testimonial.quote}&rdquo;

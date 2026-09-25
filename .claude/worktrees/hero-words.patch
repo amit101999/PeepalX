@@ -1,0 +1,395 @@
+diff --git a/src/components/sections/Hero.tsx b/src/components/sections/Hero.tsx
+index a08cffc..b14dc65 100644
+--- a/src/components/sections/Hero.tsx
++++ b/src/components/sections/Hero.tsx
+@@ -10,7 +10,8 @@ import { TypedServices } from "./hero/TypedServices";
+  *
+  * In order: the headline arrives word by word, the typed line starts naming
+  * what we build, then the description and actions settle in while the logo
+- * assembles itself beside them. Everything after that is still.
++ * assembles itself beside them. After that only the logo moves: a word in its
++ * P and a ticker along its X loop quietly, with a pause button.
+  *
+  * The headline and description are server-rendered text, visible without
+  * JavaScript; their entrance is CSS (`data-word`, `data-enter` in
+@@ -29,7 +30,7 @@ export function Hero() {
+         className="absolute inset-0 -z-10 blueprint [mask-image:radial-gradient(ellipse_60%_55%_at_50%_78%,#000_20%,transparent_75%)] lg:[mask-image:radial-gradient(ellipse_45%_70%_at_76%_50%,#000_25%,transparent_80%)]"
+       />
+       <Container>
+-        <div className="grid items-center gap-14 pt-14 pb-16 sm:pt-20 sm:pb-20 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:gap-10 lg:pt-24 lg:pb-24">
++        <div className="grid items-center gap-14 pt-14 pb-16 sm:pt-20 sm:pb-20 lg:grid-cols-2 lg:gap-12 lg:pt-24 lg:pb-24">
+           <div>
+             <h1 className="text-display font-semibold text-ink">
+               {words.map((word, index) => (
+diff --git a/src/components/sections/hero/HeroMark.tsx b/src/components/sections/hero/HeroMark.tsx
+index 5445020..c89d35c 100644
+--- a/src/components/sections/hero/HeroMark.tsx
++++ b/src/components/sections/hero/HeroMark.tsx
+@@ -1,9 +1,11 @@
+-import type { CSSProperties } from "react";
++import { Fragment, type CSSProperties } from "react";
+ import {
+   BRAND_COLORS,
+   BRAND_MARK_PATHS,
+   BRAND_MARK_VIEWBOX,
+ } from "@/components/layout/Logo";
++import { heroMarkTicker, heroMarkWords } from "@/data/company";
++import { MarkMotion } from "./MarkMotion";
+ 
+ type PieceName = keyof typeof BRAND_MARK_PATHS;
+ 
+@@ -25,6 +27,22 @@ const PIECES: { name: PieceName; from: { x: number; y: number; rotate: number }
+ // The hero renders once per page, so fixed gradient ids cannot collide.
+ const STROKE_GRADIENT = "hero-mark-stroke";
+ const BOWL_GRADIENT = "hero-mark-bowl";
++const LEG_CLIP = "hero-mark-leg";
++
++/*
++ * Where the looping words sit, in the mark's coordinates.
++ *  - The P's counter (the open space inside the bowl) is roughly a triangle
++ *    under the bowl, above the X stroke's top edge (y = x + 17) and left of
++ *    the fold. A centred line at (266, 186) clears all three for eight
++ *    monospace characters at size 34.
++ *  - The navy leg runs at 45° from (75, 570), the middle of its foot, up to
++ *    the X stroke. The ticker is laid along that centre line and clipped to
++ *    the leg, so the stroke (drawn later) passes over it like a real crossing.
++ */
++const COUNTER_WORD = { x: 266, y: 186, size: 34 };
++const LEG_AXIS = { x: 75, y: 570, size: 24 };
++// Written twice so shifting the text by half its width loops seamlessly.
++const TICKER_TEXT = `${heroMarkTicker.join("  ·  ")}  ·  `.repeat(2);
+ 
+ /*
+  * Construction lines, in the mark's own coordinates, as on a technical
+@@ -54,7 +72,13 @@ const FILLS: Record<PieceName, string> = {
+ };
+ 
+ /**
+- * The hero's logo, assembling itself once on load.
++ * The hero's logo: it assembles itself once on load, then two quiet loops run
++ * inside it. A code-like word takes turns in the P's counter (`heroMarkWords`,
++ * one every 2.5s), and a ticker of what we do slides along the navy leg of the
++ * X. Both are CSS, both start once the pieces have landed, and `MarkMotion`
++ * adds the pause button and turns them off for reduced motion. They are
++ * decoration: the typed line beside the logo carries the same message as text.
++ *
+  *
+  * It is the PeepalX mark in its original brand colours (navy, blue, cyan,
+  * from `BRAND_COLORS`), the same as the header logo, only larger, drawn as if
+@@ -70,11 +94,12 @@ const FILLS: Record<PieceName, string> = {
+  */
+ export function HeroMark() {
+   return (
+-    <div
+-      aria-hidden="true"
+-      className="relative mx-auto aspect-[520/580] w-full max-w-[280px] sm:max-w-[360px] lg:mr-0 lg:max-w-[460px]"
+-    >
+-      <svg viewBox={BRAND_MARK_VIEWBOX} className="relative size-full overflow-visible">
++    <MarkMotion className="relative mx-auto aspect-[520/580] w-full max-w-[300px] sm:max-w-[420px] lg:mr-0 lg:max-w-[580px]">
++      <svg
++        viewBox={BRAND_MARK_VIEWBOX}
++        aria-hidden="true"
++        className="relative size-full overflow-visible"
++      >
+         <g fill="none" strokeWidth={1} className="stroke-line-strong">
+           {GUIDES.map((d, index) => (
+             <path
+@@ -125,25 +150,77 @@ export function HeroMark() {
+             <stop offset="0.45" stopColor={BRAND_COLORS.blue} />
+             <stop offset="1" stopColor={BRAND_COLORS.cyan} />
+           </linearGradient>
++          <clipPath id={LEG_CLIP}>
++            <path d={BRAND_MARK_PATHS.leg} />
++          </clipPath>
+         </defs>
+ 
+         {PIECES.map(({ name, from }, index) => (
+-          <path
+-            key={name}
+-            d={BRAND_MARK_PATHS[name]}
+-            fill={FILLS[name]}
+-            data-piece
+-            style={
+-              {
+-                "--i": index,
+-                "--from-x": `${from.x}px`,
+-                "--from-y": `${from.y}px`,
+-                "--from-r": `${from.rotate}deg`,
+-              } as CSSProperties
+-            }
+-          />
++          <Fragment key={name}>
++            <path
++              d={BRAND_MARK_PATHS[name]}
++              fill={FILLS[name]}
++              data-piece
++              style={
++                {
++                  "--i": index,
++                  "--from-x": `${from.x}px`,
++                  "--from-y": `${from.y}px`,
++                  "--from-r": `${from.rotate}deg`,
++                } as CSSProperties
++              }
++            />
++            {name === "leg" ? <LegTicker /> : null}
++          </Fragment>
+         ))}
++
++        <g
++          fill={BRAND_COLORS.navy}
++          fontSize={COUNTER_WORD.size}
++          fontWeight={600}
++          textAnchor="middle"
++          className="font-mono"
++        >
++          {heroMarkWords.map((word, index) => (
++            <text
++              key={word}
++              x={COUNTER_WORD.x}
++              y={COUNTER_WORD.y}
++              data-cycle={index === 0 ? "first" : ""}
++              style={{ "--i": index } as CSSProperties}
++            >
++              {word}
++            </text>
++          ))}
++        </g>
+       </svg>
+-    </div>
++    </MarkMotion>
++  );
++}
++
++/** The ticker inside the navy leg, fading in once the leg has landed. */
++function LegTicker() {
++  return (
++    <g
++      clipPath={`url(#${LEG_CLIP})`}
++      data-enter
++      style={{ "--enter-delay": "1500ms" } as CSSProperties}
++    >
++      <g transform={`translate(${LEG_AXIS.x} ${LEG_AXIS.y}) rotate(-45)`}>
++        <text
++          x={-60}
++          dy="0.35em"
++          fill="#ffffff"
++          fillOpacity={0.9}
++          fontSize={LEG_AXIS.size}
++          fontWeight={600}
++          letterSpacing="0.12em"
++          className="font-display uppercase"
++          data-ticker
++        >
++          {TICKER_TEXT}
++        </text>
++      </g>
++    </g>
+   );
+ }
+diff --git a/src/components/sections/hero/MarkMotion.tsx b/src/components/sections/hero/MarkMotion.tsx
+new file mode 100644
+index 0000000..9073cc7
+--- /dev/null
++++ b/src/components/sections/hero/MarkMotion.tsx
+@@ -0,0 +1,54 @@
++"use client";
++
++import { Pause, Play } from "lucide-react";
++import { useState, useSyncExternalStore, type ReactNode } from "react";
++import { usePrefersReducedMotion } from "@/lib/hooks/use-prefers-reduced-motion";
++
++/**
++ * Holds the hero logo and the button that pauses its looping motion (the
++ * words in the P and the ticker along the X).
++ *
++ * The loops run for as long as the page is open, so WCAG 2.2.2 asks for a way
++ * to stop them. The animation itself stays pure CSS: this component only flips
++ * `data-motion`, and globals.css sets `animation-play-state` from it. The logo
++ * is passed in as children, so it stays server-rendered.
++ */
++export function MarkMotion({
++  children,
++  className,
++}: {
++  children: ReactNode;
++  className?: string;
++}) {
++  const [paused, setPaused] = useState(false);
++  const prefersReducedMotion = usePrefersReducedMotion();
++  // The button appears only on the client, where the motion preference is known.
++  const mounted = useSyncExternalStore(
++    noopSubscribe,
++    () => true,
++    () => false,
++  );
++
++  const label = paused ? "Play the logo animation" : "Pause the logo animation";
++  const Icon = paused ? Play : Pause;
++
++  return (
++    <div data-motion={paused ? "paused" : "running"} className={className}>
++      {children}
++      {mounted && !prefersReducedMotion ? (
++        <button
++          type="button"
++          onClick={() => setPaused((current) => !current)}
++          aria-label={label}
++          className="absolute right-0 bottom-0 inline-flex size-9 items-center justify-center rounded-md text-muted transition-colors hover:bg-tint hover:text-ink"
++        >
++          <Icon aria-hidden="true" className="size-4" />
++        </button>
++      ) : null}
++    </div>
++  );
++}
++
++function noopSubscribe() {
++  return () => {};
++}
+diff --git a/src/data/company.ts b/src/data/company.ts
+index dcef540..4c8c0f1 100644
+--- a/src/data/company.ts
++++ b/src/data/company.ts
+@@ -27,6 +27,43 @@ export const heroBuildPhrases = [
+   "Zoho systems",
+ ] as const;
+ 
++/**
++ * The words that take turns inside the hero logo's "P", written like code.
++ * Exactly eight, at most eight characters each: the `mark-word` keyframes in
++ * globals.css give each one an eighth of the cycle, and the P's counter is
++ * only about eight monospace characters wide.
++ */
++export const heroMarkWords = [
++  "build()",
++  "ai.agent",
++  "automate",
++  "{ data }",
++  "api/v1",
++  "workflow",
++  "scale++",
++  "deploy",
++] as const satisfies readonly [
++  string,
++  string,
++  string,
++  string,
++  string,
++  string,
++  string,
++  string,
++];
++
++/** The ticker that runs along the navy leg of the logo's X. */
++export const heroMarkTicker = [
++  "Code",
++  "Automate",
++  "AI agents",
++  "APIs",
++  "Data",
++  "Cloud",
++  "Business",
++] as const;
++
+ /** Hero supporting line. Keep it to 20 words or fewer. */
+ export const heroDescription =
+   "One team to design, build and connect web and mobile apps, AI agents and Zoho systems, then keep them running.";
+diff --git a/src/styles/globals.css b/src/styles/globals.css
+index 13c0d72..e57b283 100644
+--- a/src/styles/globals.css
++++ b/src/styles/globals.css
+@@ -354,6 +354,51 @@
+   animation-delay: calc(var(--i, 0) * 70ms);
+ }
+ 
++/* Hero logo loops, once the pieces have landed (about 1.5s in).
++   `mark-word`: the eight words in the P's counter take turns, 2.5s each, so
++   the 20s cycle gives each one 12.5%: rise in, hold, rise out. The
++   percentages assume exactly eight words (`heroMarkWords` is typed to eight).
++   `mark-ticker`: the leg's text is written twice, so sliding it by half its
++   own width (fill-box) loops without a seam. Both pause with the logo's pause
++   button (`data-motion="paused"`, set by MarkMotion). */
++@keyframes mark-word {
++  0% {
++    opacity: 0;
++    transform: translateY(14px);
++  }
++  2.5%,
++  10.5% {
++    opacity: 1;
++    transform: translateY(0);
++  }
++  12.5%,
++  100% {
++    opacity: 0;
++    transform: translateY(-14px);
++  }
++}
++
++@keyframes mark-ticker {
++  to {
++    transform: translateX(-50%);
++  }
++}
++
++[data-cycle] {
++  animation: mark-word 20s var(--ease-out-soft) infinite both;
++  animation-delay: calc(1600ms + var(--i, 0) * 2500ms);
++}
++
++[data-ticker] {
++  white-space: pre;
++  transform-box: fill-box;
++  animation: mark-ticker 32s linear infinite;
++}
++
++[data-motion="paused"] :is([data-cycle], [data-ticker]) {
++  animation-play-state: paused;
++}
++
+ /* Hero headline, word by word (the animate-text "per-word crossfade" spec:
+    700ms, 70ms apart, an 8px rise). Each word carries its index in --i. */
+ @keyframes word-in {
+@@ -585,6 +630,21 @@
+     animation: none !important;
+   }
+ 
++  /* The logo's loops stop; of the words in the P, only the first stays. */
++  [data-ticker],
++  [data-cycle] {
++    transform: none !important;
++    animation: none !important;
++  }
++
++  [data-cycle] {
++    opacity: 0 !important;
++  }
++
++  [data-cycle="first"] {
++    opacity: 1 !important;
++  }
++
+   /* Route changes happen instantly rather than crossfading. The named groups
+      are listed too: `*` here is newer than the View Transitions API itself, so
+      on an older Chromium the wildcard rule alone would be dropped. */
+@@ -623,4 +683,19 @@
+     transform: none !important;
+     animation: none !important;
+   }
++
++  /* The logo's loops stop; of the words in the P, only the first stays. */
++  [data-ticker],
++  [data-cycle] {
++    transform: none !important;
++    animation: none !important;
++  }
++
++  [data-cycle] {
++    opacity: 0 !important;
++  }
++
++  [data-cycle="first"] {
++    opacity: 1 !important;
++  }
+ }
