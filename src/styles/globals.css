@@ -496,6 +496,348 @@
   }
 }
 
+/* ---------------------------------------------------------------------------
+   Services page
+   ---------------------------------------------------------------------------
+   Three effects, all CSS:
+    - `data-trace`: a service diagram's lines draw themselves in, tied to
+      scroll, so each diagram builds as its service is read;
+    - `data-flow`: a short dash travels along a connector, showing which way
+      work or data moves between the parts of a system. The page's second
+      ambient motion (after the closing mesh), kept to one or two per diagram;
+    - `data-stage-item`: on wide screens the diagrams share one sticky stage,
+      and each one fades in while its service crosses the reading line.
+
+   `stage:` is the layout that sticky stage needs. It only applies where the
+   browser can drive it (named view timelines shared through timeline-scope),
+   on wide screens, with motion allowed; everywhere else each service shows
+   its own diagram inline, fully drawn once scrolled to.
+--------------------------------------------------------------------------- */
+@custom-variant stage {
+  @supports (timeline-scope: --a) and (animation-timeline: view()) {
+    @media screen and (min-width: 64rem) and (prefers-reduced-motion: no-preference) {
+      @slot;
+    }
+  }
+}
+
+@keyframes trace {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Later phases of a diagram: the same draw, held back for the first part of
+   the range. Scroll-driven animations ignore delays, so order comes from the
+   keyframes instead (`data-phase="2"` or `"3"`). */
+@keyframes trace-2 {
+  from,
+  30% {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes trace-3 {
+  from,
+  55% {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes flow {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -1;
+  }
+}
+
+/* Diagram parts that arrive rather than draw: a bar growing from its base,
+   a notification landing, scattered data settling into rows. Each sets its
+   own start offset in --from-x / --from-y and --from-sx / --from-sy. */
+@keyframes assemble {
+  from {
+    opacity: 0;
+    transform: translate(var(--from-x, 0), var(--from-y, 0))
+      scale(var(--from-sx, 1), var(--from-sy, 1));
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes assemble-2 {
+  from,
+  30% {
+    opacity: 0;
+    transform: translate(var(--from-x, 0), var(--from-y, 0))
+      scale(var(--from-sx, 1), var(--from-sy, 1));
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes assemble-3 {
+  from,
+  55% {
+    opacity: 0;
+    transform: translate(var(--from-x, 0), var(--from-y, 0))
+      scale(var(--from-sx, 1), var(--from-sy, 1));
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes stage-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  8%,
+  92% {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+}
+
+/* The first diagram is already showing before its service reaches the
+   reading line, and the last stays after its service has passed it. */
+@keyframes stage-in-first {
+  from,
+  92% {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+}
+
+@keyframes stage-in-last {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  8%,
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes rail-fill {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Dashes are in pathLength units: every traced or flowing path sets
+   pathLength="1", so one value fits any length. */
+[data-trace] {
+  stroke-dasharray: 1;
+}
+
+[data-flow] {
+  stroke-dasharray: 0.05 0.95;
+}
+
+[data-assemble],
+[data-pop],
+[data-spin] {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+[data-assemble="rise"] {
+  transform-origin: bottom;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-flow] {
+    animation: flow var(--flow-duration, 2.6s) linear infinite;
+    animation-delay: var(--flow-delay, 0s);
+  }
+
+  [data-spin] {
+    animation: spin 9s linear infinite;
+  }
+
+  /* The service map sits near the top of the page, so it plays on load
+     rather than on scroll, like the hero. */
+  [data-pop] {
+    animation: pop-in 0.8s var(--ease-spring) both;
+    animation-delay: calc(350ms + var(--i, 0) * 80ms);
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* --trace-tl and --trace-range are set by the sticky stage, so a diagram there
+       draws against its service's timeline; inline, it uses its own view. */
+    [data-trace] {
+      animation: trace linear both;
+      animation-timeline: var(--trace-tl, view());
+      animation-range: var(--trace-range, entry 10% cover 55%);
+    }
+
+    [data-assemble] {
+      animation: assemble var(--ease-out-soft) both;
+      animation-timeline: var(--trace-tl, view());
+      animation-range: var(--trace-range, entry 10% cover 55%);
+    }
+
+    [data-trace][data-phase="2"] {
+      animation-name: trace-2;
+    }
+
+    [data-trace][data-phase="3"] {
+      animation-name: trace-3;
+    }
+
+    [data-assemble][data-phase="2"] {
+      animation-name: assemble-2;
+    }
+
+    [data-assemble][data-phase="3"] {
+      animation-name: assemble-3;
+    }
+  }
+}
+
+@supports (timeline-scope: --a) and (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* Each service's timeline runs while the service crosses a line 40% of
+       the way down the viewport, so exactly one is active at a time. */
+    [data-service-chapter] {
+      view-timeline-inset: 40% 60%;
+    }
+
+    [data-stage-item] {
+      animation: stage-in linear both;
+      animation-timeline: var(--tl);
+      animation-range: cover 0% cover 100%;
+    }
+
+    [data-stage-order="first"] {
+      animation-name: stage-in-first;
+    }
+
+    [data-stage-order="last"] {
+      animation-name: stage-in-last;
+    }
+
+    [data-rail] {
+      transform-origin: top;
+      animation: rail-fill linear both;
+      animation-timeline: var(--tl);
+      animation-range: cover 0% cover 100%;
+    }
+  }
+}
+
+/* Service map: pointing at a service in the index lights up its node and
+   spoke in the diagram beside it. Matched by position, so the list and the
+   diagram must render services in the same order (both map `services`).
+   Rules cover eight services; add a line if the list grows past that. */
+[data-service-map] {
+  --node-fill: var(--color-surface);
+  --node-ink: var(--color-accent);
+  --node-scale: 1;
+  --spoke: var(--color-line-strong);
+}
+
+[data-map-node] {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(var(--node-scale));
+  transition:
+    transform 320ms var(--ease-spring),
+    opacity 200ms var(--ease-out-soft);
+}
+
+[data-map-node] circle {
+  fill: var(--node-fill);
+  transition: fill 200ms var(--ease-out-soft);
+}
+
+[data-map-node] svg {
+  color: var(--node-ink);
+  transition: color 200ms var(--ease-out-soft);
+}
+
+[data-map-spoke] {
+  stroke: var(--spoke);
+  transition: stroke 200ms var(--ease-out-soft);
+}
+
+[data-service-map]:has([data-map-link]:is(:hover, :focus-visible))
+  :is([data-map-node], [data-map-spoke]) {
+  opacity: 0.45;
+}
+
+[data-service-map]:has(li:nth-child(1) > [data-map-link]:is(:hover, :focus-visible))
+  :is([data-map-nodes] > :nth-child(1) [data-map-node], [data-map-spoke]:nth-child(1)),
+[data-service-map]:has(li:nth-child(2) > [data-map-link]:is(:hover, :focus-visible))
+  :is([data-map-nodes] > :nth-child(2) [data-map-node], [data-map-spoke]:nth-child(2)),
+[data-service-map]:has(li:nth-child(3) > [data-map-link]:is(:hover, :focus-visible))
+  :is([data-map-nodes] > :nth-child(3) [data-map-node], [data-map-spoke]:nth-child(3)),
+[data-service-map]:has(li:nth-child(4) > [data-map-link]:is(:hover, :focus-visible))
+  :is([data-map-nodes] > :nth-child(4) [data-map-node], [data-map-spoke]:nth-child(4)),
+[data-service-map]:has(li:nth-child(5) > [data-map-link]:is(:hover, :focus-visible))
+  :is([data-map-nodes] > :nth-child(5) [data-map-node], [data-map-spoke]:nth-child(5)),
+[data-service-map]:has(li:nth-child(6) > [data-map-link]:is(:hover, :focus-visible))
+  :is([data-map-nodes] > :nth-child(6) [data-map-node], [data-map-spoke]:nth-child(6)),
+[data-service-map]:has(li:nth-child(7) > [data-map-link]:is(:hover, :focus-visible))
+  :is([data-map-nodes] > :nth-child(7) [data-map-node], [data-map-spoke]:nth-child(7)),
+[data-service-map]:has(li:nth-child(8) > [data-map-link]:is(:hover, :focus-visible))
+  :is([data-map-nodes] > :nth-child(8) [data-map-node], [data-map-spoke]:nth-child(8)) {
+  --node-fill: var(--color-accent);
+  --node-ink: var(--color-surface);
+  --node-scale: 1.14;
+  --spoke: var(--color-accent);
+  opacity: 1;
+}
+
 /* Accordion: the answer grows and shrinks instead of snapping, so it is clear
    which question the panel belongs to. `interpolate-size` is what makes a
    transition to `auto` height possible; browsers without it open instantly. */
@@ -579,10 +921,23 @@
   [data-caret],
   [data-settle],
   [data-draw],
-  [data-piece] {
+  [data-piece],
+  [data-trace],
+  [data-assemble],
+  [data-pop],
+  [data-spin],
+  [data-stage-item],
+  [data-rail] {
     opacity: 1 !important;
     transform: none !important;
     animation: none !important;
+  }
+
+  /* A flow dash only means something while it moves; still, it would read
+     as a stray mark on the line. */
+  [data-flow] {
+    animation: none !important;
+    opacity: 0 !important;
   }
 
   /* Route changes happen instantly rather than crossfading. The named groups
@@ -618,9 +973,22 @@
   [data-caret],
   [data-settle],
   [data-draw],
-  [data-piece] {
+  [data-piece],
+  [data-trace],
+  [data-assemble],
+  [data-pop],
+  [data-spin],
+  [data-stage-item],
+  [data-rail] {
     opacity: 1 !important;
     transform: none !important;
     animation: none !important;
+  }
+
+  /* A flow dash only means something while it moves; still, it would read
+     as a stray mark on the line. */
+  [data-flow] {
+    animation: none !important;
+    opacity: 0 !important;
   }
 }
