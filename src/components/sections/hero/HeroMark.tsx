@@ -1,18 +1,26 @@
 import type { CSSProperties } from "react";
-import {
-  BRAND_COLORS,
-  BRAND_MARK_PATHS,
-  BRAND_MARK_VIEWBOX,
-  BrandGradients,
-} from "@/components/layout/Logo";
+import { BRAND_COLORS, BRAND_MARK_PATHS, BrandGradients } from "@/components/layout/Logo";
 import { heroBuildPhrases } from "@/data/company";
 import { HERO_MARK_ID } from "./hero-mark-id";
 
 type PieceName = keyof typeof BRAND_MARK_PATHS;
 
+/*
+ * The hero draws the X stroke longer than the brand mark does: it runs on
+ * down to the baseline, so it ends level with the navy leg on the left. The
+ * header logo keeps the original shape.
+ */
+const MARK_PATHS: Record<PieceName, string> = {
+  ...BRAND_MARK_PATHS,
+  stroke: "M15 165H148L552 570H422Z",
+};
+
+/* Wide enough for the longer stroke, with the same 15-unit margin each side. */
+const MARK_VIEWBOX = "0 0 567 580";
+
 /**
  * The order the mark assembles in, back to front, and where each piece
- * arrives from. Offsets are in viewBox units (the mark is 520 x 580), chosen
+ * arrives from. Offsets are in viewBox units (the mark is 567 x 580), chosen
  * so every piece travels along its own direction in the drawing: the stem
  * from the left, the leg from below, the bowl from above, the X stroke along
  * its diagonal.
@@ -30,22 +38,14 @@ const STROKE_GRADIENT = "hero-mark-stroke";
 const BOWL_GRADIENT = "hero-mark-bowl";
 
 /*
- * Construction lines, in the mark's own coordinates, as on a technical
- * drawing: the X stroke's centre line carried past both ends, the baseline
- * and the stem's edge. They draw in first, then the pieces land on them.
+ * Registration marks at the corners of the mark's bounding box, as on a
+ * technical drawing. They draw in first, then the pieces land inside them.
  */
-const GUIDES = [
-  "M-120 -36L585 667", // the X stroke's centre line, at the mark's 45°
-  "M-60 570H590", // baseline, under the leg and the stroke
-  "M15 -50V630", // the stem's outer edge
-];
-
-/* Registration marks at the corners of the mark's bounding box. */
 const CORNERS = [
   [15, 8],
-  [498, 8],
+  [552, 8],
   [15, 570],
-  [498, 570],
+  [552, 570],
 ] as const;
 
 /*
@@ -75,8 +75,8 @@ const RIBBONS = [
     name: "stroke",
     text: RIBBON_TEXT,
     fontSize: 40,
-    // The X stroke's centre line, from its top edge to its bottom edge.
-    path: "M81 165L417 500",
+    // The X stroke's centre line, from its top edge down to the baseline.
+    path: "M81 165L487 570",
     // White on the navy and blue end of the stroke, navy where it turns cyan.
     fill: { x1: 15, y1: 165, x2: 480, y2: 500, switchAt: 0.74 },
   },
@@ -104,11 +104,11 @@ const FILLS: Record<PieceName, string> = {
  *
  * It is the PeepalX mark in its original brand colours (navy, blue, cyan,
  * from `BRAND_COLORS`), the same as the header logo, only larger, drawn as if
- * on a drafting sheet: hairline construction lines and registration marks
- * trace the geometry the site's chamfers and slants are taken from.
+ * on a drafting sheet framed by hairline registration marks. Its X stroke runs
+ * down to the baseline, level with the navy leg (see `MARK_PATHS`).
  *
  * In order:
- *  1. the guides draw (`data-draw`);
+ *  1. the registration marks draw (`data-draw`);
  *  2. each piece springs in from its own direction, 90ms apart, on a damped
  *     spring baked into a CSS `linear()` easing (`--ease-spring`);
  *  3. the words inside the mark blur in (`data-logo-text`, the animate-text
@@ -126,24 +126,14 @@ export function HeroMark() {
   return (
     <div
       aria-hidden="true"
-      className="relative mx-auto aspect-[520/580] w-full max-w-[280px] sm:max-w-[360px] lg:mr-0 lg:max-w-[460px]"
+      className="relative mx-auto aspect-[567/580] w-full max-w-[280px] sm:max-w-[360px] lg:mr-0 lg:max-w-[460px]"
     >
       <svg
         id={HERO_MARK_ID}
-        viewBox={BRAND_MARK_VIEWBOX}
+        viewBox={MARK_VIEWBOX}
         className="relative size-full overflow-visible"
       >
         <g fill="none" strokeWidth={1} className="stroke-line-strong">
-          {GUIDES.map((d, index) => (
-            <path
-              key={d}
-              d={d}
-              pathLength={1}
-              vectorEffect="non-scaling-stroke"
-              data-draw
-              style={{ "--i": index } as CSSProperties}
-            />
-          ))}
           {CORNERS.map(([x, y], index) => (
             <path
               key={`${x}-${y}`}
@@ -152,7 +142,7 @@ export function HeroMark() {
               vectorEffect="non-scaling-stroke"
               data-draw
               className="stroke-control"
-              style={{ "--i": GUIDES.length + index } as CSSProperties}
+              style={{ "--i": index } as CSSProperties}
             />
           ))}
         </g>
@@ -167,7 +157,7 @@ export function HeroMark() {
             <g key={name}>
               <path id={`hero-ribbon-${name}`} d={path} />
               <clipPath id={`hero-ribbon-clip-${name}`}>
-                <path d={BRAND_MARK_PATHS[name]} />
+                <path d={MARK_PATHS[name]} />
               </clipPath>
               <linearGradient
                 id={`hero-ribbon-fill-${name}`}
@@ -187,7 +177,7 @@ export function HeroMark() {
         {PIECES.map(({ name, from }, index) => (
           <path
             key={name}
-            d={BRAND_MARK_PATHS[name]}
+            d={MARK_PATHS[name]}
             fill={FILLS[name]}
             data-piece
             style={
