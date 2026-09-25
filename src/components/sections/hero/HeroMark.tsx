@@ -3,6 +3,7 @@ import {
   BRAND_COLORS,
   BRAND_MARK_PATHS,
   BRAND_MARK_VIEWBOX,
+  BrandGradients,
 } from "@/components/layout/Logo";
 
 type PieceName = keyof typeof BRAND_MARK_PATHS;
@@ -100,31 +101,11 @@ export function HeroMark() {
         </g>
 
         <defs>
-          <linearGradient
-            id={STROKE_GRADIENT}
-            x1="15"
-            y1="165"
-            x2="480"
-            y2="500"
-            gradientUnits="userSpaceOnUse"
-          >
-            <stop offset="0" stopColor={BRAND_COLORS.navy} />
-            <stop offset="0.35" stopColor={BRAND_COLORS.blueDeep} />
-            <stop offset="0.7" stopColor={BRAND_COLORS.blue} />
-            <stop offset="1" stopColor={BRAND_COLORS.cyan} />
-          </linearGradient>
-          <linearGradient
-            id={BOWL_GRADIENT}
-            x1="15"
-            y1="0"
-            x2="500"
-            y2="0"
-            gradientUnits="userSpaceOnUse"
-          >
-            <stop offset="0" stopColor={BRAND_COLORS.blueDeep} />
-            <stop offset="0.45" stopColor={BRAND_COLORS.blue} />
-            <stop offset="1" stopColor={BRAND_COLORS.cyan} />
-          </linearGradient>
+          <BrandGradients
+            bowlId={BOWL_GRADIENT}
+            strokeId={STROKE_GRADIENT}
+            base={BRAND_COLORS.navy}
+          />
         </defs>
 
         {PIECES.map(({ name, from }, index) => (
