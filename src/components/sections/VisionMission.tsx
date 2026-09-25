@@ -9,7 +9,7 @@ export function VisionMission() {
   ];
 
   return (
-    <Section tone="elevated">
+    <Section tone="tint" slant="both">
       <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
         {statements.map((statement) => (
           <div key={statement.label}>

@@ -13,7 +13,12 @@ import { team } from "@/data/team";
  */
 export function Team({ id = "team", teaser = false }: { id?: string; teaser?: boolean }) {
   return (
-    <Section id={id} spacing="loose" tone={teaser ? "tint" : "canvas"}>
+    <Section
+      id={id}
+      spacing="loose"
+      tone={teaser ? "tint" : "canvas"}
+      slant={teaser ? "both" : undefined}
+    >
       {teaser ? (
         <div className="mb-14 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <SectionHeading

@@ -405,7 +405,7 @@ function any caller uses.
 Only the components you are likely to need to change.
 
 **Navbar** — `src/components/layout/Navbar.tsx`
-Sticky site header. Edit the links in `src/data/navigation.ts` (`mainNav`), not
+Sticky site header, drawn as a floating pill. Edit the links in `src/data/navigation.ts` (`mainNav`), not
 in the component. Handles the mobile menu, Escape to close, focus management,
 scroll locking, and highlighting the section you are currently reading.
 
@@ -420,8 +420,15 @@ already give (a project's category, for example).
 
 **Section** — `src/components/ui/Section.tsx`
 Wrapper for every page section: sets the background tone (`canvas`, `elevated`,
-`ink`), vertical spacing, optional top border and the container. Use it for new
+`tint`, `ink`), vertical spacing, optional top border, an optional `slant`
+(`top` or `both`) for tinted and dark bands, and the container. Use it for new
 sections so spacing stays consistent.
+
+**Frame** — `src/components/ui/Frame.tsx`
+A chamfered surface with a hairline edge, used instead of a rounded bordered
+box. `bezel` sets the content in a white tray inside the hairline (project
+covers, screenshots). Never put a focusable element against its edge: the
+clip-path would clip the focus ring.
 
 **SectionHeading** — `src/components/ui/SectionHeading.tsx`
 Heading and supporting line, stacked, with an optional sentence-case label and
@@ -430,8 +437,9 @@ heading.
 
 **Button** — `src/components/ui/Button.tsx`
 Pass `href` to render a link styled as a button; omit it for a real `<button>`.
-Variants: `primary`, `secondary`, `ghost`, plus `inverse` and
-`inverseSecondary` for the dark closing block. External URLs open in a new tab
+Pill-shaped. Variants: `primary`, `secondary`, `ghost`, plus `inverse` and
+`inverseSecondary` for the dark closing block. `arrow` adds a trailing arrow
+in its own circle (up-right for external links). External URLs open in a new tab
 with `rel="noopener noreferrer"` and a screen-reader "(opens in a new tab)" cue.
 The site's contact action always uses `primaryCta` from
 `src/data/navigation.ts`, so it has one label everywhere; its link is the Google
@@ -442,8 +450,9 @@ A quiet onward link with an arrow, such as "All services" beside a heading.
 
 **Hero** — `src/components/sections/Hero.tsx` and `src/components/sections/hero/`
 The headline (word by word), a typed line naming what we build, the
-description and actions, beside the brand mark assembling itself in five green
-shades. `HeroMark` is a Server Component driven by CSS; `TypedServices` is a
+description and actions, beside the brand mark (in its own blue) assembling
+itself on a drafting grid, after its construction lines draw in. `HeroMark` is
+a Server Component driven by CSS; `TypedServices` is a
 small client component with a pause/replay button, a finite run, and a stable
 sentence for screen readers, its timing in `src/lib/utils/typewriter.ts`
 (unit-tested). Copy lives in `src/data/company.ts` (`heroHeadline`,
@@ -496,10 +505,16 @@ the mark is the one place blue appears. All tokens are defined once, in the `@th
 
 Rules the components follow:
 
-- **One theme.** The page is light; the closing CTA and the footer share the ink
-  background and read as the single dark block at the end of every page.
-- **One shape system.** Badges 6px, controls 8px, media and notices 12px, panels
-  16px.
+- **One theme.** The page is light; the closing CTA and the footer share the
+  forest background and read as the single dark block at the end of every page.
+- **One shape system, taken from the logo.** The mark's X stroke runs top left
+  to bottom right and its pieces end in 45° cuts. So surfaces (project frames,
+  tiles, portraits, badges) have **chamfered** top-left and bottom-right corners
+  (the `chamfer` utility and `Frame`), tinted and dark bands have **slanted**
+  edges at the same angle (`slant-top`, `slant-both`), and the hero and page
+  headers sit on a faint **drafting grid** (`blueprint`). Anything that takes
+  keyboard focus (buttons, inputs, links) stays rounded, because a clip-path
+  would clip its focus ring: buttons are pills, inputs 8px.
 - **Sentence case** for headings, buttons and labels, and no uppercase label
   above every section.
 - **One label per intent.** Contact is always "Start a project"
@@ -519,8 +534,9 @@ to Google, no CSP exception and no font-related layout shift.
 
 **Motion** is CSS, and every effect has one job:
 
-- the hero plays once: the headline word by word, the typed services line, and
-  the logo springing together piece by piece;
+- the hero plays once: the headline word by word, the typed services line, the
+  logo's construction lines drawing in (`data-draw`), then the logo springing
+  together piece by piece;
 - `data-reveal` groups ease in as they scroll into view, and the lead
   project's cover opens out from a slight inset (`data-settle`);
 - `data-accordion` panels grow and shrink instead of snapping open;

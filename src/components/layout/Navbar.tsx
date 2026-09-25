@@ -9,17 +9,20 @@ import { Container } from "@/components/ui/Container";
 import { homeSectionIds, mainNav, primaryCta } from "@/data/navigation";
 import { useActiveSection } from "@/lib/hooks/use-active-section";
 import { cn } from "@/lib/utils/cn";
+import { DesktopNav } from "./DesktopNav";
 import { Logo } from "./Logo";
 
 /**
  * Site header.
  *
  * Behaviour worth knowing about:
- *  - Fixed height (h-16), so the sticky header never shifts layout.
+ *  - A floating pill inside the page gutter, fixed height (a 12px gap plus
+ *    h-14), so the sticky header never shifts layout.
  *  - Gains a border and background blur once the page is scrolled. That is
  *    detected by an IntersectionObserver on a tiny sentinel at the top of the
  *    document, not a scroll listener, so nothing runs on every scroll frame.
  *  - Highlights the current page, and on the home page the section in view.
+ *    On desktop a shared pill follows the hovered link (see DesktopNav).
  *  - The mobile menu closes on Escape, on any link tap, and on outside tap;
  *    focus moves into the panel when it opens and back to the toggle when it
  *    closes; page scroll is locked while it is open.
@@ -109,52 +112,30 @@ export function Navbar() {
         className="pointer-events-none absolute inset-x-0 top-0 h-2"
       />
 
-      <header
-        className={cn(
-          "sticky top-0 z-50 border-b transition-colors duration-300",
-          raised ? "border-line" : "border-transparent",
-        )}
-      >
-        {/*
-          The translucent blurred background lives on its own layer rather than
-          on <header>. `backdrop-filter` makes an element the containing block
-          for its `position: fixed` descendants, which would trap the fixed
-          mobile menu inside the 64px header once the page is scrolled.
-        */}
-        <div
-          aria-hidden="true"
-          className={cn(
-            "absolute inset-0 -z-10 transition-colors duration-300",
-            raised ? "bg-canvas/85 backdrop-blur-md" : "bg-transparent",
-          )}
-        />
-
+      <header className="sticky top-0 z-50 pt-3">
         <Container>
-          <div className="flex h-16 items-center justify-between gap-6">
+          <div className="relative flex h-14 items-center justify-between gap-6 pr-1.5 pl-5">
+            {/*
+              The header is a floating pill inside the page gutter. Its
+              translucent, blurred background lives on its own layer rather than
+              on an ancestor of the menu: `backdrop-filter` makes an element the
+              containing block for its `position: fixed` descendants, which would
+              trap the fixed mobile menu inside the pill.
+            */}
+            <div
+              aria-hidden="true"
+              className={cn(
+                "absolute inset-0 -z-10 rounded-full border transition-[background-color,box-shadow,border-color] duration-300",
+                raised
+                  ? "border-line-strong bg-canvas/85 shadow-lifted backdrop-blur-md"
+                  : "border-line bg-surface/60",
+              )}
+            />
+
             <Logo />
 
             <nav aria-label="Main" className="hidden md:block">
-              <ul className="flex items-center gap-1">
-                {mainNav.map((item) => (
-                  <li key={item.href}>
-                    <Link
-                      href={item.href}
-                      aria-current={isActive(item.href) ? "page" : undefined}
-                      className={cn(
-                        "relative rounded-md px-3 py-2 text-sm transition-colors",
-                        // The active link carries a short accent rule, so the
-                        // state is not shown by colour alone.
-                        "after:absolute after:inset-x-3 after:bottom-1 after:h-px after:origin-left after:bg-accent after:transition-transform after:duration-300",
-                        isActive(item.href)
-                          ? "font-medium text-ink after:scale-x-100"
-                          : "text-muted after:scale-x-0 hover:text-ink",
-                      )}
-                    >
-                      {item.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+              <DesktopNav items={mainNav} isActive={isActive} />
             </nav>
 
             <div className="hidden md:block">
@@ -170,7 +151,7 @@ export function Navbar() {
               aria-expanded={menuOpen}
               aria-controls="mobile-menu"
               aria-label={menuOpen ? "Close menu" : "Open menu"}
-              className="-mr-2 inline-flex size-11 items-center justify-center rounded-md text-ink transition-colors hover:bg-elevated md:hidden"
+              className="inline-flex size-11 items-center justify-center rounded-full text-ink transition-colors hover:bg-elevated md:hidden"
             >
               {menuOpen ? (
                 <X aria-hidden="true" className="size-5" />
@@ -182,7 +163,7 @@ export function Navbar() {
         </Container>
 
         {menuOpen ? (
-          <div className="fixed inset-x-0 top-16 bottom-0 z-40 md:hidden">
+          <div className="fixed inset-x-0 top-[4.25rem] bottom-0 z-40 md:hidden">
             {/* Tapping outside the panel closes the menu. */}
             <button
               type="button"
@@ -192,13 +173,13 @@ export function Navbar() {
               className="absolute inset-0 cursor-default bg-ink/25"
             />
 
-            <div
-              ref={panelRef}
-              id="mobile-menu"
-              className="relative animate-menu-in overscroll-contain border-b border-line bg-canvas shadow-lifted"
-            >
-              <Container>
-                <nav aria-label="Mobile" className="py-4">
+            <Container>
+              <div
+                ref={panelRef}
+                id="mobile-menu"
+                className="relative mt-2 animate-menu-in overscroll-contain rounded-3xl border border-line bg-canvas px-5 shadow-lifted"
+              >
+                <nav aria-label="Mobile" className="py-3">
                   <ul className="flex flex-col">
                     {mainNav.map((item) => (
                       <li key={item.href}>
@@ -221,13 +202,13 @@ export function Navbar() {
                     href={primaryCta.href}
                     size="lg"
                     onClick={closeMenu}
-                    className="mt-5 w-full"
+                    className="mt-4 mb-2 w-full"
                   >
                     {primaryCta.label}
                   </Button>
                 </nav>
-              </Container>
-            </div>
+              </div>
+            </Container>
           </div>
         ) : null}
       </header>

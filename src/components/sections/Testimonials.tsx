@@ -15,7 +15,7 @@ export function Testimonials() {
   if (publishedTestimonials.length === 0) return null;
 
   return (
-    <Section bordered>
+    <Section>
       <SectionHeading title="What clients say" />
 
       <ul className="mt-12 grid gap-12 md:grid-cols-2">

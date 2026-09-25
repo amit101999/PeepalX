@@ -1,6 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { Frame } from "@/components/ui/Frame";
 import { cn } from "@/lib/utils/cn";
 import type { Project } from "@/types";
 
@@ -10,6 +11,11 @@ interface ProjectFeatureProps {
   reverse?: boolean;
   /** Load the cover eagerly. Only for a row that is above the fold. */
   priority?: boolean;
+  /**
+   * Open the cover out from a slight inset as it scrolls into view. Only for a
+   * cover that starts below the fold, or it would load visibly clipped.
+   */
+  settle?: boolean;
 }
 
 /**
@@ -23,38 +29,40 @@ export function ProjectFeature({
   project,
   reverse = false,
   priority = false,
+  settle = false,
 }: ProjectFeatureProps) {
   const hasSize = Boolean(project.imageWidth && project.imageHeight);
 
   return (
     <article className="group relative grid grid-cols-[minmax(0,1fr)] items-center gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:gap-14">
       <div className={cn(reverse && "lg:order-last")}>
-        <div
-          data-settle
-          className="overflow-hidden rounded-xl border border-line bg-surface"
-        >
-          {hasSize ? (
-            <Image
-              src={project.image}
-              alt={project.imageAlt}
-              width={project.imageWidth}
-              height={project.imageHeight}
-              sizes="(min-width: 1200px) 660px, (min-width: 1024px) 58vw, 100vw"
-              priority={priority}
-              className="h-auto w-full transition-transform duration-700 ease-[var(--ease-out-soft)] group-hover:scale-[1.015] group-has-[a:focus-visible]:scale-[1.015] motion-reduce:transform-none"
-            />
-          ) : (
-            <div className="relative aspect-16/10">
+        {/* The settle clip lives on this wrapper, not the frame: its clip-path
+            would otherwise replace the frame's chamfer. */}
+        <div data-settle={settle ? "" : undefined}>
+          <Frame bezel innerClassName="bg-elevated">
+            {hasSize ? (
               <Image
                 src={project.image}
                 alt={project.imageAlt}
-                fill
+                width={project.imageWidth}
+                height={project.imageHeight}
                 sizes="(min-width: 1200px) 660px, (min-width: 1024px) 58vw, 100vw"
                 priority={priority}
-                className="object-cover object-top transition-transform duration-700 ease-[var(--ease-out-soft)] group-hover:scale-[1.015] group-has-[a:focus-visible]:scale-[1.015] motion-reduce:transform-none"
+                className="h-auto w-full transition-transform duration-700 ease-[var(--ease-out-soft)] group-hover:scale-[1.015] group-has-[a:focus-visible]:scale-[1.015] motion-reduce:transform-none"
               />
-            </div>
-          )}
+            ) : (
+              <div className="relative aspect-16/10">
+                <Image
+                  src={project.image}
+                  alt={project.imageAlt}
+                  fill
+                  sizes="(min-width: 1200px) 660px, (min-width: 1024px) 58vw, 100vw"
+                  priority={priority}
+                  className="object-cover object-top transition-transform duration-700 ease-[var(--ease-out-soft)] group-hover:scale-[1.015] group-has-[a:focus-visible]:scale-[1.015] motion-reduce:transform-none"
+                />
+              </div>
+            )}
+          </Frame>
         </div>
         {/* Keeps the cover's disclosure (e.g. "Shown with sample data.") with the image. */}
         {project.imageCaption ? (

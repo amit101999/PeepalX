@@ -3,6 +3,7 @@
 import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { Frame } from "@/components/ui/Frame";
 import { HoneypotField, SelectField, TextAreaField, TextField } from "./fields";
 import {
   budgetOptions,
@@ -111,20 +112,21 @@ export function ContactForm() {
         // No live region: focus moves to the heading below, which announces the
         // confirmation once. Both together stutter in several screen readers.
         data-enter
-        className="flex flex-col items-start gap-4 rounded-xl border border-line bg-surface p-8"
       >
-        <CheckCircle2 aria-hidden="true" className="size-7 text-accent" />
-        <h3
-          ref={successRef}
-          tabIndex={-1}
-          className="text-h3 font-semibold text-ink outline-none"
-        >
-          Message sent
-        </h3>
-        <p className="leading-relaxed text-muted">{formMessage}</p>
-        <Button variant="secondary" onClick={() => setStatus("idle")}>
-          Send another message
-        </Button>
+        <Frame innerClassName="flex flex-col items-start gap-4 bg-surface p-8">
+          <CheckCircle2 aria-hidden="true" className="size-7 text-accent" />
+          <h3
+            ref={successRef}
+            tabIndex={-1}
+            className="text-h3 font-semibold text-ink outline-none"
+          >
+            Message sent
+          </h3>
+          <p className="leading-relaxed text-muted">{formMessage}</p>
+          <Button variant="secondary" onClick={() => setStatus("idle")}>
+            Send another message
+          </Button>
+        </Frame>
       </div>
     );
   }

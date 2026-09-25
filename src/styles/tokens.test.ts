@@ -33,6 +33,20 @@ function contrast(foreground: string, background: string): number {
   return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
 }
 
+/** A foreground colour at `alpha` laid over a background, as the browser paints it. */
+function mix(foreground: string, background: string, alpha: number): string {
+  const channel = (hex: string, start: number) =>
+    parseInt(hex.slice(start, start + 2), 16);
+  const channels = [1, 3, 5].map((start) =>
+    Math.round(
+      channel(foreground, start) * alpha + channel(background, start) * (1 - alpha),
+    )
+      .toString(16)
+      .padStart(2, "0"),
+  );
+  return "#" + channels.join("");
+}
+
 /** [foreground token, background tokens] */
 const bodyText: [string, string[]][] = [
   ["ink", ["canvas", "surface", "elevated", "accent-soft"]],
@@ -56,8 +70,7 @@ const bodyText: [string, string[]][] = [
   ["accent", ["tint"]],
   ["signal", ["tint"]],
   ["danger", ["tint"]],
-  ["forest", ["green-100", "green-200"]],
-  ["on-dark", ["forest", "green-600"]],
+  ["on-dark", ["forest"]],
   ["on-dark-muted", ["forest"]],
   ["on-dark-accent", ["forest"]],
 ];
@@ -69,6 +82,8 @@ const nonText: [string, string[]][] = [
   ["on-dark-accent", ["ink", "forest"]],
   ["control", ["tint"]],
   ["accent", ["tint"]],
+  // WhyUs icon on the green-200 tile.
+  ["accent", ["green-200"]],
 ];
 
 /**
@@ -120,6 +135,38 @@ describe("design tokens", () => {
     expect(tokens["accent"]).toBe(tokens["green-600"]);
     expect(tokens["accent-hover"]).toBe(tokens["green-700"]);
     expect(tokens["accent-soft"]).toBe(tokens["green-100"]);
+  });
+
+  it("keeps closing-block text at AA over the brightest point of the mesh", () => {
+    // CtaSection's mesh: green-700 at 80% opacity over forest, at its peak.
+    const peak = mix(tokens["green-700"]!, tokens["forest"]!, 0.8);
+    for (const text of ["on-dark", "on-dark-muted", "on-dark-accent"]) {
+      const ratio = contrast(tokens[text]!, peak);
+      expect(
+        ratio,
+        `${text} on the mesh peak is ${ratio.toFixed(2)}:1`,
+      ).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
+  it("keeps WhyUs tile text at AA under the spotlight's brightest point", () => {
+    // SpotlightTile: white at 7% on the dark tiles, accent at 7% on the pale ones.
+    const tiles: [string, string, string[]][] = [
+      ["accent", "#ffffff", ["canvas", "accent-soft"]],
+      ["green-100", tokens["accent"]!, ["ink", "muted"]],
+      ["green-200", tokens["accent"]!, ["ink", "ink-soft"]],
+      ["forest", "#ffffff", ["on-dark", "on-dark-muted"]],
+    ];
+    for (const [tile, light, texts] of tiles) {
+      const lit = mix(light, tokens[tile]!, 0.07);
+      for (const text of texts) {
+        const ratio = contrast(tokens[text]!, lit);
+        expect(
+          ratio,
+          `${text} on lit ${tile} is ${ratio.toFixed(2)}:1`,
+        ).toBeGreaterThanOrEqual(4.5);
+      }
+    }
   });
 
   it("keeps faint off accent-soft, where it would fail AA", () => {

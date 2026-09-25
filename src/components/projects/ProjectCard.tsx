@@ -1,6 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { Frame } from "@/components/ui/Frame";
 import type { Project } from "@/types";
 
 interface ProjectCardProps {
@@ -21,7 +22,7 @@ interface ProjectCardProps {
 export function ProjectCard({ project, priority = false }: ProjectCardProps) {
   return (
     <article className="group relative flex h-full flex-col">
-      <div className="relative aspect-16/10 overflow-hidden rounded-xl border border-line bg-surface">
+      <Frame innerClassName="aspect-16/10 bg-surface">
         <Image
           src={project.image}
           alt={project.imageAlt}
@@ -33,7 +34,7 @@ export function ProjectCard({ project, priority = false }: ProjectCardProps) {
           // Screenshots carry their key content at the top, so crop from there.
           className="object-cover object-top transition-transform duration-700 ease-[var(--ease-out-soft)] group-hover:scale-[1.02] group-has-[a:focus-visible]:scale-[1.02] motion-reduce:transform-none"
         />
-      </div>
+      </Frame>
       {/* Keeps the cover's disclosure (e.g. "Shown with sample data.") with the image. */}
       {project.imageCaption ? (
         <p className="mt-2.5 text-xs leading-relaxed text-faint">

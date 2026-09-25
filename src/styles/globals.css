@@ -76,17 +76,17 @@
   --font-sans:
     var(--font-figtree), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 
-  /* Type scale. The hero headline runs the full width of the page, so display
-     can be much larger than the section headings below it. */
-  --text-display: clamp(2.625rem, 1.1rem + 4.2vw, 3.75rem);
-  --text-display--line-height: 1;
-  --text-display--letter-spacing: -0.04em;
-  --text-h1: clamp(2.125rem, 1.3rem + 2.8vw, 3.25rem);
-  --text-h1--line-height: 1.05;
-  --text-h1--letter-spacing: -0.032em;
-  --text-h2: clamp(1.625rem, 1.2rem + 1.6vw, 2.375rem);
-  --text-h2--line-height: 1.12;
-  --text-h2--letter-spacing: -0.024em;
+  /* Type scale. Display is the hero headline: large and tightly set, so the
+     type itself carries the hero beside the logo mark. */
+  --text-display: clamp(2.75rem, 1rem + 5vw, 4.75rem);
+  --text-display--line-height: 0.98;
+  --text-display--letter-spacing: -0.045em;
+  --text-h1: clamp(2.25rem, 1.2rem + 3.4vw, 3.75rem);
+  --text-h1--line-height: 1.02;
+  --text-h1--letter-spacing: -0.038em;
+  --text-h2: clamp(1.875rem, 1.2rem + 2.2vw, 2.875rem);
+  --text-h2--line-height: 1.08;
+  --text-h2--letter-spacing: -0.03em;
   --text-h3: clamp(1.1875rem, 1.05rem + 0.45vw, 1.4375rem);
   --text-h3--line-height: 1.3;
   --text-h3--letter-spacing: -0.012em;
@@ -96,12 +96,22 @@
   --text-label: 0.8125rem;
   --text-label--line-height: 1.3;
 
-  /* Radius. One documented system: badges 6px, controls 8px, media and
-     notices 12px, panels 16px. */
+  /* Radius, for what the chamfer cannot shape: things that take keyboard focus
+     (a clip-path would clip the focus ring) and small notices. Buttons are
+     pills; inputs 8px. Surfaces use the chamfer below. */
   --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 12px;
   --radius-xl: 16px;
+
+  /* Chamfer: the logo's 45° cut ends, used on frames, tiles and badges in
+     place of rounded corners (see the `chamfer` utility below). */
+  --chamfer-sm: 5px;
+  --chamfer-md: 0.875rem;
+  --chamfer-lg: 1.5rem;
+
+  /* How far a slanted section edge drops across the page width. */
+  --slant: clamp(1.5rem, 4vw, 4rem);
 
   /* One shadow, tinted to the ink hue. The mobile menu is the only thing that
      floats above the page; everything else separates with space and hairlines. */
@@ -160,6 +170,56 @@
    the deep green would be too close to the background to see. */
 @utility on-dark {
   --focus-ring: var(--color-on-dark-accent);
+}
+
+/* ---------------------------------------------------------------------------
+   Signature shapes
+   ---------------------------------------------------------------------------
+   Every one is taken from the logo. The mark's X stroke runs from top left to
+   bottom right and its pieces end in 45° cuts, so:
+    - `chamfer` cuts the top-left and bottom-right corners at 45°;
+    - `slant-*` tilts a band's edges the same way, so a tinted band reads as a
+      wide stroke of the X;
+    - `blueprint` is the drafting grid the mark sits on in the hero.
+
+   Clip-paths also clip outlines, so never put `chamfer` on anything that takes
+   keyboard focus: put it on the surface around it.
+--------------------------------------------------------------------------- */
+@utility chamfer {
+  clip-path: polygon(
+    var(--cut, var(--chamfer-md)) 0,
+    100% 0,
+    100% calc(100% - var(--cut, var(--chamfer-md))),
+    calc(100% - var(--cut, var(--chamfer-md))) 100%,
+    0 100%,
+    0 var(--cut, var(--chamfer-md))
+  );
+}
+
+@utility cut-sm {
+  --cut: var(--chamfer-sm);
+}
+
+@utility cut-lg {
+  --cut: var(--chamfer-lg);
+}
+
+/* Top edge drops from left to right. */
+@utility slant-top {
+  clip-path: polygon(0 0, 100% var(--slant), 100% 100%, 0 100%);
+}
+
+/* Both edges drop from left to right, parallel: a band shaped like the X stroke. */
+@utility slant-both {
+  clip-path: polygon(0 0, 100% var(--slant), 100% 100%, 0 calc(100% - var(--slant)));
+}
+
+@utility blueprint {
+  background-image:
+    linear-gradient(to right, var(--color-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-line) 1px, transparent 1px);
+  background-size: 3rem 3rem;
+  background-position: -1px -1px;
 }
 
 /* ---------------------------------------------------------------------------
@@ -274,7 +334,24 @@
   animation:
     piece-in 0.9s var(--ease-spring) both,
     piece-fade 0.4s var(--ease-out-soft) both;
-  animation-delay: calc(200ms + var(--i, 0) * 90ms);
+  animation-delay: calc(450ms + var(--i, 0) * 90ms);
+}
+
+/* The hero mark's construction lines draw themselves in before the pieces
+   land. Each path has pathLength="1", so one dash covers any length. */
+@keyframes draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+[data-draw] {
+  stroke-dasharray: 1;
+  animation: draw 0.9s var(--ease-out-soft) both;
+  animation-delay: calc(var(--i, 0) * 70ms);
 }
 
 /* Hero headline, word by word (the animate-text "per-word crossfade" spec:
@@ -298,13 +375,14 @@
 
 /* The lead project's cover opens out from a slight inset as it scrolls into
    view, drawing the eye to the one image the section is about. Clip-path, so
-   it never fights the image's own hover scale. */
+   it never fights the image's own hover scale. It sits on a wrapper around the
+   chamfered frame, whose own clip-path it would otherwise replace. */
 @keyframes settle {
   from {
-    clip-path: inset(7% 7% 7% 7% round 16px);
+    clip-path: inset(1.5rem);
   }
   to {
-    clip-path: inset(0 round 16px);
+    clip-path: inset(0);
   }
 }
 
@@ -487,13 +565,20 @@
     scroll-behavior: auto !important;
   }
 
+  /* The mesh keeps its own opacity: forcing it opaque would put the closing
+     block's muted text on pure green-700, below AA. Only its drift stops. */
+  [data-mesh] {
+    transform: none !important;
+    animation: none !important;
+  }
+
   [data-reveal],
   [data-enter],
   [data-grow],
   [data-word],
   [data-caret],
   [data-settle],
-  [data-mesh],
+  [data-draw],
   [data-piece] {
     opacity: 1 !important;
     transform: none !important;
@@ -519,13 +604,20 @@
 /* Printing captures the page as it currently stands, so any section the reader
    has not scrolled past would print blank. Force everything visible. */
 @media print {
+  /* The mesh keeps its own opacity: forcing it opaque would put the closing
+     block's muted text on pure green-700, below AA. Only its drift stops. */
+  [data-mesh] {
+    transform: none !important;
+    animation: none !important;
+  }
+
   [data-reveal],
   [data-enter],
   [data-grow],
   [data-word],
   [data-caret],
   [data-settle],
-  [data-mesh],
+  [data-draw],
   [data-piece] {
     opacity: 1 !important;
     transform: none !important;

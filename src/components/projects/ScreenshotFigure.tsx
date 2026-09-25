@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { Frame } from "@/components/ui/Frame";
 import { cn } from "@/lib/utils/cn";
 import type { ImageAsset } from "@/types";
 
@@ -35,32 +36,31 @@ export function ScreenshotFigure({
         minimum size inside grid and flex layouts and push past the screen on
         mobile. Full width, capped at the file's own width, scales down freely.
       */}
-      <div
-        className="w-full overflow-hidden rounded-lg border border-line bg-elevated"
-        style={hasSize ? { maxWidth: width } : undefined}
-      >
-        {hasSize ? (
-          <Image
-            src={src}
-            alt={alt}
-            width={width}
-            height={height}
-            sizes={sizes}
-            priority={priority}
-            className="h-auto w-full"
-          />
-        ) : (
-          <div className="relative aspect-16/10">
+      <div className="w-full" style={hasSize ? { maxWidth: width } : undefined}>
+        <Frame bezel cut="md" innerClassName="bg-elevated">
+          {hasSize ? (
             <Image
               src={src}
               alt={alt}
-              fill
+              width={width}
+              height={height}
               sizes={sizes}
               priority={priority}
-              className="object-contain"
+              className="h-auto w-full"
             />
-          </div>
-        )}
+          ) : (
+            <div className="relative aspect-16/10">
+              <Image
+                src={src}
+                alt={alt}
+                fill
+                sizes={sizes}
+                priority={priority}
+                className="object-contain"
+              />
+            </div>
+          )}
+        </Frame>
       </div>
 
       <figcaption

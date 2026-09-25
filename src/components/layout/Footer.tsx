@@ -9,7 +9,7 @@ import { SocialLinks } from "./SocialLinks";
 /**
  * Site footer.
  *
- * It shares the ink background with the closing CTA above it, so the end of
+ * It shares the forest background with the closing CTA above it, so the end of
  * every page reads as one dark block rather than two stacked bands.
  *
  * Link columns come from `src/data/navigation.ts`; the email and social icons

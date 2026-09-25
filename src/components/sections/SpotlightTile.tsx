@@ -1,13 +1,19 @@
 "use client";
 
+import { useRef } from "react";
 import type { CSSProperties, PointerEvent, ReactNode } from "react";
 import { cn } from "@/lib/utils/cn";
 
+/**
+ * Glow strengths. 7% is the most the tile text can take and still meet WCAG AA
+ * under the brightest point of the light; tokens.test.ts checks every tile's
+ * text against these composites, so raise them only with that test.
+ */
 const GLOW = {
   /** For the dark tiles: a faint white light. */
-  light: "rgb(255 255 255 / 0.14)",
-  /** For the pale tiles: a faint brand-green light. */
-  dark: "rgb(20 107 69 / 0.12)",
+  light: "rgb(255 255 255 / 0.07)",
+  /** For the pale tiles: a faint light in the brand green. */
+  dark: "color-mix(in oklab, var(--color-accent) 7%, transparent)",
 } as const;
 
 /**
@@ -16,8 +22,9 @@ const GLOW = {
  * Hover feedback only: it tells a mouse user which tile they are over and gives
  * the tonal grid some depth. The pointer position is written straight to two
  * CSS custom properties on the tile, so moving the mouse never re-renders
- * React and needs no animation library. Touch and pen pointers are ignored,
- * and the light is hidden entirely for visitors who prefer reduced motion.
+ * React and needs no animation library. The tile is measured once when the
+ * pointer enters, not on every move. Touch and pen pointers are ignored, and
+ * the light is hidden entirely for visitors who prefer reduced motion.
  */
 export function SpotlightTile({
   children,
@@ -28,17 +35,23 @@ export function SpotlightTile({
   className?: string;
   glow?: keyof typeof GLOW;
 }) {
+  const bounds = useRef<DOMRect | null>(null);
+
+  const onPointerEnter = (event: PointerEvent<HTMLLIElement>) => {
+    bounds.current = event.currentTarget.getBoundingClientRect();
+  };
+
   const onPointerMove = (event: PointerEvent<HTMLLIElement>) => {
-    if (event.pointerType !== "mouse") return;
+    if (event.pointerType !== "mouse" || !bounds.current) return;
     const tile = event.currentTarget;
-    const bounds = tile.getBoundingClientRect();
-    tile.style.setProperty("--spot-x", `${event.clientX - bounds.left}px`);
-    tile.style.setProperty("--spot-y", `${event.clientY - bounds.top}px`);
+    tile.style.setProperty("--spot-x", `${event.clientX - bounds.current.left}px`);
+    tile.style.setProperty("--spot-y", `${event.clientY - bounds.current.top}px`);
   };
 
   return (
     <li
       data-reveal
+      onPointerEnter={onPointerEnter}
       onPointerMove={onPointerMove}
       style={{ "--spot-colour": GLOW[glow] } as CSSProperties}
       className={cn("group/tile relative overflow-hidden", className)}

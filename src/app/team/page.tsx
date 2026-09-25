@@ -28,7 +28,7 @@ export default function TeamPage() {
 
       <Team id="team-list" />
 
-      <Section tone="elevated" containerWidth="narrow">
+      <Section tone="tint" slant="both" containerWidth="narrow">
         <SectionHeading title="A small team on purpose" />
 
         <div className="mt-8 flex flex-col gap-5 leading-relaxed text-ink-soft">

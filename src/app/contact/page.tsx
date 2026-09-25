@@ -118,7 +118,7 @@ function NextStep({
 }) {
   return (
     <li className="flex items-start gap-3.5">
-      <span className="mt-0.5 inline-flex size-9 shrink-0 items-center justify-center rounded-md bg-accent-soft text-accent">
+      <span className="mt-0.5 inline-flex size-9 shrink-0 items-center justify-center bg-accent-soft text-accent chamfer cut-sm">
         <Icon aria-hidden className="size-4" />
       </span>
       <div>

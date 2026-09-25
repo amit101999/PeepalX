@@ -1,3 +1,4 @@
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import { cn } from "@/lib/utils/cn";
@@ -6,12 +7,13 @@ type Variant = "primary" | "secondary" | "ghost" | "inverse" | "inverseSecondary
 type Size = "md" | "lg";
 
 /*
- * `group` lets an icon inside the button react to hover, e.g. an arrow that
- * nudges forward (`group-hover:translate-x-0.5`). The press state scales the
- * button slightly so a tap feels acknowledged.
+ * Pill-shaped, so actions read as distinct from the chamfered surfaces around
+ * them (and the focus ring, which follows the radius, is never clipped).
+ * `group` lets the arrow react to hover. The press state scales the button
+ * slightly so a tap feels acknowledged.
  */
 const base =
-  "group inline-flex items-center justify-center gap-2 rounded-md font-medium whitespace-nowrap " +
+  "group inline-flex items-center justify-center gap-2 rounded-full font-medium whitespace-nowrap " +
   "transition-[background-color,color,border-color,transform] duration-200 ease-[var(--ease-out-soft)] " +
   "active:scale-[0.98] disabled:pointer-events-none disabled:opacity-60";
 
@@ -27,13 +29,30 @@ const variants: Record<Variant, string> = {
 
 const sizes: Record<Size, string> = {
   // min-h keeps every button a comfortable touch target on mobile.
-  md: "min-h-11 px-4 py-2.5 text-sm",
-  lg: "min-h-12 px-6 py-3 text-[0.975rem]",
+  md: "min-h-11 px-5 py-2.5 text-sm",
+  lg: "min-h-12 px-7 py-3 text-[0.975rem]",
 };
+
+/* With an arrow, the right padding shrinks so the arrow's circle sits flush. */
+const arrowSizes: Record<Size, { button: string; circle: string }> = {
+  md: { button: "pr-1.5", circle: "size-8" },
+  lg: { button: "gap-3 pr-2", circle: "size-9" },
+};
+
+/* A tint of the button's own text colour, so the circle works on every variant. */
+const arrowCircle =
+  "inline-flex shrink-0 items-center justify-center rounded-full bg-current/12 " +
+  "transition-transform duration-300 ease-[var(--ease-out-soft)] " +
+  "group-hover:translate-x-0.5 group-hover:-translate-y-px motion-reduce:transform-none";
 
 interface CommonProps {
   variant?: Variant;
   size?: Size;
+  /**
+   * A trailing arrow in its own circle. It points up-right for links that
+   * leave the site, right for everything else.
+   */
+  arrow?: boolean;
   className?: string;
   children: ReactNode;
 }
@@ -59,12 +78,33 @@ export type ButtonProps = ButtonElementProps | LinkElementProps;
  * `rel="noopener noreferrer"` and announce that to screen readers.
  */
 export function Button(props: ButtonProps) {
-  const { variant = "primary", size = "md", className, children } = props;
-  const classes = cn(base, variants[variant], sizes[size], className);
+  const { variant = "primary", size = "md", arrow = false, className, children } = props;
+  const isExternal = props.href !== undefined && /^https?:\/\//.test(props.href);
+  const classes = cn(
+    base,
+    variants[variant],
+    sizes[size],
+    arrow && arrowSizes[size].button,
+    className,
+  );
+
+  const Arrow = isExternal ? ArrowUpRight : ArrowRight;
+  const trailing = arrow ? (
+    <span aria-hidden="true" className={cn(arrowCircle, arrowSizes[size].circle)}>
+      <Arrow className="size-4" />
+    </span>
+  ) : null;
 
   if (props.href !== undefined) {
-    const { href, variant: _v, size: _s, className: _c, children: _ch, ...rest } = props;
-    const isExternal = /^https?:\/\//.test(href);
+    const {
+      href,
+      variant: _v,
+      size: _s,
+      arrow: _a,
+      className: _c,
+      children: _ch,
+      ...rest
+    } = props;
 
     return (
       <Link
@@ -75,15 +115,25 @@ export function Button(props: ButtonProps) {
       >
         {children}
         {isExternal ? <span className="sr-only"> (opens in a new tab)</span> : null}
+        {trailing}
       </Link>
     );
   }
 
-  const { variant: _v, size: _s, className: _c, children: _ch, type, ...rest } = props;
+  const {
+    variant: _v,
+    size: _s,
+    arrow: _a,
+    className: _c,
+    children: _ch,
+    type,
+    ...rest
+  } = props;
 
   return (
     <button type={type ?? "button"} className={classes} {...rest}>
       {children}
+      {trailing}
     </button>
   );
 }

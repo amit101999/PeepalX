@@ -37,7 +37,7 @@ export function Services() {
             >
               <span
                 aria-hidden="true"
-                className="absolute -inset-x-4 inset-y-0 -z-10 origin-bottom scale-y-0 rounded-lg bg-tint transition-transform duration-300 ease-[var(--ease-out-soft)] group-focus-within:scale-y-100 group-hover:scale-y-100 motion-reduce:transition-none"
+                className="absolute -inset-x-4 inset-y-0 -z-10 origin-bottom scale-y-0 bg-tint transition-transform duration-300 ease-[var(--ease-out-soft)] chamfer group-focus-within:scale-y-100 group-hover:scale-y-100 motion-reduce:transition-none"
               />
               <Icon
                 aria-hidden="true"

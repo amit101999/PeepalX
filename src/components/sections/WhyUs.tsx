@@ -78,7 +78,7 @@ const tileStyles = [
 
 export function WhyUs() {
   return (
-    <Section spacing="loose" bordered>
+    <Section spacing="loose">
       <div className="grid gap-12 lg:grid-cols-[minmax(0,0.75fr)_minmax(0,1.25fr)] lg:gap-16">
         <div className="lg:sticky lg:top-28 lg:self-start">
           <SectionHeading
@@ -96,7 +96,7 @@ export function WhyUs() {
               <SpotlightTile
                 key={reason.title}
                 glow={style.glow}
-                className={cn("rounded-xl p-7 sm:p-8", style.tile)}
+                className={cn("p-7 chamfer cut-lg sm:p-8", style.tile)}
               >
                 <Icon
                   aria-hidden="true"

@@ -1,4 +1,3 @@
-import { ArrowRight } from "lucide-react";
 import { BRAND_MARK_PATHS, BRAND_MARK_VIEWBOX } from "@/components/layout/Logo";
 import { Button } from "@/components/ui/Button";
 import { Section } from "@/components/ui/Section";
@@ -16,8 +15,9 @@ interface CtaSectionProps {
 /**
  * The closing conversion block, reused at the end of most pages.
  *
- * It sits directly above the footer on the same ink background, so the two
- * read as one dark block: the page's single theme switch. A large, faint
+ * It sits directly above the footer on the same forest background, so the two
+ * read as one dark block: the page's single theme switch. Its top edge is cut
+ * at the logo's diagonal, so the dark block starts like a stroke of the X. A large, faint
  * silhouette of the logo mark sits behind the content as the brand's signature.
  */
 export function CtaSection({
@@ -27,7 +27,7 @@ export function CtaSection({
   secondary,
 }: CtaSectionProps) {
   return (
-    <Section tone="ink" spacing="loose" className="relative overflow-hidden">
+    <Section tone="ink" spacing="loose" slant="top" className="relative overflow-hidden">
       <div
         aria-hidden="true"
         data-mesh
@@ -51,12 +51,8 @@ export function CtaSection({
 
         <div className="flex flex-col gap-5 lg:items-end">
           <div className="flex flex-col gap-3 sm:flex-row">
-            <Button href={primary.href} size="lg" variant="inverse">
+            <Button href={primary.href} size="lg" variant="inverse" arrow>
               {primary.label}
-              <ArrowRight
-                aria-hidden="true"
-                className="size-4 transition-transform duration-200 group-hover:translate-x-0.5"
-              />
             </Button>
 
             {secondary ? (
