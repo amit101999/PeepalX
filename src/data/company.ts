@@ -27,6 +27,35 @@ export const heroBuildPhrases = [
   "Zoho systems",
 ] as const;
 
+/**
+ * The words that scroll inside the hero logo, one list per ribbon: the X
+ * stroke and the bowl of the P. Short tech, AI, automation and business
+ * terms, not claims, so they need no evidence behind them. Decorative: the
+ * logo is hidden from screen readers.
+ */
+export const heroMarkWords = {
+  stroke: [
+    "full stack",
+    "AI agents",
+    "automation",
+    "Zoho",
+    "APIs",
+    "cloud",
+    "Python",
+    "Next.js",
+  ],
+  bowl: [
+    "business systems",
+    "workflows",
+    "LLMs",
+    "integrations",
+    "Zoho CRM",
+    "data",
+    "dashboards",
+    "mobile",
+  ],
+} as const;
+
 /** Hero supporting line. Keep it to 20 words or fewer. */
 export const heroDescription =
   "One team to design, build and connect web and mobile apps, AI agents and Zoho systems, then keep them running.";

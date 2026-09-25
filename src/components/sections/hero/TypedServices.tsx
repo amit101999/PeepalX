@@ -1,9 +1,10 @@
 "use client";
 
 import { Pause, Play, RotateCcw } from "lucide-react";
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { usePrefersReducedMotion } from "@/lib/hooks/use-prefers-reduced-motion";
 import { typewriterSteps } from "@/lib/utils/typewriter";
+import { HERO_MARK_ID } from "./hero-mark-id";
 
 /** Two passes through the list is enough to read all of it; then it stops. */
 const CYCLES = 2;
@@ -60,15 +61,36 @@ export function TypedServices({ phrases }: { phrases: readonly string[] }) {
     return () => window.clearTimeout(timer);
   }, [running, index, steps]);
 
+  // The words scrolling inside the logo (HeroMark) move only while this line
+  // types: same start, same pause, same stop. So this one button pauses every
+  // moving word in the hero (WCAG 2.2.2), and nothing moves under reduced
+  // motion or in a hidden tab.
+  const ribbonsStarted = useRef(false);
+  useEffect(() => {
+    const mark = document.getElementById(HERO_MARK_ID);
+    if (!(mark instanceof SVGSVGElement)) return;
+    if (!running) {
+      mark.pauseAnimations();
+      return;
+    }
+    if (!ribbonsStarted.current) {
+      ribbonsStarted.current = true;
+      mark
+        .querySelectorAll<SVGAnimationElement>("[data-marquee]")
+        .forEach((animation) => animation.beginElement());
+    }
+    mark.unpauseAnimations();
+  }, [running]);
+
   const text = prefersReducedMotion ? phrases[0] : (steps[index]?.text ?? phrases[0]);
   const showControls = mounted && !prefersReducedMotion;
   const longest = phrases.reduce((a, b) => (b.length > a.length ? b : a), "");
 
   const control = finished
-    ? { label: "Replay the list of services", Icon: RotateCcw }
+    ? { label: "Replay the hero animation", Icon: RotateCcw }
     : paused
-      ? { label: "Resume the list of services", Icon: Play }
-      : { label: "Pause the list of services", Icon: Pause };
+      ? { label: "Resume the hero animation", Icon: Play }
+      : { label: "Pause the hero animation", Icon: Pause };
 
   const onControl = () => {
     if (finished) {
