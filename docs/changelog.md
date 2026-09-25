@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026-09-25: services page redesign
+
+- `/services` opens on a service map: the six services as a linked index
+  beside a diagram of them around the PeepalX core. Pointing at a service
+  lights up its node (CSS `:has()`, no JavaScript).
+- Each service now has its own animated diagram of how that kind of system
+  fits together (request path, phone and API, retrieval pipeline, integration
+  loop, data to report, Zoho hub), drawn in `src/components/services/`.
+- On wide screens in browsers with scroll-driven animation (Chromium, Safari
+  26), the diagrams share one sticky plate that switches and builds as each
+  service is read, with a progress rail. Elsewhere (small screens, Firefox,
+  reduced motion, print) each service shows its own diagram inline.
+- All motion is CSS (`globals.css`, "Services page"); no dependency added.
+  Reduced motion shows every diagram fully drawn and hides the moving dots.
+- Anchor ids (`/services#ai-systems` and the rest) are unchanged.
+
 ## 2026-09-17: production hardening
 
 ### Security

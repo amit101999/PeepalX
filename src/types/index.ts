@@ -19,7 +19,7 @@ export interface ImageAsset {
 export interface Service {
   slug: string;
   title: string;
-  /** Reserved for compact labels. Unused today; capped at 14 characters by a test. */
+  /** Compact label, used on the /services diagram. Capped at 14 characters by a test. */
   shortTitle: string;
   /** One-sentence summary used on the home page and in structured data. */
   summary: string;
