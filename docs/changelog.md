@@ -1,5 +1,27 @@
 # Changelog
 
+## 2026-09-25: home page motion pass (tasteskill.dev direction)
+
+- Two-tone headings on the home page: the key words ("run on", "build",
+  "work", "with us") in the accent green, same typeface.
+- New scroll-scrubbed statement between Services and Selected work
+  (`sections/home/Statement.tsx`): the company's position on scope, from the
+  About story, fills in word by word as it is read, with two inline icon chips.
+- Why-us is now a sticky card stack (`sections/home/StackList.tsx`): each card
+  pins slightly lower than the last and scales back as the next slides over.
+- The hero's primary action has a magnetic pull for mouse users
+  (`ui/Magnetic.tsx`).
+- The home closing block has a Three.js wave of points behind it
+  (`sections/home/SignalField.tsx`, opt-in via `<CtaSection field />`). Three.js
+  is imported only when the block is within 300px of the viewport, renders only
+  while on screen, and draws a still frame under reduced motion.
+- Dependencies added: `motion` (scroll-linked and spring motion, loaded with
+  `LazyMotion` + `domMin`) and `three`. Home initial JS measured at 229.7 KB
+  gzip vs 183.8 KB on /about (same layout and closing block), so Motion adds
+  about 40-45 KB to the home page; Three.js is not in the initial load.
+- Everything respects `prefers-reduced-motion`; text is fully visible before
+  hydration and without JavaScript.
+
 ## 2026-09-25: services page redesign
 
 - `/services` opens on a service map: the six services as a linked index

@@ -3,6 +3,7 @@ import type { LucideIcon } from "lucide-react";
 import { Section } from "@/components/ui/Section";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { cn } from "@/lib/utils/cn";
+import { StackList } from "./home/StackList";
 import { SpotlightTile } from "./SpotlightTile";
 
 /**
@@ -77,42 +78,56 @@ const tileStyles = [
 ] as const;
 
 export function WhyUs() {
+  const cards = reasons.map((reason, index) => {
+    const style = tileStyles[index % tileStyles.length]!;
+    const Icon = reason.icon;
+
+    return (
+      <SpotlightTile
+        key={reason.title}
+        as="div"
+        reveal={false}
+        glow={style.glow}
+        className={cn("min-h-72 p-7 chamfer cut-lg sm:min-h-80 sm:p-10", style.tile)}
+      >
+        {/* A large, cropped copy of the icon: the card's one visual, so four
+            same-shaped cards still read as different at a glance. */}
+        <Icon
+          aria-hidden="true"
+          strokeWidth={1}
+          className={cn(
+            "pointer-events-none absolute -right-8 -bottom-10 size-56 opacity-15 sm:size-64",
+            style.icon,
+          )}
+        />
+        <Icon
+          aria-hidden="true"
+          strokeWidth={1.75}
+          className={cn("size-7", style.icon)}
+        />
+        <h3 className={cn("mt-auto max-w-md pt-16 text-h2 font-semibold", style.title)}>
+          {reason.title}
+        </h3>
+        <p className={cn("mt-4 max-w-md text-lead", style.body)}>{reason.description}</p>
+      </SpotlightTile>
+    );
+  });
+
   return (
     <Section spacing="loose">
       <div className="grid gap-12 lg:grid-cols-[minmax(0,0.75fr)_minmax(0,1.25fr)] lg:gap-16">
         <div className="lg:sticky lg:top-28 lg:self-start">
           <SectionHeading
-            title="Why teams work with us"
+            title={
+              <>
+                Why teams work <span className="text-accent">with us</span>
+              </>
+            }
             description="A small team that scopes, builds and supports the work itself."
           />
         </div>
 
-        <ul className="grid gap-4 sm:grid-cols-2">
-          {reasons.map((reason, index) => {
-            const style = tileStyles[index % tileStyles.length]!;
-            const Icon = reason.icon;
-
-            return (
-              <SpotlightTile
-                key={reason.title}
-                glow={style.glow}
-                className={cn("p-7 chamfer cut-lg sm:p-8", style.tile)}
-              >
-                <Icon
-                  aria-hidden="true"
-                  strokeWidth={1.75}
-                  className={cn("size-6", style.icon)}
-                />
-                <h3 className={cn("mt-8 text-h3 font-semibold", style.title)}>
-                  {reason.title}
-                </h3>
-                <p className={cn("mt-3 leading-relaxed", style.body)}>
-                  {reason.description}
-                </p>
-              </SpotlightTile>
-            );
-          })}
-        </ul>
+        <StackList items={cards} />
       </div>
     </Section>
   );

@@ -30,18 +30,24 @@ export function SpotlightTile({
   children,
   className,
   glow = "light",
+  as: Tag = "li",
+  reveal = true,
 }: {
   children: ReactNode;
   className?: string;
   glow?: keyof typeof GLOW;
+  /** `div` when the tile sits inside a list item of its own (the home stack). */
+  as?: "li" | "div";
+  /** Fade up on scroll. Off when something else already moves the tile. */
+  reveal?: boolean;
 }) {
   const bounds = useRef<DOMRect | null>(null);
 
-  const onPointerEnter = (event: PointerEvent<HTMLLIElement>) => {
+  const onPointerEnter = (event: PointerEvent<HTMLElement>) => {
     bounds.current = event.currentTarget.getBoundingClientRect();
   };
 
-  const onPointerMove = (event: PointerEvent<HTMLLIElement>) => {
+  const onPointerMove = (event: PointerEvent<HTMLElement>) => {
     if (event.pointerType !== "mouse" || !bounds.current) return;
     const tile = event.currentTarget;
     tile.style.setProperty("--spot-x", `${event.clientX - bounds.current.left}px`);
@@ -49,8 +55,8 @@ export function SpotlightTile({
   };
 
   return (
-    <li
-      data-reveal
+    <Tag
+      data-reveal={reveal ? "" : undefined}
       onPointerEnter={onPointerEnter}
       onPointerMove={onPointerMove}
       style={{ "--spot-colour": GLOW[glow] } as CSSProperties}
@@ -61,6 +67,6 @@ export function SpotlightTile({
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(280px_circle_at_var(--spot-x,-1000px)_var(--spot-y,-1000px),var(--spot-colour),transparent_70%)] opacity-0 transition-opacity duration-300 group-hover/tile:opacity-100 motion-reduce:hidden"
       />
       <div className="relative flex h-full flex-col">{children}</div>
-    </li>
+    </Tag>
   );
 }
