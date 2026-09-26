@@ -1,7 +1,9 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { Container } from "@/components/ui/Container";
 import { JsonLd } from "@/components/ui/JsonLd";
 import { breadcrumbSchema, type Crumb } from "@/lib/seo/structured-data";
+import { cn } from "@/lib/utils/cn";
 
 interface PageHeaderProps {
   /**
@@ -9,7 +11,8 @@ interface PageHeaderProps {
    * not already give, e.g. a project's category.
    */
   eyebrow?: string;
-  title: string;
+  /** Usually plain text; may carry an accent `<span>` for a two-tone heading. */
+  title: ReactNode;
   description?: string;
   /**
    * Breadcrumb trail. The current page is the last entry. It is rendered both
@@ -17,6 +20,11 @@ interface PageHeaderProps {
    * never disagree and no page has to emit the schema itself.
    */
   breadcrumbs?: Crumb[];
+  /**
+   * A visual beside the heading from `lg` up (hidden below). Decorative only:
+   * everything it shows must also be on the page in accessible form.
+   */
+  aside?: ReactNode;
 }
 
 /**
@@ -32,6 +40,7 @@ export function PageHeader({
   title,
   description,
   breadcrumbs,
+  aside,
 }: PageHeaderProps) {
   return (
     <section className="relative isolate overflow-hidden border-b border-line">
@@ -41,7 +50,12 @@ export function PageHeader({
         aria-hidden="true"
         className="absolute inset-0 -z-10 blueprint [mask-image:radial-gradient(ellipse_55%_90%_at_88%_0%,#000_15%,transparent_75%)]"
       />
-      <Container>
+      <Container
+        className={cn(
+          Boolean(aside) &&
+            "lg:grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-10",
+        )}
+      >
         <div className="max-w-3xl pt-12 pb-14 sm:pt-16 sm:pb-20">
           {breadcrumbs && breadcrumbs.length > 0 ? (
             <nav aria-label="Breadcrumb" className="mb-8">
@@ -100,6 +114,8 @@ export function PageHeader({
             </p>
           ) : null}
         </div>
+
+        {aside ? <div className="relative hidden lg:block">{aside}</div> : null}
       </Container>
     </section>
   );
