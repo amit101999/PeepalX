@@ -45,7 +45,7 @@ export default function OpengraphImage() {
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-        <svg width="40" height="44" viewBox={BRAND_MARK_VIEWBOX}>
+        <svg width="40" height="43" viewBox={BRAND_MARK_VIEWBOX}>
           {/* Gradients are written out here: ImageResponse does not expand components inside <svg>. */}
           <defs>
             <linearGradient
@@ -63,9 +63,9 @@ export default function OpengraphImage() {
             <linearGradient
               id="stroke"
               x1="15"
-              y1="165"
-              x2="480"
-              y2="500"
+              y1="166"
+              x2="497"
+              y2="496"
               gradientUnits="userSpaceOnUse"
             >
               <stop offset="0" stopColor={BRAND_COLORS.navy} />
@@ -77,6 +77,7 @@ export default function OpengraphImage() {
           <path d={BRAND_MARK_PATHS.stem} fill={BRAND_COLORS.navy} />
           <path d={BRAND_MARK_PATHS.leg} fill={BRAND_COLORS.navy} />
           <path d={BRAND_MARK_PATHS.fold} fill={BRAND_COLORS.navy} />
+          <path d={BRAND_MARK_PATHS.back} fill={BRAND_COLORS.navyBack} />
           <path d={BRAND_MARK_PATHS.stroke} fill="url(#stroke)" />
           <path d={BRAND_MARK_PATHS.bowl} fill="url(#bowl)" />
         </svg>
