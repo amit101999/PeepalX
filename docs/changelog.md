@@ -1,5 +1,27 @@
 # Changelog
 
+## 2026-09-26: about page motion pass (tasteskill.dev direction)
+
+- The `/about` header now has a visual: the PeepalX mark as an exploded
+  drawing that assembles itself in 3D (`about/MarkAssembly.tsx`, Three.js).
+  The six logo pieces start pulled apart in depth, slide together, then turn
+  slightly towards the mouse and breathe their layers apart. Large screens
+  only; decorative. Three.js loads only once the mark is on screen; the loop
+  pauses offscreen; reduced motion gets one still frame; without WebGL (or if
+  the scene fails to build) the flat SVG mark shows instead.
+- Our story (`about/StoryScroll.tsx`): from `lg` the heading pins beside the
+  text with a rail that fills through the story, and each paragraph comes to
+  full strength as it crosses the reading line. Pure CSS scroll timelines
+  (`data-story`, `data-story-rail`, `data-focus` in `globals.css`): a Motion
+  version cost ~40 KB gzip of initial JS, so it was replaced. /about initial
+  JS is 183.2 KB gzip, the same as before the pass.
+- How we work: the six values are an uneven bento (4+2, 2+4, 3+3 on large
+  screens) of chamfered tiles in varied tones, with the mouse spotlight from
+  `SpotlightTile`. `tokens.test.ts` now also checks text on the white tile.
+- Mission and vision: joined by a connector that draws from one to the other
+  as the band scrolls in (reuses `data-grow`; vertical below `xl`).
+- Page title is two-tone, like /work. Copy, headings and anchors unchanged.
+
 ## 2026-09-26: logo mark redrawn to match the official file
 
 - The SVG mark (`BRAND_MARK_PATHS` in `Logo.tsx`) was checked against the

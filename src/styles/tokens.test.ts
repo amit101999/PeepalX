@@ -149,13 +149,15 @@ describe("design tokens", () => {
     }
   });
 
-  it("keeps WhyUs tile text at AA under the spotlight's brightest point", () => {
+  it("keeps spotlight tile text at AA under the spotlight's brightest point", () => {
     // SpotlightTile: white at 7% on the dark tiles, accent at 7% on the pale ones.
     const tiles: [string, string, string[]][] = [
       ["accent", "#ffffff", ["canvas", "accent-soft"]],
       ["green-100", tokens["accent"]!, ["ink", "muted"]],
       ["green-200", tokens["accent"]!, ["ink", "ink-soft"]],
       ["forest", "#ffffff", ["on-dark", "on-dark-muted"]],
+      // The About page's value tiles also use white.
+      ["surface", tokens["accent"]!, ["ink", "muted"]],
     ];
     for (const [tile, light, texts] of tiles) {
       const lit = mix(light, tokens[tile]!, 0.07);

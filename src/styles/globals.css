@@ -490,6 +490,22 @@
   }
 }
 
+/* Faint before the reading line, full across it, half strength once read. */
+@keyframes read-focus {
+  0%,
+  15% {
+    opacity: 0.3;
+  }
+  40%,
+  62% {
+    opacity: 1;
+  }
+  90%,
+  100% {
+    opacity: 0.55;
+  }
+}
+
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
     /* Groups of content ease in as they enter the viewport. */
@@ -512,6 +528,27 @@
       [data-grow] {
         transform-origin: left;
         animation-name: grow-x;
+      }
+    }
+
+    /* The About story, from `lg` where it has two columns: each paragraph
+       comes to full strength as it crosses the middle of the screen, and the
+       rail beside the pinned heading fills over the whole story. */
+    @media (min-width: 64rem) {
+      [data-story] {
+        view-timeline: --story block;
+      }
+
+      [data-story-rail] {
+        transform-origin: top;
+        animation: grow-y linear both;
+        animation-timeline: --story;
+        animation-range: entry 60% exit 40%;
+      }
+
+      [data-focus] {
+        animation: read-focus linear both;
+        animation-timeline: view();
       }
     }
   }
@@ -949,7 +986,9 @@
   [data-pop],
   [data-spin],
   [data-stage-item],
-  [data-rail] {
+  [data-rail],
+  [data-story-rail],
+  [data-focus] {
     opacity: 1 !important;
     transform: none !important;
     animation: none !important;
@@ -1002,7 +1041,9 @@
   [data-pop],
   [data-spin],
   [data-stage-item],
-  [data-rail] {
+  [data-rail],
+  [data-story-rail],
+  [data-focus] {
     opacity: 1 !important;
     transform: none !important;
     animation: none !important;
