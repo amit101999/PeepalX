@@ -125,8 +125,11 @@ export const BRAND_MARK_VIEWBOX = "0 0 514 556";
  *
  * Measured from the supplied logo file on a uniform grid (1 source pixel = 2
  * units, origin at the mark's top-left), so the proportions match it exactly.
- * The bowl's outer edge is one ellipse (centre 330,189; radii 168 x 181). The
- * blue-to-cyan front of the ribbon ends at a twist on that edge (472,285);
+ * The bowl's outer edge is one ellipse (centre 330,189; radii 168 x 181), and
+ * its inner edge one smooth quarter ellipse (centre 326,285; radii 146 x 173)
+ * from the top of the counter (326,112) to the twist, so the ribbon narrows
+ * evenly as it wraps round, with no wobble. The blue-to-cyan front of the
+ * ribbon ends at that twist on the outer edge (472,285);
  * past it the ribbon shows its reverse (`back`) down to where it meets the X
  * stroke, with the fold inside. Both are the same navy as the stem and leg
  * (the site owner chose one navy over a separate deep-blue reverse side), and
@@ -138,5 +141,5 @@ export const BRAND_MARK_PATHS = {
   fold: "M326 112H440L490 190L472 285L369 365L364 369L287 292C330 262 373 230 373 184C373 150 358 124 326 112Z",
   back: "M472 285A168 181 0 0 1 369 365C370 345 380 318 405 298Q435 287 472 285Z",
   stroke: "M15 166H167L497 496H337L15 174Z",
-  bowl: "M15 8H330A168 181 0 0 1 472 285C463 273 459 258 459 240C459 190 408 155 355 124Q340 113 326 112H119Z",
+  bowl: "M15 8H330A168 181 0 0 1 472 285A146 173 0 0 0 326 112H119Z",
 } as const;
