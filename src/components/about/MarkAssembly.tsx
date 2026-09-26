@@ -55,16 +55,25 @@ const [, , MARK_W, MARK_H] = BRAND_MARK_VIEWBOX.split(" ").map(Number) as [
   number,
 ];
 
-/** Plate thickness and the gap between assembled plates, in mark units. */
+/**
+ * Plate thickness, and the gap between assembled plates in mark units: just
+ * enough to keep the faces in order, so the finished mark reads flat.
+ */
 const DEPTH = 14;
-const LAYER = 18;
+const LAYER = 2;
 /** How far apart the pieces start, in mark units: an exploded drawing. */
 const SPREAD = { z: 90, out: 0.3 };
 /** Assembly timing (seconds): each piece's travel, and the stagger between them. */
 const ENTER = 1.5;
 const STAGGER = 0.11;
-/** Resting turn of the whole mark (radians), so the plates' depth shows. */
-const REST = { x: 0.12, y: -0.55 };
+/**
+ * Resting turn of the whole mark (radians): face on, so once assembled it is
+ * the header logo. Depth shows while the plates fly in and as the mark leans
+ * towards the mouse.
+ */
+const REST = { x: 0, y: 0 };
+/** Resolution of each plate's face texture, in pixels per mark unit. */
+const FACE_SCALE = 2;
 
 const easeOutQuart = (t: number) => 1 - (1 - t) ** 4;
 const clamp01 = (t: number) => Math.min(Math.max(t, 0), 1);
@@ -73,8 +82,13 @@ const clamp01 = (t: number) => Math.min(Math.max(t, 0), 1);
  * The PeepalX mark as an exploded drawing that assembles itself: the six
  * pieces of the logo, cut as thin plates, start pulled apart in depth and
  * slide together into the finished mark, which then turns gently towards the
- * mouse and breathes its layers apart a little. On a page about a company of
- * co-founders, the logo coming together is the one idea it illustrates.
+ * mouse. On a page about a company of co-founders, the logo coming together
+ * is the one idea it illustrates.
+ *
+ * Assembled, it is the header logo exactly: it rests face on, the plates sit
+ * flush, and each plate's face is painted from the logo's own fills (flat
+ * navy, or the same multi-stop gradients `BrandGradients` draws) rather than
+ * lit, so the colours match the flat mark. Only the plates' cut edges are lit.
  *
  * Decorative only (the page says everything in text), so it is hidden from
  * assistive technology. Costs are kept to the same rules as `CoverDeck`:
@@ -144,6 +158,33 @@ export function MarkAssembly({ className }: { className?: string }) {
       const parsed = new SVGLoader().parse(svg).paths;
 
       const geometries: InstanceType<typeof THREE.BufferGeometry>[] = [];
+      const textures: InstanceType<typeof THREE.CanvasTexture>[] = [];
+      const faceMaterials: InstanceType<typeof THREE.MeshBasicMaterial>[] = [];
+
+      /** A piece's face, drawn as the flat logo draws it, as a texture. */
+      const faceTexture = (piece: Piece) => {
+        const canvas = document.createElement("canvas");
+        canvas.width = MARK_W * FACE_SCALE;
+        canvas.height = MARK_H * FACE_SCALE;
+        const context = canvas.getContext("2d")!;
+        context.scale(FACE_SCALE, FACE_SCALE);
+        const fill = FILLS[piece];
+        if (typeof fill === "string") {
+          context.fillStyle = fill;
+        } else {
+          const gradient = context.createLinearGradient(...fill.from, ...fill.to);
+          fill.stops.forEach(([offset, colour]) => gradient.addColorStop(offset, colour));
+          context.fillStyle = gradient;
+        }
+        context.fill(new Path2D(BRAND_MARK_PATHS[piece]));
+        const texture = new THREE.CanvasTexture(canvas);
+        texture.colorSpace = THREE.SRGBColorSpace;
+        texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+        textures.push(texture);
+        return texture;
+      };
+
+      // Cut edges only: the faces use the unlit face materials.
       const material = new THREE.MeshStandardMaterial({
         vertexColors: true,
         roughness: 0.6,
@@ -192,13 +233,27 @@ export function MarkAssembly({ className }: { className?: string }) {
           );
         }
         geometry.setAttribute("color", new THREE.BufferAttribute(colours, 3));
+        // Map each face point to the same point of the logo drawing (the
+        // texture's y runs up, the drawing's down).
+        const uvs = new Float32Array(position.count * 2);
+        for (let i = 0; i < position.count; i++) {
+          uvs[i * 2] = position.getX(i) / MARK_W;
+          uvs[i * 2 + 1] = 1 - position.getY(i) / MARK_H;
+        }
+        geometry.setAttribute("uv", new THREE.BufferAttribute(uvs, 2));
         geometry.computeBoundingBox();
         const centre = new THREE.Vector3();
         geometry.boundingBox!.getCenter(centre);
         geometry.translate(-MARK_W / 2, -MARK_H / 2, 0);
         geometries.push(geometry);
 
-        const mesh = new THREE.Mesh(geometry, material);
+        // ExtrudeGeometry's group 0 is the two faces, group 1 the cut edges.
+        const face = new THREE.MeshBasicMaterial({
+          map: faceTexture(piece),
+          side: THREE.DoubleSide,
+        });
+        faceMaterials.push(face);
+        const mesh = new THREE.Mesh(geometry, [face, material]);
         // Assembled: stacked back to front, a hair apart, centred on the stack.
         const rest = (index - (PIECES.length - 1) / 2) * LAYER;
         // Exploded: pushed apart in depth and outwards from the mark's centre.
@@ -214,8 +269,6 @@ export function MarkAssembly({ className }: { className?: string }) {
 
       /** Places every piece for time `t` (seconds since the mark appeared). */
       const pose = (t: number) => {
-        // Once assembled, the layers breathe slightly apart and back.
-        const breath = reduce ? 0 : (1 - Math.cos(Math.max(t - 2.4, 0) * 0.7)) * 0.5;
         plates.forEach((plate, index) => {
           const { rest, away } = plate.userData as {
             rest: number;
@@ -224,11 +277,7 @@ export function MarkAssembly({ className }: { className?: string }) {
           const left = reduce
             ? 0
             : 1 - easeOutQuart(clamp01((t - index * STAGGER) / ENTER));
-          plate.position.set(
-            away.x * left,
-            away.y * left,
-            rest * (1 + breath * 0.9) + away.z * left,
-          );
+          plate.position.set(away.x * left, away.y * left, rest + away.z * left);
         });
       };
 
@@ -297,6 +346,8 @@ export function MarkAssembly({ className }: { className?: string }) {
         window.removeEventListener("pointermove", onPointerMove);
         geometries.forEach((geometry) => geometry.dispose());
         material.dispose();
+        faceMaterials.forEach((face) => face.dispose());
+        textures.forEach((texture) => texture.dispose());
         renderer.dispose();
         renderer.domElement.remove();
       };
