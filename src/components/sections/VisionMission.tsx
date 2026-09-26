@@ -1,27 +1,47 @@
+import { ArrowRight } from "lucide-react";
 import { Section } from "@/components/ui/Section";
 import { company } from "@/data/company";
 
-/** Mission and vision, set as two large statements on a quiet background. */
+/**
+ * Mission, then vision: where the company is now and where it is heading,
+ * joined by a line that draws itself as the band scrolls into view.
+ *
+ * The line uses the site's `data-grow` scroll timeline (CSS only), which grows
+ * downwards below `xl` and rightwards from `xl`; the layout turns from stacked
+ * to side by side at the same breakpoint so the line always runs from one
+ * statement to the other. Browsers without scroll timelines, and visitors who
+ * prefer reduced motion, see it fully drawn.
+ */
 export function VisionMission() {
-  const statements = [
-    { label: "Mission", text: company.mission },
-    { label: "Vision", text: company.vision },
-  ];
-
   return (
-    <Section tone="tint" slant="both">
-      <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
-        {statements.map((statement) => (
-          <div key={statement.label}>
-            <h2 className="font-sans text-label font-medium text-accent">
-              {statement.label}
-            </h2>
-            <p className="mt-4 font-display text-h3 font-medium text-balance text-ink lg:text-h2">
-              {statement.text}
-            </p>
-          </div>
-        ))}
+    <Section tone="tint" slant="both" spacing="loose">
+      <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_7rem_minmax(0,1fr)] xl:gap-10">
+        <Statement label="Mission" text={company.mission} />
+
+        <div
+          aria-hidden="true"
+          className="flex w-5 flex-col items-center gap-1 text-accent xl:w-full xl:flex-row xl:self-center"
+        >
+          <span className="block h-16 w-px bg-accent xl:h-px xl:w-full" data-grow />
+          <ArrowRight
+            className="size-5 shrink-0 rotate-90 xl:rotate-0"
+            strokeWidth={1.75}
+          />
+        </div>
+
+        <Statement label="Vision" text={company.vision} />
       </div>
     </Section>
+  );
+}
+
+function Statement({ label, text }: { label: string; text: string }) {
+  return (
+    <div data-reveal>
+      <h2 className="font-sans text-label font-medium text-accent">{label}</h2>
+      <p className="mt-4 font-display text-h3 font-medium text-balance text-ink lg:text-h2">
+        {text}
+      </p>
+    </div>
   );
 }
