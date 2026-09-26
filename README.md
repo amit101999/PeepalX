@@ -573,8 +573,8 @@ to Google, no CSP exception and no font-related layout shift.
 Beyond CSS, each main page has **one signature piece** of JavaScript motion,
 different per page but built the same way: home (scroll-scrubbed statement,
 Why-us card stack), /about (the logo assembling in 3D), /services (the service
-orbit and the pinned process pan), /team (founder constellation), /work (cover
-deck). Motion (`motion/react`) handles the scroll-linked pieces and Three.js
+orbit and the pinned process pan), /team (staggered founder columns and
+tilting portraits), /work (cover deck). Motion (`motion/react`) handles the scroll-linked pieces and Three.js
 the 3D ones; Three.js is imported only when its canvas nears the viewport, and
 header visuals only render from `lg` up.
 

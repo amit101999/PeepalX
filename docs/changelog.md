@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-09-26: one navy in the logo, plainer /team header
+
+- **Logo:** the ribbon's reverse side (the `back` piece under the curve of the
+  P) was a separate deep blue (`#0B3070`) that read as an extra shade. It is
+  now the same navy as the stem and leg in every copy of the mark: header,
+  footer, hero, /about 3D assembly, service map, share image, favicon and
+  `public/brand/logo.svg`. `BRAND_COLORS.navyBack` is removed.
+- **/team:** the founder constellation in the header is removed (it did not
+  read well), along with `team/FounderConstellation.tsx`. The header is now
+  the title and intro alone, like /services and /contact. The founder columns,
+  tilting portraits and reading rail below are unchanged.
+
 ## 2026-09-26: the header logo everywhere
 
 - **Hero:** the mark is now exactly the header logo (`BRAND_MARK_PATHS` on

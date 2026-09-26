@@ -77,7 +77,7 @@ export default function OpengraphImage() {
           <path d={BRAND_MARK_PATHS.stem} fill={BRAND_COLORS.navy} />
           <path d={BRAND_MARK_PATHS.leg} fill={BRAND_COLORS.navy} />
           <path d={BRAND_MARK_PATHS.fold} fill={BRAND_COLORS.navy} />
-          <path d={BRAND_MARK_PATHS.back} fill={BRAND_COLORS.navyBack} />
+          <path d={BRAND_MARK_PATHS.back} fill={BRAND_COLORS.navy} />
           <path d={BRAND_MARK_PATHS.stroke} fill="url(#stroke)" />
           <path d={BRAND_MARK_PATHS.bowl} fill="url(#bowl)" />
         </svg>
