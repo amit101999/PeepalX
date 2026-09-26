@@ -26,8 +26,8 @@ export const team: TeamMember[] = [
     },
   },
   {
-    slug: "amandeep-singh-kumar",
-    name: "Amandeep Singh Kumar",
+    slug: "manish-gupta",
+    name: "Manish Gupta",
     role: "Co-Founder, Developer",
     bio: "Co-founder on the engineering side of the company, building and maintaining the systems we deliver and the practices behind them.",
     image: "/team/placeholder.svg",
@@ -37,8 +37,8 @@ export const team: TeamMember[] = [
     },
   },
   {
-    slug: "manish-yadav",
-    name: "Manish Yadav",
+    slug: "amandeep-kumar",
+    name: "Amandeep Kumar",
     role: "Co-Founder, Marketing",
     bio: "Co-founder responsible for marketing and client relationships, and usually the first point of contact for a new enquiry.",
     image: "/team/placeholder.svg",
