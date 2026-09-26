@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-09-26: smooth inner curve on the logo's bowl
+
+- The inner edge of the P's blue-to-cyan ribbon was three joined curves that
+  ran straight up, then cut across, leaving an S-shaped wobble and a pinched
+  tip at the twist. It is now one quarter ellipse (centre 326,285; radii
+  146 x 173), so the ribbon narrows evenly from the top of the bowl to the
+  twist, as in the supplied logo. Changed once in `BRAND_MARK_PATHS.bowl`,
+  so every logo follows, plus the static `icon.svg` and `public/brand/logo.svg`.
+
 ## 2026-09-26: one navy in the logo, plainer /team header
 
 - **Logo:** the ribbon's reverse side (the `back` piece under the curve of the
