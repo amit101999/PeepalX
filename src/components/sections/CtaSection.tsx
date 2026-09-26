@@ -11,11 +11,6 @@ interface CtaSectionProps {
   /** Label and destination for the primary action. Defaults to the site's contact CTA. */
   primary?: { label: string; href: string };
   secondary?: { label: string; href: string };
-  /**
-   * Adds the animated WebGL wave behind the content. Home page only: it is
-   * the one place the extra download (Three.js, loaded lazily) is worth it.
-   */
-  field?: boolean;
 }
 
 /**
@@ -25,13 +20,16 @@ interface CtaSectionProps {
  * read as one dark block: the page's single theme switch. Its top edge is cut
  * at the logo's diagonal, so the dark block starts like a stroke of the X. A large, faint
  * silhouette of the logo mark sits behind the content as the brand's signature.
+ *
+ * The animated WebGL wave rises behind the content on every page, so the end
+ * of the site (this block plus the footer) looks the same everywhere. Three.js
+ * is loaded lazily by SignalField, only as the block nears the viewport.
  */
 export function CtaSection({
   title = "Tell us what you need built.",
   description = "Describe the problem, rough detail is fine. We reply with our reading of it and a suggested first step.",
   primary = primaryCta,
   secondary,
-  field = false,
 }: CtaSectionProps) {
   return (
     <Section tone="ink" spacing="loose" slant="top" className="relative overflow-hidden">
@@ -40,11 +38,9 @@ export function CtaSection({
         data-mesh
         className="pointer-events-none absolute -inset-1/4 bg-[radial-gradient(40%_50%_at_22%_30%,var(--color-green-700),transparent_70%),radial-gradient(35%_45%_at_78%_72%,var(--color-green-800),transparent_70%)] opacity-80"
       />
-      {field ? (
-        // Masked so the wave rises from the bottom and stays clear of the
-        // heading, keeping the text on plain forest.
-        <SignalField className="pointer-events-none absolute inset-0 [mask-image:linear-gradient(to_top,#000_15%,transparent_60%)]" />
-      ) : null}
+      {/* Masked so the wave rises from the bottom and stays clear of the
+          heading, keeping the text on plain forest. */}
+      <SignalField className="pointer-events-none absolute inset-0 [mask-image:linear-gradient(to_top,#000_15%,transparent_60%)]" />
       <svg
         viewBox={BRAND_MARK_VIEWBOX}
         aria-hidden="true"

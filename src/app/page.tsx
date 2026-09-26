@@ -34,7 +34,7 @@ export default function HomePage() {
       <WhyUs />
       <Team teaser />
       <Testimonials />
-      <CtaSection field />
+      <CtaSection />
     </>
   );
 }

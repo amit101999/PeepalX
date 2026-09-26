@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-09-26: same closing block and footer on every page
+
+- The animated wave behind the dark closing block (`SignalField`) was home
+  only. It now shows on every page that ends with `<CtaSection />`, so the end
+  of the site (closing block plus footer) looks the same everywhere. The
+  `field` prop is removed. Three.js still loads lazily, only as the block
+  nears the viewport, and the wave still respects reduced motion.
+
 ## 2026-09-26: logo mark redrawn to match the official file
 
 - The SVG mark (`BRAND_MARK_PATHS` in `Logo.tsx`) was checked against the
