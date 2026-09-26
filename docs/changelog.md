@@ -8,6 +8,26 @@
   `field` prop is removed. Three.js still loads lazily, only as the block
   nears the viewport, and the wave still respects reduced motion.
 
+## 2026-09-26: team page motion pass (tasteskill.dev direction)
+
+- The `/team` header now has a visual: the three founders as linked nodes
+  around a "You" node, each joined to you by a direct line with pulses
+  travelling both ways (`team/FounderConstellation.tsx`, Three.js). The
+  figure turns slowly and leans towards the mouse. The name chips are server
+  HTML projected onto the 3D points, so they stay crisp. Same cost rules as
+  the Work deck: `lg` only, Three.js imported only once on screen, loop paused
+  offscreen, one still frame under reduced motion, nothing without WebGL.
+- The founders list is no longer three identical cards: the columns start at
+  different heights and settle level as you scroll (`team/StaggeredFounders.tsx`,
+  Motion `useScroll` into a CSS variable, `lg` and motion-safe only), and each
+  portrait leans towards the mouse with a soft sheen (`team/TiltPortrait.tsx`,
+  mouse only, off under reduced motion). `TeamMemberCard` gained a `tilt` prop;
+  the home page teaser is unchanged.
+- "A small team on purpose" became a sticky heading beside the three points,
+  with an accent rail that fills as you read (`team/ReadingRail.tsx`).
+- Copy is unchanged. Portraits are still the placeholder until real photos
+  arrive.
+
 ## 2026-09-26: logo mark redrawn to match the official file
 
 - The SVG mark (`BRAND_MARK_PATHS` in `Logo.tsx`) was checked against the

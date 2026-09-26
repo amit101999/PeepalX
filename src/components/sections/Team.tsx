@@ -2,6 +2,7 @@ import { Section } from "@/components/ui/Section";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { TeamMemberCard } from "@/components/ui/TeamMemberCard";
 import { TextLink } from "@/components/ui/TextLink";
+import { StaggeredFounders } from "@/components/team/StaggeredFounders";
 import { team } from "@/data/team";
 
 /**
@@ -33,13 +34,23 @@ export function Team({ id = "team", teaser = false }: { id?: string; teaser?: bo
         <h2 className="sr-only">The founders</h2>
       )}
 
-      <ul className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
-        {team.map((member) => (
-          <li key={member.slug} data-reveal className="h-full">
-            <TeamMemberCard member={member} showBio={!teaser} />
-          </li>
-        ))}
-      </ul>
+      {teaser ? (
+        <ul className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
+          {team.map((member) => (
+            <li key={member.slug} data-reveal className="h-full">
+              <TeamMemberCard member={member} showBio={false} />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        // The full list staggers its columns and tilts the portraits.
+        <StaggeredFounders
+          items={team.map((member) => ({
+            key: member.slug,
+            node: <TeamMemberCard member={member} tilt />,
+          }))}
+        />
+      )}
     </Section>
   );
 }
