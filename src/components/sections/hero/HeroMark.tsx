@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 import { BRAND_COLORS, BRAND_MARK_PATHS, BrandGradients } from "@/components/layout/Logo";
-import { heroMarkWords } from "@/data/company";
 import { HERO_MARK_ID } from "./hero-mark-id";
+import { RIBBON_SPEED, RIBBONS, ribbonCopyLength } from "./ribbons";
 
 type PieceName = keyof typeof BRAND_MARK_PATHS;
 
@@ -46,47 +46,6 @@ const CORNERS = [
   [552, 8],
   [15, 570],
   [552, 570],
-] as const;
-
-/*
- * Words inside the mark (`heroMarkWords`): tech, AI, automation and
- * business terms running along the X stroke and around the bowl of the P,
- * like print on a ribbon. Each line runs along the
- * piece's centre line and is clipped to the piece's shape.
- *
- * The text is written out twice and `textLength` pins each copy to a known
- * length, so sliding `startOffset` by exactly one copy loops seamlessly.
- */
-const ribbonText = (words: readonly string[]) => words.join(" / ") + " / ";
-
-/** Scroll speed, in viewBox units per second. Slow enough to read. */
-const RIBBON_SPEED = 45;
-/**
- * Average advance of one character of the display face (Schibsted Grotesk,
- * semibold), as a share of its size. Retune it if `font-display` changes: a
- * wider face at this value would squeeze letters together.
- */
-const CHAR_WIDTH = 0.56;
-
-const RIBBONS = [
-  {
-    name: "stroke",
-    text: ribbonText(heroMarkWords.stroke),
-    fontSize: 32,
-    // The X stroke's centre line, from its top edge down to the baseline.
-    path: "M81 165L487 570",
-    // White on the navy and blue end of the stroke, navy where it turns cyan.
-    fill: { x1: 15, y1: 165, x2: 480, y2: 500, switchAt: 0.74 },
-  },
-  {
-    name: "bowl",
-    text: ribbonText(heroMarkWords.bowl),
-    fontSize: 24,
-    // The bowl's centre line: along the top and round the curve. It stops
-    // before the curve turns back left, where letters would turn upside down.
-    path: "M70 58H356C440 58 475 120 475 188C475 240 455 285 415 318",
-    fill: { x1: 15, y1: 0, x2: 500, y2: 0, switchAt: 0.5 },
-  },
 ] as const;
 
 const FILLS: Record<PieceName, string> = {
@@ -191,8 +150,9 @@ export function HeroMark() {
 
         {/* The clip sits on a still outer group, so the entrance's rise and blur
             (on the inner group) are cut to the piece and never spill past it. */}
-        {RIBBONS.map(({ name, text, fontSize }) => {
-          const copyLength = Math.round(text.length * fontSize * CHAR_WIDTH);
+        {RIBBONS.map((ribbon) => {
+          const { name, text, fontSize } = ribbon;
+          const copyLength = ribbonCopyLength(ribbon);
 
           return (
             <g key={name} clipPath={`url(#hero-ribbon-clip-${name})`}>

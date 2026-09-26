@@ -87,10 +87,10 @@ export function TypedServices({ phrases }: { phrases: readonly string[] }) {
   const longest = phrases.reduce((a, b) => (b.length > a.length ? b : a), "");
 
   const control = finished
-    ? { label: "Replay the hero animation", Icon: RotateCcw }
+    ? { label: "Replay the moving text", Icon: RotateCcw }
     : paused
-      ? { label: "Resume the hero animation", Icon: Play }
-      : { label: "Pause the hero animation", Icon: Pause };
+      ? { label: "Resume the moving text", Icon: Play }
+      : { label: "Pause the moving text", Icon: Pause };
 
   const onControl = () => {
     if (finished) {

@@ -71,7 +71,10 @@ Also worth doing before launch:
 **Four dependencies in total.** There is deliberately no animation library, no
 component library, no form library and no `clsx`/`tailwind-merge`:
 
-- All motion is CSS: the hero's logo springs together (a damped-spring curve
+- Motion is CSS except the hero's typed line and the words scrolling inside
+  the hero logo (SVG's own animation, SMIL), which the typed line's script
+  drives, so one button stops all moving text. Otherwise: the hero's logo
+  springs together (a damped-spring curve
   baked into a `linear()` easing), its headline arrives word by word, and
   sections reveal on scroll (`animation-timeline: view()`). Browsers without
   scroll timelines simply show the content. The Motion library was tried for
@@ -451,12 +454,17 @@ A quiet onward link with an arrow, such as "All services" beside a heading.
 **Hero** — `src/components/sections/Hero.tsx` and `src/components/sections/hero/`
 The headline (word by word), a typed line naming what we build, the
 description and actions, beside the brand mark (in its own blue) assembling
-itself on a drafting grid, after its construction lines draw in. `HeroMark` is
-a Server Component driven by CSS; `TypedServices` is a
-small client component with a pause/replay button, a finite run, and a stable
-sentence for screen readers, its timing in `src/lib/utils/typewriter.ts`
-(unit-tested). Copy lives in `src/data/company.ts` (`heroHeadline`,
-`heroBuildPhrases`, `heroDescription`).
+itself on a drafting grid inside corner registration marks, then tech and
+business words scrolling along its X stroke and around the bowl of the P.
+`HeroMark` is a Server Component: its entrances are CSS, and the scrolling
+words are SMIL (`startOffset` on a `textPath`), configured in
+`hero/ribbons.ts`. `TypedServices` is a small client component with a
+pause/replay button that also starts, pauses and stops the logo words, a
+finite run, and a stable sentence for screen readers; its timing is in
+`src/lib/utils/typewriter.ts` (unit-tested). Copy lives in
+`src/data/company.ts` (`heroHeadline`, `heroBuildPhrases`,
+`heroDescription`, and `heroMarkWords` for the logo; `hero/ribbons.test.ts`
+checks each ribbon has enough words to loop without a gap).
 
 **Scroll reveal** — add `data-reveal` to any element to ease it in as it enters
 the viewport. It is pure CSS, so there is nothing to import.
@@ -532,11 +540,13 @@ Typefaces: **Schibsted Grotesk** for headings (`font-display`, applied to
 through `next/font`, which serves them from your own domain: no runtime request
 to Google, no CSP exception and no font-related layout shift.
 
-**Motion** is CSS, and every effect has one job:
+**Motion** is CSS (except the typed line and the logo words, below), and every effect has one job:
 
 - the hero plays once: the headline word by word, the typed services line, the
-  logo's construction lines drawing in (`data-draw`), then the logo springing
-  together piece by piece;
+  logo's corner marks drawing in (`data-draw`), the logo springing together
+  piece by piece, then words blurring in inside it (`data-logo-text`) and
+  scrolling along it while the typed line runs (SMIL, paused by the same
+  button);
 - `data-reveal` groups ease in as they scroll into view, and the lead
   project's cover opens out from a slight inset (`data-settle`);
 - `data-accordion` panels grow and shrink instead of snapping open;
@@ -547,7 +557,7 @@ to Google, no CSP exception and no font-related layout shift.
 
 All of it is removed under `prefers-reduced-motion` and when printing, with
 every element forced to its final state; the typed line shows its first phrase
-and never starts.
+and never starts, and the logo words sit still.
 
 ---
 
@@ -589,7 +599,8 @@ accessibility audit on the deployed site.
   lazy.
 - No layout shift: the header has a fixed height and every image sits in a
   fixed-ratio container.
-- The hero logo is inline SVG animated by CSS, rather than an image request or a script.
+- The hero logo is inline SVG, rather than an image request. Its entrance is
+  CSS; only the scrolling words need script, and only to start and pause them.
 
 ---
 

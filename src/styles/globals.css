@@ -358,8 +358,8 @@
   animation: logo-text-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) 1.5s backwards;
 }
 
-/* The hero mark's construction lines draw themselves in before the pieces
-   land. Each path has pathLength="1", so one dash covers any length. */
+/* The hero mark's corner registration marks draw themselves in before the
+   pieces land. Each path has pathLength="1", so one dash covers any length. */
 @keyframes draw {
   from {
     stroke-dashoffset: 1;
