@@ -78,7 +78,7 @@ export function ScreenshotFigure({
           target="_blank"
           rel="noopener"
           // min-h-6 keeps the link a 24px target (WCAG 2.2 target size).
-          className="inline-flex min-h-6 shrink-0 items-center font-medium text-ink underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-ink"
+          className="inline-flex min-h-6 shrink-0 items-center font-medium text-ink underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-ink pointer-coarse:min-h-11"
         >
           Open full size
           <span className="sr-only">: {alt} (opens in a new tab)</span>

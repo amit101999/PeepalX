@@ -178,7 +178,9 @@ export function Navbar() {
               <div
                 ref={panelRef}
                 id="mobile-menu"
-                className="relative mt-2 animate-menu-in overscroll-contain rounded-3xl border border-line bg-canvas px-5 shadow-lifted"
+                // Page scroll is locked while open, so on a short screen (a
+                // phone held sideways) the panel scrolls itself instead.
+                className="relative mt-2 max-h-[calc(100dvh-5.5rem)] animate-menu-in overflow-y-auto overscroll-contain rounded-3xl border border-line bg-canvas px-5 shadow-lifted"
               >
                 <nav aria-label="Mobile" className="py-3">
                   <ul className="flex flex-col">

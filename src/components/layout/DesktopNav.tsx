@@ -102,7 +102,8 @@ export function DesktopNav({ items, isActive }: DesktopNavProps) {
             onPointerEnter={onLinkPointerEnter}
             onFocus={(event) => moveTo(event.currentTarget)}
             className={cn(
-              "relative block rounded-full px-3.5 py-2 text-sm transition-colors",
+              // Taller on touch screens (tablets get this nav from `md`).
+              "relative block rounded-full px-3.5 py-2 text-sm transition-colors pointer-coarse:py-3",
               // The active link carries a short accent rule, so the
               // state is not shown by colour alone.
               "after:absolute after:inset-x-3.5 after:bottom-1 after:h-px after:origin-left after:bg-accent after:transition-transform after:duration-300",

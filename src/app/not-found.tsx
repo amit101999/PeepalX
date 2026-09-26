@@ -45,7 +45,7 @@ export default function NotFound() {
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="inline-flex min-h-6 items-center text-sm text-muted underline decoration-transparent underline-offset-4 transition-colors hover:text-ink hover:decoration-current"
+                    className="inline-flex min-h-6 items-center text-sm text-muted underline decoration-transparent underline-offset-4 transition-colors hover:text-ink hover:decoration-current pointer-coarse:min-h-11"
                   >
                     {item.label}
                   </Link>

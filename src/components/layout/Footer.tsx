@@ -59,12 +59,12 @@ export function Footer() {
                 <h2 className="font-sans text-label font-medium text-on-dark-muted">
                   {column.title}
                 </h2>
-                <ul className="mt-3 flex flex-col gap-1.5">
+                <ul className="mt-3 flex flex-col gap-1.5 pointer-coarse:gap-0">
                   {column.links.map((link) => (
                     <li key={`${column.title}-${link.href}`}>
                       <Link
                         href={link.href}
-                        className="inline-flex min-h-6 items-center text-sm text-on-dark transition-colors hover:text-on-dark-accent"
+                        className="inline-flex min-h-6 items-center text-sm text-on-dark transition-colors hover:text-on-dark-accent pointer-coarse:min-h-11"
                       >
                         {link.label}
                       </Link>
@@ -86,7 +86,7 @@ export function Footer() {
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className="inline-flex min-h-6 items-center text-sm text-on-dark-muted transition-colors hover:text-on-dark"
+                  className="inline-flex min-h-6 items-center text-sm text-on-dark-muted transition-colors hover:text-on-dark pointer-coarse:min-h-11"
                 >
                   {link.label}
                 </Link>
