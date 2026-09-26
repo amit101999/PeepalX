@@ -222,6 +222,21 @@
   background-position: -1px -1px;
 }
 
+/* Page ending. Every page ends on the logo's diagonal: normally the closing
+   CTA block's slanted top edge, and on pages without one (contact, legal,
+   404) the footer's own. The padding keeps the footer's content clear of the
+   cut, and the triangle it clips away shows the page background behind. */
+body:not(:has([data-closing])) [data-site-footer] {
+  clip-path: polygon(0 0, 100% var(--slant), 100% 100%, 0 100%);
+  padding-top: var(--slant);
+}
+
+/* The hairline that separates the footer from the closing block has nothing
+   to separate once the footer carries the cut itself. */
+body:not(:has([data-closing])) [data-footer-rule] {
+  border-top-color: transparent;
+}
+
 /* ---------------------------------------------------------------------------
    Base layer
 --------------------------------------------------------------------------- */
@@ -283,10 +298,11 @@
 /* ---------------------------------------------------------------------------
    Motion
    ---------------------------------------------------------------------------
-   No animation library. Every effect below is CSS, has one job, animates
-   transform, opacity or clip-path only, and is removed by the reduced-motion
-   block at the end of this file. The only script involved is the hero's typed
-   line (its timing) and the tiles' pointer position; neither animates in JS.
+   Every effect below is CSS, has one job, animates transform, opacity or
+   clip-path only, and is removed by the reduced-motion block at the end of
+   this file. The few scroll-linked and WebGL pieces (Motion and Three.js
+   client components) live beside the sections that use them and check the
+   same reduced-motion preference.
 --------------------------------------------------------------------------- */
 
 /* Hero entrance: elements marked `data-enter` fade up once on load, staggered

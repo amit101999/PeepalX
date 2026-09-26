@@ -51,7 +51,12 @@ export function CtaSection({
         ))}
       </svg>
 
-      <div className="relative grid gap-10 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] lg:items-end lg:gap-16">
+      {/* `data-closing` tells the footer this page has its closing block, so it
+          keeps a straight top edge (see "Page ending" in globals.css). */}
+      <div
+        data-closing
+        className="relative grid gap-10 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] lg:items-end lg:gap-16"
+      >
         <div>
           <h2 className="max-w-2xl text-h1 font-semibold text-on-dark">{title}</h2>
           <p className="mt-5 max-w-xl text-lead text-on-dark-muted">{description}</p>

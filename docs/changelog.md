@@ -1,5 +1,29 @@
 # Changelog
 
+## 2026-09-26: cross-page design consistency pass
+
+Every page was checked at 1440px and 390px, with and without reduced motion,
+against the shared design system (README §11).
+
+- **Fixed a hydration error on the home page.** `Magnetic` (the hero's main
+  button) rendered a wrapper on the server but not on a reduced-motion client.
+  It now always renders the wrapper and simply does not move. `Magnetic` and
+  `StackList` read the preference through the hydration-safe
+  `usePrefersReducedMotion` hook.
+- **One two-tone headline.** The green accent phrase was on five other
+  headings with no rule (/about and /work headers, three home sections). It
+  is now only in the home hero.
+- **Every page ends on the logo's diagonal.** Contact, legal and 404 met the
+  footer with a flat edge; the footer now takes the slanted edge when a page
+  has no closing block, and drops its redundant divider there.
+- **404 and error pages** open on the same drafting grid as every other page
+  (`HeaderGrid`, exported from `PageHeader`).
+- **Legal notice** uses a chamfered `Frame` instead of a rounded box.
+- **Footer on phones:** link groups sit in two columns instead of one long
+  stack, and footer links have a 24px minimum tap height.
+- The logo was confirmed identical everywhere (one `BRAND_MARK_PATHS`
+  source, same 24px header and footer mark on every page).
+
 ## 2026-09-26: same closing block and footer on every page
 
 - The animated wave behind the dark closing block (`SignalField`) was home

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { HeaderGrid } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 
@@ -25,30 +26,35 @@ export default function ErrorBoundary({
   }, [error]);
 
   return (
-    <Container>
-      <div className="flex min-h-[60vh] flex-col justify-center py-24">
-        <p className="text-label font-medium text-accent">Error</p>
+    <div className="relative isolate overflow-hidden">
+      <HeaderGrid />
+      <Container>
+        <div className="flex min-h-[60vh] flex-col justify-center py-24">
+          <p className="text-label font-medium text-accent">Error</p>
 
-        <h1 className="mt-4 text-h1 font-semibold text-ink">Something went wrong.</h1>
+          <h1 className="mt-4 text-h1 font-semibold text-ink">Something went wrong.</h1>
 
-        <p className="mt-5 max-w-lg text-lead text-muted">
-          The page failed to load. Trying again usually resolves it; if it keeps
-          happening, let us know and we will look into it.
-        </p>
+          <p className="mt-5 max-w-lg text-lead text-muted">
+            The page failed to load. Trying again usually resolves it; if it keeps
+            happening, let us know and we will look into it.
+          </p>
 
-        <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-          <Button size="lg" onClick={() => retry()}>
-            Try again
-          </Button>
-          <Button href="/" size="lg" variant="secondary">
-            Back to home
-          </Button>
+          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+            <Button size="lg" onClick={() => retry()}>
+              Try again
+            </Button>
+            <Button href="/" size="lg" variant="secondary">
+              Back to home
+            </Button>
+          </div>
+
+          {error.digest ? (
+            <p className="mt-10 font-mono text-xs text-faint">
+              Reference: {error.digest}
+            </p>
+          ) : null}
         </div>
-
-        {error.digest ? (
-          <p className="mt-10 font-mono text-xs text-faint">Reference: {error.digest}</p>
-        ) : null}
-      </div>
-    </Container>
+      </Container>
+    </div>
   );
 }

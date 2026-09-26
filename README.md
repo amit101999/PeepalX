@@ -525,6 +525,21 @@ Rules the components follow:
   would clip its focus ring: buttons are pills, inputs 8px.
 - **Sentence case** for headings, buttons and labels, and no uppercase label
   above every section.
+- **One two-tone headline.** Only the home hero colours part of its headline
+  ("can run on."). Every other heading is plain ink, so the accent stays the
+  site's signature line instead of a pattern repeated on every page.
+- **Same page anatomy everywhere.** Header pill with the logo (24px mark) →
+  `PageHeader` on the drafting grid (breadcrumb, `h1`, lead, and optionally
+  one `aside` visual from `lg` up) → canvas sections with at most one tinted
+  `slant="both"` band between them → the forest `CtaSection` → footer. Pages
+  without a closing block (contact, legal, 404) still end on the diagonal: the
+  footer takes the slanted edge itself (`[data-closing]` rule in
+  `globals.css`). The 404 and error pages use `HeaderGrid` for the same
+  drafting grid.
+- **The logo is drawn from one source.** Every mark (header, footer, hero,
+  CTA silhouette, /about 3D assembly, service map, OG image) uses
+  `BRAND_MARK_PATHS` and `BRAND_COLORS` from `Logo.tsx`; `public/brand/logo.svg`
+  and `src/app/icon.svg` are static copies of the same shapes.
 - **One label per intent.** Contact is always "Start a project"
   (`primaryCta`); portfolio is "See our work".
 - **Contrast is tested.** `src/styles/tokens.test.ts` reads the hex values from
@@ -553,11 +568,24 @@ to Google, no CSP exception and no font-related layout shift.
 - route changes crossfade through React's `<ViewTransition>`;
 - service rows tint on hover or focus, and the WhyUs tiles carry a light that
   follows the mouse (`SpotlightTile`, CSS variables, no re-renders);
-- the forest closing block has one slow ambient mesh drift.
+- the forest closing block has one slow ambient mesh drift and a WebGL wave.
+
+Beyond CSS, each main page has **one signature piece** of JavaScript motion,
+different per page but built the same way: home (scroll-scrubbed statement,
+Why-us card stack), /about (the logo assembling in 3D), /services (the service
+orbit and the pinned process pan), /team (founder constellation), /work (cover
+deck). Motion (`motion/react`) handles the scroll-linked pieces and Three.js
+the 3D ones; Three.js is imported only when its canvas nears the viewport, and
+header visuals only render from `lg` up.
 
 All of it is removed under `prefers-reduced-motion` and when printing, with
 every element forced to its final state; the typed line shows its first phrase
-and never starts, and the logo words sit still.
+and never starts, and the logo words sit still. Client components read the
+preference with `usePrefersReducedMotion` (not Motion's `useReducedMotion`):
+its server snapshot is `false`, so the first client render matches the server
+HTML and there is no hydration mismatch. Render the same elements either way
+and let the preference switch the motion off, rather than branching the
+markup on it.
 
 ---
 

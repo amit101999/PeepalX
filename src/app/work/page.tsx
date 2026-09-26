@@ -58,11 +58,7 @@ export default function WorkPage() {
   return (
     <>
       <PageHeader
-        title={
-          <>
-            Projects and <span className="text-accent">case studies</span>
-          </>
-        }
+        title="Projects and case studies"
         description="Systems we have designed and built for clients, written up in full: the problem, how the system works, and what changed as a result."
         breadcrumbs={breadcrumbs}
         aside={
