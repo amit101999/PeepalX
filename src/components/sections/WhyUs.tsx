@@ -118,11 +118,7 @@ export function WhyUs() {
       <div className="grid gap-12 lg:grid-cols-[minmax(0,0.75fr)_minmax(0,1.25fr)] lg:gap-16">
         <div className="lg:sticky lg:top-28 lg:self-start">
           <SectionHeading
-            title={
-              <>
-                Why teams work <span className="text-accent">with us</span>
-              </>
-            }
+            title="Why teams work with us"
             description="A small team that scopes, builds and supports the work itself."
           />
         </div>

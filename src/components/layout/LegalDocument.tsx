@@ -1,5 +1,6 @@
 import { AlertTriangle } from "lucide-react";
 import Link from "next/link";
+import { Frame } from "@/components/ui/Frame";
 import { Section } from "@/components/ui/Section";
 import { site } from "@/config/site";
 
@@ -36,17 +37,19 @@ export function LegalDocument({
   return (
     <Section containerWidth="narrow">
       {site.legalCopyReviewed ? null : (
-        <p className="flex items-start gap-3 rounded-lg border border-line bg-elevated px-4 py-3.5 text-sm text-muted">
-          <AlertTriangle
-            aria-hidden="true"
-            className="mt-0.5 size-4 shrink-0 text-accent"
-          />
-          <span>
-            <span className="font-medium text-ink">Placeholder document.</span> This page
-            sets out the structure of the policy only. Replace it with copy reviewed by a
-            qualified adviser before relying on it.
-          </span>
-        </p>
+        <Frame cut="md" innerClassName="bg-elevated">
+          <p className="flex items-start gap-3 px-4 py-3.5 text-sm text-muted">
+            <AlertTriangle
+              aria-hidden="true"
+              className="mt-0.5 size-4 shrink-0 text-accent"
+            />
+            <span>
+              <span className="font-medium text-ink">Placeholder document.</span> This
+              page sets out the structure of the policy only. Replace it with copy
+              reviewed by a qualified adviser before relying on it.
+            </span>
+          </p>
+        </Frame>
       )}
 
       <p className="mt-8 text-sm text-faint">Last updated: {lastUpdated}</p>

@@ -23,11 +23,7 @@ export function SelectedWork() {
     <Section id="work" spacing="loose" tone="tint" slant="both">
       <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
         <SectionHeading
-          title={
-            <>
-              Selected <span className="text-accent">work</span>
-            </>
-          }
+          title="Selected work"
           description="Client systems, written up in full: the problem, the build and what changed."
         />
         {hasMore ? <TextLink href="/work">All projects</TextLink> : null}

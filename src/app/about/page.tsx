@@ -31,11 +31,7 @@ export default function AboutPage() {
   return (
     <>
       <PageHeader
-        title={
-          <>
-            A small team that <span className="text-accent">builds what it scopes</span>
-          </>
-        }
+        title="A small team that builds what it scopes"
         description="Three co-founders, a focused set of services, and a habit of saying what a project will really take."
         breadcrumbs={breadcrumbs}
         aside={<MarkAssembly className="absolute inset-0" />}

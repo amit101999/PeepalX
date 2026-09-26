@@ -11,7 +11,10 @@ interface PageHeaderProps {
    * not already give, e.g. a project's category.
    */
   eyebrow?: string;
-  /** Usually plain text; may carry an accent `<span>` for a two-tone heading. */
+  /**
+   * Plain text. The two-tone headline is kept for the home hero alone, so it
+   * stays the site's one signature line rather than a pattern on every page.
+   */
   title: ReactNode;
   description?: string;
   /**
@@ -44,12 +47,7 @@ export function PageHeader({
 }: PageHeaderProps) {
   return (
     <section className="relative isolate overflow-hidden border-b border-line">
-      {/* The hero's drafting grid, carried onto every inner page, strongest at
-          the top right and fading out behind the title. */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 -z-10 blueprint [mask-image:radial-gradient(ellipse_55%_90%_at_88%_0%,#000_15%,transparent_75%)]"
-      />
+      <HeaderGrid />
       <Container
         className={cn(
           Boolean(aside) &&
@@ -118,5 +116,20 @@ export function PageHeader({
         {aside ? <div className="relative hidden lg:block">{aside}</div> : null}
       </Container>
     </section>
+  );
+}
+
+/**
+ * The hero's drafting grid, carried onto every inner page, strongest at the
+ * top right and fading out behind the title. Exported for the pages that open
+ * without a PageHeader (404, error) so they start on the same sheet. The
+ * parent needs `relative isolate`.
+ */
+export function HeaderGrid() {
+  return (
+    <div
+      aria-hidden="true"
+      className="absolute inset-0 -z-10 blueprint [mask-image:radial-gradient(ellipse_55%_90%_at_88%_0%,#000_15%,transparent_75%)]"
+    />
   );
 }

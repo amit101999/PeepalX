@@ -1,7 +1,8 @@
 "use client";
 
-import { LazyMotion, domMin, m, useReducedMotion, useSpring } from "motion/react";
+import { LazyMotion, domMin, m, useSpring } from "motion/react";
 import type { PointerEvent, ReactNode } from "react";
+import { usePrefersReducedMotion } from "@/lib/hooks/use-prefers-reduced-motion";
 
 /** How far (as a share of the pointer's offset from centre) the child follows. */
 const PULL = 0.25;
@@ -15,17 +16,16 @@ const SPRING = { stiffness: 220, damping: 18, mass: 0.4 };
  * Motion values so pointer movement never re-renders React. The wrapper is a
  * flex box whose child grows to fill it (so a full-width mobile button stays
  * full width), and the transform is visual only, so layout and the child's
- * focus ring are unaffected.
+ * focus ring are unaffected. The wrapper renders the same way under reduced
+ * motion (it just never moves), so server and client markup always match.
  */
 export function Magnetic({ children }: { children: ReactNode }) {
-  const reduce = useReducedMotion();
+  const reduce = usePrefersReducedMotion();
   const x = useSpring(0, SPRING);
   const y = useSpring(0, SPRING);
 
-  if (reduce) return <>{children}</>;
-
   const onPointerMove = (event: PointerEvent<HTMLSpanElement>) => {
-    if (event.pointerType !== "mouse") return;
+    if (reduce || event.pointerType !== "mouse") return;
     const box = event.currentTarget.getBoundingClientRect();
     x.set((event.clientX - (box.left + box.width / 2)) * PULL);
     y.set((event.clientY - (box.top + box.height / 2)) * PULL);

@@ -1,16 +1,10 @@
 "use client";
 
-import {
-  LazyMotion,
-  domMin,
-  m,
-  useReducedMotion,
-  useScroll,
-  useTransform,
-} from "motion/react";
+import { LazyMotion, domMin, m, useScroll, useTransform } from "motion/react";
 import type { MotionValue } from "motion/react";
 import { useRef } from "react";
 import type { CSSProperties, ReactNode } from "react";
+import { usePrefersReducedMotion } from "@/lib/hooks/use-prefers-reduced-motion";
 
 /** How much each card behind the front one shrinks, per card. */
 const STEP = 0.04;
@@ -35,7 +29,8 @@ export function StackList({
   className?: string;
 }) {
   const ref = useRef<HTMLUListElement>(null);
-  const reduce = useReducedMotion();
+  // Hydration-safe: false on the server and the first client render.
+  const reduce = usePrefersReducedMotion();
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start start", "end end"],
@@ -51,7 +46,7 @@ export function StackList({
             index={index}
             count={items.length}
             progress={scrollYProgress}
-            still={reduce ?? false}
+            still={reduce}
           >
             {item}
           </StackCard>
