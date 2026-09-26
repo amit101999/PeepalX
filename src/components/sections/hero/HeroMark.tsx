@@ -45,7 +45,7 @@ const FILLS: Record<PieceName, string> = {
   stem: BRAND_COLORS.navy,
   leg: BRAND_COLORS.navy,
   fold: BRAND_COLORS.navy,
-  back: BRAND_COLORS.navyBack,
+  back: BRAND_COLORS.navy,
   stroke: `url(#${STROKE_GRADIENT})`,
   bowl: `url(#${BOWL_GRADIENT})`,
 };

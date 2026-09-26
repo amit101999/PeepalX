@@ -52,8 +52,6 @@ export function BrandMark({
   const strokeId = `${id}-stroke`;
   // On the dark footer the navy parts would disappear, so they turn light.
   const base = onDark ? "var(--color-on-dark)" : BRAND_COLORS.navy;
-  // The ribbon's reverse side stays a shade apart from the fold it sits beside.
-  const back = onDark ? "var(--color-on-dark-muted)" : BRAND_COLORS.navyBack;
 
   return (
     <svg viewBox={BRAND_MARK_VIEWBOX} aria-hidden="true" className={className}>
@@ -63,7 +61,7 @@ export function BrandMark({
       <path d={BRAND_MARK_PATHS.stem} style={{ fill: base }} />
       <path d={BRAND_MARK_PATHS.leg} style={{ fill: base }} />
       <path d={BRAND_MARK_PATHS.fold} style={{ fill: base }} />
-      <path d={BRAND_MARK_PATHS.back} style={{ fill: back }} />
+      <path d={BRAND_MARK_PATHS.back} style={{ fill: base }} />
       <path d={BRAND_MARK_PATHS.stroke} fill={`url(#${strokeId})`} />
       <path d={BRAND_MARK_PATHS.bowl} fill={`url(#${bowlId})`} />
     </svg>
@@ -114,8 +112,6 @@ export function BrandGradients({
 /** Colours sampled from the supplied logo file. */
 export const BRAND_COLORS = {
   navy: "#0B1B3E",
-  /** The ribbon's reverse side, below the twist in the bowl: a deep blue. */
-  navyBack: "#0B3070",
   blueDeep: "#0A3FD0",
   blue: "#0A6BFF",
   cyan: "#12EAF4",
@@ -132,8 +128,9 @@ export const BRAND_MARK_VIEWBOX = "0 0 514 556";
  * The bowl's outer edge is one ellipse (centre 330,189; radii 168 x 181). The
  * blue-to-cyan front of the ribbon ends at a twist on that edge (472,285);
  * past it the ribbon shows its reverse (`back`) down to where it meets the X
- * stroke, with the navy fold inside. The fold's outer edge runs hidden under
- * the bowl and the reverse side, so no seam shows where they meet.
+ * stroke, with the fold inside. Both are the same navy as the stem and leg
+ * (the site owner chose one navy over a separate deep-blue reverse side), and
+ * the fold's outer edge runs hidden under the bowl, so no seam shows.
  */
 export const BRAND_MARK_PATHS = {
   stem: "M15 166H139V364L15 500Z",
