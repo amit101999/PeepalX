@@ -4,6 +4,7 @@ import { BrandMark } from "@/components/layout/Logo";
 import { Section } from "@/components/ui/Section";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { services } from "@/data/services";
+import { ServiceOrbit } from "./ServiceOrbit";
 
 /* The diagram's geometry, in viewBox units. Wider than tall so the labels
    beside the left and right nodes have room. */
@@ -55,8 +56,12 @@ function spokePath(cos: number, sin: number) {
  *
  * The index is the real navigation: plain anchor links to each service below.
  * The diagram is decorative and hidden from assistive technology; pointing at
- * a link lights up its node (CSS `:has()`, see "Service map" in globals.css),
- * so this stays a Server Component with no JavaScript.
+ * a link lights up its node (CSS `:has()`, see "Service map" in globals.css).
+ *
+ * The SVG is the baseline. On larger screens with motion allowed,
+ * `ServiceOrbit` replaces it with a 3D version (Three.js, loaded lazily) that
+ * turns to face whichever service the index is pointing at. This component
+ * stays a Server Component and renders both the SVG and the orbit's HTML chips.
  */
 export function ServiceMap() {
   const nodes = services.map((service, index) => ({
@@ -115,124 +120,156 @@ export function ServiceMap() {
           </nav>
         </div>
 
-        <div
-          aria-hidden="true"
-          className="relative mx-auto aspect-[480/400] w-full max-w-[34rem] lg:mr-0"
-        >
-          <div className="absolute inset-0 -z-10 blueprint [mask-image:radial-gradient(circle_at_50%_50%,#000_20%,transparent_68%)]" />
+        <div className="relative mx-auto aspect-[480/400] w-full max-w-[34rem] lg:mr-0">
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 -z-10 blueprint [mask-image:radial-gradient(circle_at_50%_50%,#000_20%,transparent_68%)]"
+          />
 
-          <svg
-            viewBox={`0 0 ${VIEW_WIDTH} ${VIEW_HEIGHT}`}
-            focusable="false"
-            className="relative size-full overflow-visible"
-          >
-            {/* Orbit through the node centres */}
-            <path
-              d={`M${CENTER_X} ${CENTER_Y - ORBIT}A${ORBIT} ${ORBIT} 0 1 1 ${CENTER_X} ${CENTER_Y + ORBIT}A${ORBIT} ${ORBIT} 0 1 1 ${CENTER_X} ${CENTER_Y - ORBIT}`}
-              pathLength={1}
-              data-draw
-              fill="none"
-              strokeWidth={1}
-              className="stroke-line-strong"
-            />
+          <ServiceOrbit
+            fallback={
+              <div className="relative size-full">
+                <svg
+                  viewBox={`0 0 ${VIEW_WIDTH} ${VIEW_HEIGHT}`}
+                  focusable="false"
+                  className="relative size-full overflow-visible"
+                >
+                  {/* Orbit through the node centres */}
+                  <path
+                    d={`M${CENTER_X} ${CENTER_Y - ORBIT}A${ORBIT} ${ORBIT} 0 1 1 ${CENTER_X} ${CENTER_Y + ORBIT}A${ORBIT} ${ORBIT} 0 1 1 ${CENTER_X} ${CENTER_Y - ORBIT}`}
+                    pathLength={1}
+                    data-draw
+                    fill="none"
+                    strokeWidth={1}
+                    className="stroke-line-strong"
+                  />
 
-            {/* Spokes, in the same order as the index, so position matches. */}
-            <g fill="none" strokeWidth={1.5} strokeLinecap="round">
-              {nodes.map(({ service, cos, sin }, index) => (
-                <path
-                  key={service.slug}
-                  d={spokePath(cos, sin)}
-                  pathLength={1}
-                  data-draw
-                  data-map-spoke
-                  style={{ "--i": index + 2 } as CSSProperties}
-                />
-              ))}
-            </g>
+                  {/* Spokes, in the same order as the index, so position matches. */}
+                  <g fill="none" strokeWidth={1.5} strokeLinecap="round">
+                    {nodes.map(({ service, cos, sin }, index) => (
+                      <path
+                        key={service.slug}
+                        d={spokePath(cos, sin)}
+                        pathLength={1}
+                        data-draw
+                        data-map-spoke
+                        style={{ "--i": index + 2 } as CSSProperties}
+                      />
+                    ))}
+                  </g>
 
-            {/* Work leaving the core for each service */}
-            <g>
-              {nodes.map(({ service, cos, sin }, index) => (
-                <path
-                  key={service.slug}
-                  d={spokePath(cos, sin)}
-                  pathLength={1}
-                  data-flow
-                  fill="none"
-                  strokeWidth={4}
-                  strokeLinecap="round"
-                  className="stroke-green-500"
-                  style={
-                    {
-                      strokeDasharray: "0.1 0.9",
-                      "--flow-duration": "2.4s",
-                      "--flow-delay": `${index * 0.4}s`,
-                    } as CSSProperties
-                  }
-                />
-              ))}
-            </g>
+                  {/* Work leaving the core for each service */}
+                  <g>
+                    {nodes.map(({ service, cos, sin }, index) => (
+                      <path
+                        key={service.slug}
+                        d={spokePath(cos, sin)}
+                        pathLength={1}
+                        data-flow
+                        fill="none"
+                        strokeWidth={4}
+                        strokeLinecap="round"
+                        className="stroke-green-500"
+                        style={
+                          {
+                            strokeDasharray: "0.1 0.9",
+                            "--flow-duration": "2.4s",
+                            "--flow-delay": `${index * 0.4}s`,
+                          } as CSSProperties
+                        }
+                      />
+                    ))}
+                  </g>
 
-            {/* Core */}
-            <g data-pop>
-              <circle
-                cx={CENTER_X}
-                cy={CENTER_Y}
-                r={CORE_RADIUS}
-                strokeWidth={1.5}
-                className="fill-surface stroke-accent"
-              />
-              <g data-spin>
-                <circle
-                  cx={CENTER_X}
-                  cy={CENTER_Y}
-                  r={CORE_RADIUS - 8}
-                  fill="none"
-                  strokeWidth={1}
-                  strokeDasharray="3 7"
-                  className="stroke-green-300"
-                />
-              </g>
-            </g>
-
-            <g data-map-nodes>
-              {nodes.map(({ service, x, y, label }, index) => {
-                const Icon = service.icon;
-
-                return (
-                  <g key={service.slug} transform={`translate(${x} ${y})`}>
-                    <g data-pop style={{ "--i": index + 1 } as CSSProperties}>
-                      <g data-map-node>
-                        <circle
-                          r={NODE_RADIUS}
-                          strokeWidth={1.5}
-                          className="stroke-accent"
-                        />
-                        <Icon x={-11} y={-11} width={22} height={22} strokeWidth={1.75} />
-                      </g>
-                      <text
-                        x={label.dx}
-                        y={label.dy}
-                        textAnchor={label.anchor}
-                        dominantBaseline="central"
-                        className="fill-ink-soft font-sans text-[13px] font-semibold"
-                      >
-                        {service.shortTitle}
-                      </text>
+                  {/* Core */}
+                  <g data-pop>
+                    <circle
+                      cx={CENTER_X}
+                      cy={CENTER_Y}
+                      r={CORE_RADIUS}
+                      strokeWidth={1.5}
+                      className="fill-surface stroke-accent"
+                    />
+                    <g data-spin>
+                      <circle
+                        cx={CENTER_X}
+                        cy={CENTER_Y}
+                        r={CORE_RADIUS - 8}
+                        fill="none"
+                        strokeWidth={1}
+                        strokeDasharray="3 7"
+                        className="stroke-green-300"
+                      />
                     </g>
                   </g>
-                );
-              })}
-            </g>
-          </svg>
 
-          {/* The PeepalX mark at the core, in its own brand colours. */}
-          <div
-            data-pop
-            className="absolute top-1/2 left-1/2 w-[9%] -translate-x-1/2 -translate-y-1/2"
-          >
-            <BrandMark className="h-auto w-full" />
-          </div>
+                  <g data-map-nodes>
+                    {nodes.map(({ service, x, y, label }, index) => {
+                      const Icon = service.icon;
+
+                      return (
+                        <g key={service.slug} transform={`translate(${x} ${y})`}>
+                          <g data-pop style={{ "--i": index + 1 } as CSSProperties}>
+                            <g data-map-node>
+                              <circle
+                                r={NODE_RADIUS}
+                                strokeWidth={1.5}
+                                className="stroke-accent"
+                              />
+                              <Icon
+                                x={-11}
+                                y={-11}
+                                width={22}
+                                height={22}
+                                strokeWidth={1.75}
+                              />
+                            </g>
+                            <text
+                              x={label.dx}
+                              y={label.dy}
+                              textAnchor={label.anchor}
+                              dominantBaseline="central"
+                              className="fill-ink-soft font-sans text-[13px] font-semibold"
+                            >
+                              {service.shortTitle}
+                            </text>
+                          </g>
+                        </g>
+                      );
+                    })}
+                  </g>
+                </svg>
+
+                {/* The PeepalX mark at the core, in its own brand colours. */}
+                <div
+                  data-pop
+                  className="absolute top-1/2 left-1/2 w-[9%] -translate-x-1/2 -translate-y-1/2"
+                >
+                  <BrandMark className="h-auto w-full" />
+                </div>
+              </div>
+            }
+            core={
+              <div className="absolute top-1/2 left-1/2 flex aspect-square w-[15%] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-[1.5px] border-accent bg-surface shadow-[0_10px_30px_-12px_rgb(20_107_69/0.45)]">
+                <BrandMark className="h-auto w-[58%]" />
+              </div>
+            }
+            nodes={services.map((service) => {
+              const Icon = service.icon;
+
+              return (
+                <span
+                  key={service.slug}
+                  className="relative flex size-11 items-center justify-center rounded-full border-[1.5px] border-accent bg-surface text-accent shadow-[0_8px_22px_-10px_rgb(20_107_69/0.5)] transition-colors duration-300 group-data-[active=true]/orbit:bg-accent group-data-[active=true]/orbit:text-surface lg:size-12"
+                >
+                  <Icon strokeWidth={1.75} className="size-5" />
+                  <span className="absolute top-full left-1/2 mt-2 -translate-x-1/2 rounded-full bg-surface/90 px-2.5 py-0.5 text-[13px] font-semibold whitespace-nowrap text-ink-soft shadow-[0_1px_0_var(--color-line)] transition-colors duration-300 group-data-[active=true]/orbit:text-accent">
+                    {service.shortTitle}
+                  </span>
+                </span>
+              );
+            })}
+          />
         </div>
       </div>
     </Section>

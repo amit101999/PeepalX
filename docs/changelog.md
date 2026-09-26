@@ -1,5 +1,27 @@
 # Changelog
 
+## 2026-09-26: services page motion pass (tasteskill.dev direction)
+
+- The service map's diagram is now a slowly turning 3D orbit
+  (`services/ServiceOrbit.tsx`, Three.js): the six services circle the PeepalX
+  core, with work pulsing out along each spoke. Pointing at or tabbing to a
+  service in the index turns the orbit to bring it to the front and lights its
+  spoke. The service chips are HTML (Lucide icons, text) placed over their 3D
+  positions each frame.
+- It is a progressive enhancement over the existing SVG diagram, which is
+  still the server HTML and stays in place below 640px, under reduced motion,
+  without WebGL, and until Three.js has loaded. Three.js is imported only when
+  the diagram is within 200px of the viewport, and renders only while on screen.
+- "How a project runs" is a pinned horizontal pan from 1280px up
+  (`sections/ProcessPan.tsx`, Motion `useScroll`): the section holds while the
+  six stages slide past, and a line fills along them, lighting each stage as it
+  arrives. Smaller screens, reduced motion and pre-hydration keep the existing
+  timeline.
+- Gotcha: Motion hands `opacity` bound directly to a scroll-derived value to a
+  scroll-timeline animation, and in testing that animation ignored the input
+  range, so the stage markers never filled. Chaining one more `useTransform`
+  keeps it on Motion's own path.
+
 ## 2026-09-25: home page motion pass (tasteskill.dev direction)
 
 - Two-tone headings on the home page: the key words ("run on", "build",
