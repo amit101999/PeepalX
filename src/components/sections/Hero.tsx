@@ -36,7 +36,7 @@ export function Hero() {
         className="absolute inset-0 -z-10 blueprint [mask-image:radial-gradient(ellipse_60%_55%_at_50%_78%,#000_20%,transparent_75%)] lg:[mask-image:radial-gradient(ellipse_45%_70%_at_76%_50%,#000_25%,transparent_80%)]"
       />
       <Container>
-        <div className="grid items-center gap-14 pt-14 pb-16 sm:pt-20 sm:pb-20 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:gap-10 lg:pt-24 lg:pb-24">
+        <div className="grid items-center gap-14 pt-14 pb-16 sm:pt-20 sm:pb-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-10 lg:pt-24 lg:pb-24">
           <div>
             <h1 className="text-display font-semibold text-ink">
               {words.map((word, index) => (

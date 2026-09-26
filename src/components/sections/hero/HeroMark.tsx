@@ -1,26 +1,18 @@
 import type { CSSProperties } from "react";
-import { BRAND_COLORS, BRAND_MARK_PATHS, BrandGradients } from "@/components/layout/Logo";
+import {
+  BRAND_COLORS,
+  BRAND_MARK_PATHS,
+  BRAND_MARK_VIEWBOX,
+  BrandGradients,
+} from "@/components/layout/Logo";
 import { HERO_MARK_ID } from "./hero-mark-id";
 import { RIBBON_SPEED, RIBBONS, ribbonCopyLength } from "./ribbons";
 
 type PieceName = keyof typeof BRAND_MARK_PATHS;
 
-/*
- * The hero draws the X stroke longer than the brand mark does: it runs on
- * down to the baseline, so it ends level with the navy leg on the left. The
- * header logo keeps the original shape.
- */
-const MARK_PATHS: Record<PieceName, string> = {
-  ...BRAND_MARK_PATHS,
-  stroke: "M15 166H167L549 548H389L15 174Z",
-};
-
-/* Wide enough for the longer stroke, with the same 15-unit margin each side. */
-const MARK_VIEWBOX = "0 0 564 556";
-
 /**
  * The order the mark assembles in, back to front, and where each piece
- * arrives from. Offsets are in viewBox units (the mark is 564 x 556), chosen
+ * arrives from. Offsets are in viewBox units (the mark is 514 x 556), chosen
  * so every piece travels along its own direction in the drawing: the stem
  * from the left, the leg from below, the bowl from above, the X stroke along
  * its diagonal.
@@ -44,9 +36,9 @@ const BOWL_GRADIENT = "hero-mark-bowl";
  */
 const CORNERS = [
   [15, 8],
-  [549, 8],
+  [498, 8],
   [15, 548],
-  [549, 548],
+  [498, 548],
 ] as const;
 
 const FILLS: Record<PieceName, string> = {
@@ -61,10 +53,10 @@ const FILLS: Record<PieceName, string> = {
 /**
  * The hero's logo, assembling itself once on load.
  *
- * It is the PeepalX mark in its original brand colours (navy, blue, cyan,
- * from `BRAND_COLORS`), the same as the header logo, only larger, drawn as if
- * on a drafting sheet framed by hairline registration marks. Its X stroke runs
- * down to the baseline, level with the navy leg (see `MARK_PATHS`).
+ * It is exactly the header logo (`BRAND_MARK_PATHS` on `BRAND_MARK_VIEWBOX`, in
+ * the original navy, blue and cyan from `BRAND_COLORS`), only larger, drawn as
+ * if on a drafting sheet framed by hairline registration marks at the corners
+ * of the mark's bounding box.
  *
  * In order:
  *  1. the registration marks draw (`data-draw`);
@@ -85,11 +77,11 @@ export function HeroMark() {
   return (
     <div
       aria-hidden="true"
-      className="relative mx-auto aspect-[564/556] w-full max-w-[280px] sm:max-w-[360px] lg:mr-0 lg:max-w-[460px]"
+      className="relative mx-auto aspect-[514/556] w-full max-w-[300px] sm:max-w-[400px] lg:mr-0 lg:max-w-[520px]"
     >
       <svg
         id={HERO_MARK_ID}
-        viewBox={MARK_VIEWBOX}
+        viewBox={BRAND_MARK_VIEWBOX}
         className="relative size-full overflow-visible"
       >
         <g fill="none" strokeWidth={1} className="stroke-line-strong">
@@ -116,7 +108,7 @@ export function HeroMark() {
             <g key={name}>
               <path id={`hero-ribbon-${name}`} d={path} />
               <clipPath id={`hero-ribbon-clip-${name}`}>
-                <path d={MARK_PATHS[name]} />
+                <path d={BRAND_MARK_PATHS[name]} />
               </clipPath>
               <linearGradient
                 id={`hero-ribbon-fill-${name}`}
@@ -136,7 +128,7 @@ export function HeroMark() {
         {PIECES.map(({ name, from }, index) => (
           <path
             key={name}
-            d={MARK_PATHS[name]}
+            d={BRAND_MARK_PATHS[name]}
             fill={FILLS[name]}
             data-piece
             style={

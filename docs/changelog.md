@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-09-26: the header logo everywhere
+
+- **Hero:** the mark is now exactly the header logo (`BRAND_MARK_PATHS` on
+  the 514 x 556 viewBox). It used to draw a longer X stroke that ran down to
+  the baseline. It is also larger (up to 520px wide; the hero columns are now
+  even). Its position, the words scrolling inside it, the registration marks,
+  the piece-by-piece entrance and the pause button are unchanged.
+- **/about:** the 3D assembly still flies the six plates in and leans towards
+  the mouse, but it now settles face on with the plates flush, and each
+  plate's face is painted from the logo's own fills (canvas textures with the
+  same multi-stop gradients) instead of lighting. Assembled, it is the header
+  logo. The layers no longer breathe apart after assembling, since that
+  pulled the logo out of shape.
+
 ## 2026-09-26: cross-page design consistency pass
 
 Every page was checked at 1440px and 390px, with and without reduced motion,
