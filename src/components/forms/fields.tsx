@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils/cn";
  */
 
 const fieldClasses =
-  "w-full rounded-md border bg-surface px-3.5 py-3 text-[0.95rem] text-ink " +
+  "w-full rounded-md border bg-surface px-3.5 py-3 text-base text-ink pointer-fine:text-[0.95rem] " +
   "transition-[border-color,box-shadow] placeholder:text-faint focus:outline-hidden disabled:opacity-60";
 
 /** Border colour depends on whether the field currently has an error. */

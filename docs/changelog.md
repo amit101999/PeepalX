@@ -1,5 +1,26 @@
 # Changelog
 
+## 2026-09-26: mobile and tablet pass
+
+Every page was measured at 320, 360, 390, 414, 768 and 1024px (overflow,
+tap targets, text and input sizes) and the mobile menu was opened in portrait
+and landscape. There was no horizontal scroll anywhere; the fixes are for
+touch and small screens:
+
+- **Form inputs are 16px on touch screens** (15.2px with a mouse, as before), so
+  iOS Safari on phones and iPads no longer zooms the page when a field is tapped.
+- **Touch targets:** links in text lists (footer, legal row, 404 list,
+  "Open full size") grow to 44px rows on touch screens (`pointer-coarse:`);
+  breadcrumb links get a 44px hit area without moving the layout; the case
+  study's "All projects" and "Next" links are 44px everywhere (they were
+  20px). On tablets, which get the desktop header from `md`, the nav links
+  are 44px tall on touch.
+- **/services map on phones:** below `sm` the diagram is too small for its
+  labels to be read, and the side labels ran off the screen, so it shows the
+  icons only. The index directly above names each service with the same icon.
+- **Mobile menu:** the panel caps at the screen height and scrolls itself,
+  so on a short screen (a phone held sideways) no link is out of reach.
+
 ## 2026-09-26: smooth inner curve on the logo's bowl
 
 - The inner edge of the P's blue-to-cyan ribbon was three joined curves that

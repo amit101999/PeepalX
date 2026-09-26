@@ -103,7 +103,7 @@ export default async function ProjectPage({ params }: PageProps) {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <Link
             href="/work"
-            className="inline-flex items-center gap-2 text-sm text-muted transition-colors hover:text-ink"
+            className="inline-flex min-h-11 items-center gap-2 text-sm text-muted transition-colors hover:text-ink"
           >
             <ArrowLeft aria-hidden="true" className="size-4" />
             All projects
@@ -112,7 +112,7 @@ export default async function ProjectPage({ params }: PageProps) {
           {hasNextProject ? (
             <Link
               href={`/work/${nextProject.slug}`}
-              className="inline-flex items-center gap-2 text-sm text-muted transition-colors hover:text-ink"
+              className="inline-flex min-h-11 items-center gap-2 text-sm text-muted transition-colors hover:text-ink"
             >
               Next: {nextProject.title}
               <ArrowRight aria-hidden="true" className="size-4" />

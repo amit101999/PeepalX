@@ -229,7 +229,7 @@ export function ServiceMap() {
                               y={label.dy}
                               textAnchor={label.anchor}
                               dominantBaseline="central"
-                              className="fill-ink-soft font-sans text-[13px] font-semibold"
+                              className="fill-ink-soft font-sans text-[13px] font-semibold max-sm:hidden"
                             >
                               {service.shortTitle}
                             </text>
