@@ -1,5 +1,26 @@
 # Changelog
 
+## 2026-09-26: work page motion pass (tasteskill.dev direction)
+
+- The `/work` header now has a visual: the project covers as a 3D deck of
+  chamfered plates (`projects/CoverDeck.tsx`, Three.js), receding at the
+  logo's 45°, settling in one after another and turning slightly towards the
+  mouse. Large screens only; decorative (every cover is in the list below).
+  Textures are 640px images from the optimiser (SVG covers use their PNG
+  share image). Three.js loads only once the deck is on screen, so phones and
+  tablets never download it; the loop pauses offscreen; reduced motion gets
+  one still frame; without WebGL the lead cover shows as a still image.
+- Two-tone page title ("case studies" in the accent green). `PageHeader`
+  accepts a `ReactNode` title and an optional `aside` slot; other pages are
+  unchanged.
+- The projects under the lead feature are a staggered two-column grid
+  (`projects/ParallaxGrid.tsx`): the right column starts 112px lower and rises
+  into line as the reader scrolls (Motion `useScroll`, `md` up, off under
+  reduced motion via CSS so server and client markup match). Reading order is
+  unchanged.
+- Measured: /work initial JS 226.7 KB gzip vs 179.5 KB on /about (the Motion
+  cost the home page already pays); Three.js is not in the initial load.
+
 ## 2026-09-25: home page motion pass (tasteskill.dev direction)
 
 - Two-tone headings on the home page: the key words ("run on", "build",
