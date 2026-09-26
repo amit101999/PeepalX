@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026-09-26: logo mark redrawn to match the official file
+
+- The SVG mark (`BRAND_MARK_PATHS` in `Logo.tsx`) was checked against the
+  supplied logo (`docs/WhatsApp Image ….jpeg`) by overlaying its outlines on
+  the image, then redrawn from pixel measurements on a uniform grid. Fixes:
+  - the bowl's blue-to-cyan ribbon now ends at a twist around 4 o'clock and
+    shows its reverse side (a new `back` piece, `BRAND_COLORS.navyBack`) down
+    to the X stroke, as in the original; before, the blue ran all the way round;
+  - the X stroke and the stem are longer, matching the original;
+  - the mark was about 4% too tall for its width; the viewBox is now
+    `0 0 514 556`.
+- Updated everywhere the mark appears: header and footer logo, hero mark
+  (still with its stroke run down to the baseline, words re-routed along the
+  new centre lines), services map, closing-block silhouette, social card,
+  favicon and `public/brand/logo.svg`.
+
 ## 2026-09-25: home page motion pass (tasteskill.dev direction)
 
 - Two-tone headings on the home page: the key words ("run on", "build",

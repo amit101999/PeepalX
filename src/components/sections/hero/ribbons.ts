@@ -32,22 +32,24 @@ export const RIBBONS = [
     // The X stroke's centre line at 45°, carried past both of the stroke's
     // edges so letters slide under the clip instead of blinking in and out
     // where the path would otherwise end.
-    path: "M49 133L519 602",
+    path: "M55 134L501 580",
     // Straight line, so its length is exact. Not named `pathLength`: that is
     // a real SVG attribute and would change startOffset's units if spread on.
-    measuredLength: Math.round(Math.hypot(519 - 49, 602 - 133)),
+    measuredLength: Math.round(Math.hypot(501 - 55, 580 - 134)),
     // White on the navy and blue end of the stroke, navy where it turns cyan.
-    fill: { x1: 15, y1: 165, x2: 480, y2: 500, switchAt: 0.74 },
+    fill: { x1: 15, y1: 166, x2: 497, y2: 496, switchAt: 0.74 },
   },
   {
     name: "bowl",
     text: ribbonText(heroMarkWords.bowl),
     fontSize: 24,
-    // The bowl's centre line: along the top and round the curve. It stops
-    // before the curve turns back left, where letters would turn upside down.
-    path: "M70 58H356C440 58 475 120 475 188C475 240 455 285 415 318",
-    // Measured with getTotalLength() (633.5). Re-measure if `path` changes.
-    measuredLength: 634,
+    // The bowl's centre line: along the top and round the curve, an ellipse
+    // concentric with the bowl's outer edge. It stops above the twist, where
+    // the ribbon narrows to a point and turns to its reverse side.
+    path: "M70 60H330A136 129 0 0 1 462 220",
+    // 260 straight plus a 239.5 arc (499.5), checked with getTotalLength().
+    // Re-measure if `path` changes.
+    measuredLength: 500,
     fill: { x1: 15, y1: 0, x2: 500, y2: 0, switchAt: 0.5 },
   },
 ] as const;

@@ -1,17 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 580" width="520" height="580" role="img" aria-label="PeepalX logo mark">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 514 556" width="514" height="556" role="img" aria-label="PeepalX logo mark">
   <defs>
     <linearGradient id="bowl" x1="15" y1="0" x2="500" y2="0" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#0A3FD0"/><stop offset=".45" stop-color="#0A6BFF"/><stop offset="1" stop-color="#12EAF4"/>
     </linearGradient>
-    <linearGradient id="leg" x1="15" y1="165" x2="480" y2="500" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#0B1B3E"/><stop offset=".35" stop-color="#0B3FBF"/><stop offset=".7" stop-color="#0A7BFF"/><stop offset="1" stop-color="#12EAF4"/>
+    <linearGradient id="stroke" x1="15" y1="166" x2="497" y2="496" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0B1B3E"/><stop offset=".35" stop-color="#0A3FD0"/><stop offset=".7" stop-color="#0A6BFF"/><stop offset="1" stop-color="#12EAF4"/>
     </linearGradient>
   </defs>
   <g fill="#0B1B3E">
-    <path d="M15 165H142V315L148 352L15 485Z"/>
-    <path d="M15 570L270 315L330 375L135 570Z"/>
-    <path d="M310 108H370C418 108 452 140 452 195C452 265 400 320 330 336L288 294C342 280 370 242 370 202C370 160 350 128 310 108Z"/>
+    <path d="M15 166H139V364L15 500Z"/>
+    <path d="M15 548L263 300L341 360L153 548Z"/>
+    <path d="M326 112H440L490 190L472 285L369 365L364 369L287 292C330 262 373 230 373 184C373 150 358 124 326 112Z"/>
   </g>
-  <path fill="url(#leg)" d="M15 165H148L482 500H352Z"/>
-  <path fill="url(#bowl)" d="M15 8H342C435 8 498 80 498 180C498 280 440 352 362 366L330 336C400 320 452 265 452 195C452 140 418 108 370 108H120Z"/>
+  <path fill="#0B3070" d="M472 285A168 181 0 0 1 369 365C370 345 380 318 405 298Q435 287 472 285Z"/>
+  <path fill="url(#stroke)" d="M15 166H167L497 496H337L15 174Z"/>
+  <path fill="url(#bowl)" d="M15 8H330A168 181 0 0 1 472 285C463 273 459 258 459 240C459 190 408 155 355 124Q340 113 326 112H119Z"/>
 </svg>

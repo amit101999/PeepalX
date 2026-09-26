@@ -52,6 +52,8 @@ export function BrandMark({
   const strokeId = `${id}-stroke`;
   // On the dark footer the navy parts would disappear, so they turn light.
   const base = onDark ? "var(--color-on-dark)" : BRAND_COLORS.navy;
+  // The ribbon's reverse side stays a shade apart from the fold it sits beside.
+  const back = onDark ? "var(--color-on-dark-muted)" : BRAND_COLORS.navyBack;
 
   return (
     <svg viewBox={BRAND_MARK_VIEWBOX} aria-hidden="true" className={className}>
@@ -61,6 +63,7 @@ export function BrandMark({
       <path d={BRAND_MARK_PATHS.stem} style={{ fill: base }} />
       <path d={BRAND_MARK_PATHS.leg} style={{ fill: base }} />
       <path d={BRAND_MARK_PATHS.fold} style={{ fill: base }} />
+      <path d={BRAND_MARK_PATHS.back} style={{ fill: back }} />
       <path d={BRAND_MARK_PATHS.stroke} fill={`url(#${strokeId})`} />
       <path d={BRAND_MARK_PATHS.bowl} fill={`url(#${bowlId})`} />
     </svg>
@@ -94,9 +97,9 @@ export function BrandGradients({
       <linearGradient
         id={strokeId}
         x1="15"
-        y1="165"
-        x2="480"
-        y2="500"
+        y1="166"
+        x2="497"
+        y2="496"
         gradientUnits="userSpaceOnUse"
       >
         <stop offset="0" style={{ stopColor: base }} />
@@ -111,18 +114,32 @@ export function BrandGradients({
 /** Colours sampled from the supplied logo file. */
 export const BRAND_COLORS = {
   navy: "#0B1B3E",
+  /** The ribbon's reverse side, below the twist in the bowl: a deep blue. */
+  navyBack: "#0B3070",
   blueDeep: "#0A3FD0",
   blue: "#0A6BFF",
   cyan: "#12EAF4",
 } as const;
 
-export const BRAND_MARK_VIEWBOX = "0 0 520 580";
+export const BRAND_MARK_VIEWBOX = "0 0 514 556";
 
-/** Mark shapes, back to front: navy stem, lower leg and bowl fold, then the X stroke and the bowl. */
+/**
+ * Mark shapes, back to front: navy stem, lower leg and bowl fold, the
+ * ribbon's reverse side, then the X stroke and the bowl.
+ *
+ * Measured from the supplied logo file on a uniform grid (1 source pixel = 2
+ * units, origin at the mark's top-left), so the proportions match it exactly.
+ * The bowl's outer edge is one ellipse (centre 330,189; radii 168 x 181). The
+ * blue-to-cyan front of the ribbon ends at a twist on that edge (472,285);
+ * past it the ribbon shows its reverse (`back`) down to where it meets the X
+ * stroke, with the navy fold inside. The fold's outer edge runs hidden under
+ * the bowl and the reverse side, so no seam shows where they meet.
+ */
 export const BRAND_MARK_PATHS = {
-  stem: "M15 165H142V315L148 352L15 485Z",
-  leg: "M15 570L270 315L330 375L135 570Z",
-  fold: "M310 108H370C418 108 452 140 452 195C452 265 400 320 330 336L288 294C342 280 370 242 370 202C370 160 350 128 310 108Z",
-  stroke: "M15 165H148L482 500H352Z",
-  bowl: "M15 8H342C435 8 498 80 498 180C498 280 440 352 362 366L330 336C400 320 452 265 452 195C452 140 418 108 370 108H120Z",
+  stem: "M15 166H139V364L15 500Z",
+  leg: "M15 548L263 300L341 360L153 548Z",
+  fold: "M326 112H440L490 190L472 285L369 365L364 369L287 292C330 262 373 230 373 184C373 150 358 124 326 112Z",
+  back: "M472 285A168 181 0 0 1 369 365C370 345 380 318 405 298Q435 287 472 285Z",
+  stroke: "M15 166H167L497 496H337L15 174Z",
+  bowl: "M15 8H330A168 181 0 0 1 472 285C463 273 459 258 459 240C459 190 408 155 355 124Q340 113 326 112H119Z",
 } as const;

@@ -12,15 +12,15 @@ type PieceName = keyof typeof BRAND_MARK_PATHS;
  */
 const MARK_PATHS: Record<PieceName, string> = {
   ...BRAND_MARK_PATHS,
-  stroke: "M15 165H148L552 570H422Z",
+  stroke: "M15 166H167L549 548H389L15 174Z",
 };
 
 /* Wide enough for the longer stroke, with the same 15-unit margin each side. */
-const MARK_VIEWBOX = "0 0 567 580";
+const MARK_VIEWBOX = "0 0 564 556";
 
 /**
  * The order the mark assembles in, back to front, and where each piece
- * arrives from. Offsets are in viewBox units (the mark is 567 x 580), chosen
+ * arrives from. Offsets are in viewBox units (the mark is 564 x 556), chosen
  * so every piece travels along its own direction in the drawing: the stem
  * from the left, the leg from below, the bowl from above, the X stroke along
  * its diagonal.
@@ -29,6 +29,7 @@ const PIECES: { name: PieceName; from: { x: number; y: number; rotate: number } 
   { name: "stem", from: { x: -70, y: 0, rotate: -6 } },
   { name: "leg", from: { x: -40, y: 70, rotate: 6 } },
   { name: "fold", from: { x: 60, y: 20, rotate: 6 } },
+  { name: "back", from: { x: 50, y: 50, rotate: -6 } },
   { name: "stroke", from: { x: 80, y: 80, rotate: -6 } },
   { name: "bowl", from: { x: 40, y: -70, rotate: 6 } },
 ];
@@ -43,15 +44,16 @@ const BOWL_GRADIENT = "hero-mark-bowl";
  */
 const CORNERS = [
   [15, 8],
-  [552, 8],
-  [15, 570],
-  [552, 570],
+  [549, 8],
+  [15, 548],
+  [549, 548],
 ] as const;
 
 const FILLS: Record<PieceName, string> = {
   stem: BRAND_COLORS.navy,
   leg: BRAND_COLORS.navy,
   fold: BRAND_COLORS.navy,
+  back: BRAND_COLORS.navyBack,
   stroke: `url(#${STROKE_GRADIENT})`,
   bowl: `url(#${BOWL_GRADIENT})`,
 };
@@ -83,7 +85,7 @@ export function HeroMark() {
   return (
     <div
       aria-hidden="true"
-      className="relative mx-auto aspect-[567/580] w-full max-w-[280px] sm:max-w-[360px] lg:mr-0 lg:max-w-[460px]"
+      className="relative mx-auto aspect-[564/556] w-full max-w-[280px] sm:max-w-[360px] lg:mr-0 lg:max-w-[460px]"
     >
       <svg
         id={HERO_MARK_ID}
