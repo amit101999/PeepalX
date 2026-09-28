@@ -67,7 +67,7 @@ export function LegalDocument({
               <p className="mt-3">
                 <Link
                   href={section.link.href}
-                  className="font-medium text-accent underline underline-offset-4"
+                  className="inline-flex min-h-6 items-center font-medium text-accent underline underline-offset-4 pointer-coarse:min-h-11"
                 >
                   {section.link.label}
                 </Link>
