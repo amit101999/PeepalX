@@ -125,13 +125,13 @@ export function TypedServices({ phrases }: { phrases: readonly string[] }) {
       </p>
 
       {/* The slot is always there, so the button appearing causes no shift. */}
-      <span className="inline-flex size-9 shrink-0">
+      <span className="inline-flex size-9 shrink-0 pointer-coarse:size-11">
         {showControls ? (
           <button
             type="button"
             onClick={onControl}
             aria-label={control.label}
-            className="inline-flex size-9 items-center justify-center rounded-md text-muted transition-colors hover:bg-tint hover:text-ink"
+            className="inline-flex size-9 items-center justify-center rounded-md text-muted transition-colors hover:bg-tint hover:text-ink pointer-coarse:size-11"
           >
             <control.Icon aria-hidden="true" className="size-4" />
           </button>

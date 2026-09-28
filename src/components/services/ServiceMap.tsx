@@ -120,7 +120,11 @@ export function ServiceMap() {
           </nav>
         </div>
 
-        <div className="relative mx-auto aspect-[480/400] w-full max-w-[34rem] lg:mr-0">
+        {/* Between 1024 and 1279px the map sits flush with the container edge,
+            and a label pill on the rightmost orbit node would hang past the
+            viewport, so it keeps 2.5rem clear. From xl the page gutter has the
+            room. (Width, not padding: the layers inside are inset-0.) */}
+        <div className="relative mx-auto aspect-[480/400] w-full max-w-[34rem] lg:mr-10 lg:w-[calc(100%-2.5rem)] xl:mr-0 xl:w-full">
           <div
             aria-hidden="true"
             className="absolute inset-0 -z-10 blueprint [mask-image:radial-gradient(circle_at_50%_50%,#000_20%,transparent_68%)]"
