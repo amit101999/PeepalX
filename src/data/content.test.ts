@@ -107,6 +107,9 @@ describe("projects", () => {
   });
 
   it("finds a project by slug, and returns undefined for an unknown one", () => {
+    expect(getProjectBySlug("zoho-creator-commission-management")?.title).toBe(
+      "Zoho Creator Commission Management and Automation",
+    );
     expect(getProjectBySlug("zoho-portfolio-accounting-system")?.title).toBe(
       "Zoho-Powered Portfolio Accounting System for a PMS Firm",
     );

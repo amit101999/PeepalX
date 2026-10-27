@@ -15,6 +15,7 @@ import type { Project } from "@/types";
  *    screenshot uses sample data, say so in its caption.
  */
 
+const commissionImages = "/projects/zoho-creator-commission-management";
 const codebeamerImages = "/projects/codebeamer-docs-ai-dataset";
 const realEstateImages = "/projects/real-estate-lead-management-crm";
 const travelImages = "/projects/zoho-travel-booking-crm";
@@ -25,6 +26,205 @@ const pmsImages = "/projects/zoho-portfolio-accounting-system";
 const SAMPLE_DATA = "Shown with sample data.";
 
 export const projects: Project[] = [
+  {
+    slug: "zoho-creator-commission-management",
+    title: "Zoho Creator Commission Management and Automation",
+    category: "Sales operations / Zoho",
+    description:
+      "We automated sales and presales commissions in Zoho Creator, calculated from Zoho Books invoices, payments, profitability and KPI performance.",
+    technologies: ["Zoho Creator", "Zoho Books", "Deluge", "Zoho API"],
+    image: `${commissionImages}/sales-kpi.jpg`,
+    imageAlt:
+      "Sales KPI form in Zoho Creator with salesperson, quarter, revenue target and achieved fields, and a KPI table listing activities such as customer engagement and opportunity creation with their weightage, frequency, criteria and target",
+    imageWidth: 1600,
+    imageHeight: 663,
+    imageCaption:
+      "Sales KPI setup: quarterly revenue target and achievement, and each activity's weightage, frequency, criteria and target.",
+    // The cover shows KPI figures, so social cards use a screen without them.
+    socialImage: {
+      src: `${commissionImages}/presales-commission.jpg`,
+      alt: "Presales person commission calculation form in Zoho Creator with presales engineer, quarter, total commission and date range, and a commission details table by customer, invoice number, actual profit and invoice date",
+      width: 1600,
+      height: 602,
+    },
+    year: "2026",
+    role: "Zoho implementation",
+    updatedAt: "2026-10-27",
+    caseStudy: {
+      context:
+        "Sales and presales commissions depended on data spread across Zoho Books: sales orders, invoices, payments and dates, project costs and timesheets.",
+      problem:
+        "Working commissions out by hand from invoices, payments, profitability and KPI performance was slow and hard to verify, and several presales employees could share commission on the same invoice.",
+      goal: "One system that calculates commissions automatically from Zoho Books data and shows every salesperson and presales engineer how their commission was reached.",
+      solution:
+        "We built a commission management system in Zoho Creator, connected to Zoho Books. Sales orders, invoices, payments, timesheets and banking data flow into Creator, where separate modules calculate sales and presales commissions from payment status, profitability and commission rules, adjust them by KPI performance, and track each commission's status, with dashboards and statement templates for both teams.",
+
+      stages: [
+        {
+          title: "Zoho Books data",
+          summary:
+            "The financial and operational data commissions depend on flows from Zoho Books into Zoho Creator automatically.",
+          flow: ["Sales order", "Invoice", "Payment", "Commission"],
+          capabilities: [
+            {
+              title: "Zoho Books integration",
+              description:
+                "Sales orders, invoices, timesheets, banking and other relevant Zoho Books modules are connected to Zoho Creator.",
+            },
+            {
+              title: "Automated data synchronisation",
+              description:
+                "Financial and operational data is brought into Creator automatically, reducing manual calculation and re-entry.",
+            },
+            {
+              title: "Payment tracking",
+              description:
+                "Payment information and payment dates are retrieved from Zoho Books to decide when a commission becomes eligible.",
+            },
+          ],
+        },
+        {
+          title: "Profitability and cost",
+          summary:
+            "Each invoice's revenue is set against its costs, so commission follows the real profit of the work.",
+          capabilities: [
+            {
+              title: "Project profitability",
+              description:
+                "Invoice amounts and the relevant cost data from Zoho Books are combined to calculate the profitability of each project.",
+            },
+            {
+              title: "Profit-based commission",
+              description:
+                "The calculated profitability feeds directly into how much commission is due.",
+            },
+          ],
+        },
+        {
+          title: "KPI performance",
+          summary:
+            "Commission is adjusted by how each salesperson performed against defined KPIs.",
+          capabilities: [
+            {
+              title: "KPI module",
+              description:
+                "Activities such as customer engagement, contacts acquired and opportunities created are defined with a weightage, frequency, criteria and target.",
+            },
+            {
+              title: "Quarterly revenue targets",
+              description:
+                "Each salesperson's quarterly revenue target is compared with the revenue achieved for the period.",
+            },
+            {
+              title: "KPI-based adjustments",
+              description:
+                "Commission amounts are adjusted according to KPI results and the defined business rules.",
+            },
+          ],
+          images: [
+            {
+              src: `${commissionImages}/sales-kpi.jpg`,
+              alt: "Sales KPI form in Zoho Creator with salesperson, quarter, revenue target and achieved fields, and a KPI table listing activities such as customer engagement and opportunity creation with their weightage, frequency, criteria and target",
+              width: 1600,
+              height: 663,
+              caption:
+                "Sales KPI setup, with each activity's weightage, frequency, criteria and target.",
+            },
+          ],
+        },
+        {
+          title: "Commission calculation",
+          summary:
+            "Separate modules calculate sales and presales commissions, each with its own rules.",
+          capabilities: [
+            {
+              title: "Sales commission",
+              description:
+                "Sales commission is calculated from sales orders, invoices, payment status, payment dates and the applicable commission rules.",
+            },
+            {
+              title: "Presales commission",
+              description:
+                "A separate presales module calculates commission per presales engineer for each quarter, by customer, invoice and actual profit.",
+            },
+            {
+              title: "Shared invoices",
+              description:
+                "Several presales employees can receive commission against the same invoice.",
+            },
+          ],
+          images: [
+            {
+              src: `${commissionImages}/presales-commission.jpg`,
+              alt: "Presales person commission calculation form in Zoho Creator with presales engineer, quarter, total commission and date range, and a commission details table by customer, invoice number, actual profit and invoice date",
+              width: 1600,
+              height: 602,
+              caption:
+                "Presales commission for an engineer and quarter, broken down by customer, invoice and actual profit.",
+            },
+          ],
+        },
+        {
+          title: "Status, dashboards and statements",
+          summary:
+            "Every commission's status is tracked, and both teams can see exactly how their commission was worked out.",
+          capabilities: [
+            {
+              title: "Commission status tracking",
+              description:
+                "Dedicated modules track the status of sales and presales commissions through to payment.",
+            },
+            {
+              title: "Commission dashboards",
+              description:
+                "Dashboards show total commissions, individual commission status, calculation summaries and detailed breakdowns.",
+            },
+            {
+              title: "Commission statements",
+              description:
+                "Separate templates for sales and presales teams show each calculation, its components and its payment status.",
+            },
+          ],
+        },
+      ],
+
+      stack: [
+        {
+          name: "Zoho Creator",
+          purpose:
+            "The commission application: KPI, sales and presales commission and status modules, dashboards and statement templates.",
+        },
+        {
+          name: "Zoho Books",
+          purpose:
+            "Source of sales orders, invoices, payments, timesheets, banking and cost data.",
+        },
+        {
+          name: "Deluge",
+          purpose: "Commission rules, calculations and workflow automation inside Creator.",
+        },
+        {
+          name: "Zoho API",
+          purpose: "Bringing Zoho Books data into Zoho Creator.",
+        },
+      ],
+
+      challenges: [
+        "Bringing sales orders, invoices, payments, timesheets and banking data together from Zoho Books",
+        "Splitting commission on one invoice between several presales employees",
+        "Basing commission on profitability, payment dates and KPI performance at the same time",
+        "Making each calculation transparent enough for employees to follow",
+      ],
+
+      results: [
+        "Sales and presales commissions calculated automatically from Zoho Books data",
+        "Multiple presales commission recipients supported on the same invoice",
+        "Commission eligibility tracked against real payment dates",
+        "KPI adjustments and profitability built into every calculation",
+        "Transparent dashboards and statements for sales and presales teams",
+      ],
+    },
+  },
   {
     slug: "codebeamer-docs-ai-dataset",
     title: "Codebeamer Documentation Scraping for AI-Ready Data",
